@@ -35,8 +35,12 @@ file_dir = '../data/coatingCharac/';
 %     t_0 = 5e-6;
     
     
-file_name = '181003/OPO600_AuNP[perspex]_AHD1@0nm_t0[-625]_dx[100µm]_dy[100µm]_dt[4ns]_04s37m14h_03-10-18_avg1_2D_raw.SGL';
-    t_0 = 2e-6;
+% file_name = '181003/OPO600_AuNP[perspex]_AHD1@0nm_t0[-625]_dx[100µm]_dy[100µm]_dt[4ns]_04s37m14h_03-10-18_avg1_2D_raw.SGL';
+%     t_0 = 2e-6;
+    
+file_name = '181012/AuNPfilm_AHD1@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_49s21m18h_12-10-18_avg1_2D_raw.SGL';
+file_name = '181012/AuNPfilm_flipped_AHD1@0nm_t0[60]_dx[100µm]_dy[100µm]_dt[4ns]_57s10m18h_12-10-18_avg1_2D_raw.SGL';
+    t_0 = 0;
 
 %% heatingEffects: pulse2pulse
 % heatingEffects_p2p(file_dir,file_name_p2p,dt_samples_p2p,num_samples_p2p)
@@ -45,13 +49,14 @@ file_name = '181003/OPO600_AuNP[perspex]_AHD1@0nm_t0[-625]_dx[100µm]_dy[100µm]_d
 % comparePreTuningMaps(file_dir,file_dir_cold,file_dir_heat)
 
 %% viewSGL: map laserGenUS in transmission  &  freqSpecSGL
-dataSGL = loadSGL( [file_dir file_name_laserGenUS] );
-slice_x = 62;
-slice_y = 62;
-viewSGL(-dataSGL(:,:,1:500),dx,dy,dt,t_0,slice_x,slice_y)
-t_min = 100;
-t_max = 300;
-freqSpecSGL(dataSGL,1/dt,slice_x,slice_y,t_min,t_max)
+[dataSGL, params] = loadSGL( [file_dir file_name] );
+slice_x = 50;
+slice_y = 50;
+viewSGL(dataSGL(:,:,850:1100),params,t_0,slice_x,slice_y)
+% t_min = 100;
+% t_max = 300;
+% freqSpecSGL(dataSGL,1/dt,slice_x,slice_y,t_min,t_max)
+[frequency, f_series_avg] = freqSpecSGLavg(dataSGL(45:55,45:55,850:1100),1/params.dt);
 
 %% get PMAX and TOA in 2d grid and vector
 [ PMAX_xy, TOA_xy ] = max(-dataSGL,[],3);
