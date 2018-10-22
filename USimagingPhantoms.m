@@ -565,7 +565,23 @@ file_dir = '..\data\imagingUS\';
 
 %% 181015 mouseKidneyInAgar BK31[CNT]
 
-file_name = '181015\mouseKidneyInAgar_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_19s18m18h_15-10-18_avg1_2D_raw.SGL';
+% file_name = '181015\mouseKidneyInAgar_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_19s18m18h_15-10-18_avg1_2D_raw.SGL';
+% c0 = 1500;
+% 
+% trigger_delay = 0;
+% 
+% dim = 3;
+% 
+% samples_cut_off = 50;
+% samples_t0_correct = -9;
+
+
+%% 181019 mouseKidneyInAgar2/3/_flipped BK31[CNT]
+
+file_name = '181019\mouseKidneyInAgar2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_56s50m17h_19-10-18_avg1_2D_raw.SGL';
+file_name = '181019\mouseKidneyInAgar2_flipped_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_49s33m18h_19-10-18_avg1_2D_raw.SGL';
+file_name = '181019\mouseKidneyInAgar3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_21s05m19h_19-10-18_avg1_2D_raw.SGL';
+file_name = '181019\mouseKidneyInAgar3_flipped_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_47s32m19h_19-10-18_avg1_2D_raw.SGL';
 c0 = 1500;
 
 trigger_delay = 0;
@@ -574,8 +590,6 @@ dim = 3;
 
 samples_cut_off = 50;
 samples_t0_correct = -9;
-
-
 
 
 
