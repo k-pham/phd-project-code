@@ -38,8 +38,10 @@ file_dir = '../data/coatingCharac/';
 % file_name = '181003/OPO600_AuNP[perspex]_AHD1@0nm_t0[-625]_dx[100µm]_dy[100µm]_dt[4ns]_04s37m14h_03-10-18_avg1_2D_raw.SGL';
 %     t_0 = 2e-6;
     
-file_name = '181012/AuNPfilm_AHD1@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_49s21m18h_12-10-18_avg1_2D_raw.SGL';
-file_name = '181012/AuNPfilm_flipped_AHD1@0nm_t0[60]_dx[100µm]_dy[100µm]_dt[4ns]_57s10m18h_12-10-18_avg1_2D_raw.SGL';
+% file_name = '181012/AuNPfilm_AHD1@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_49s21m18h_12-10-18_avg1_2D_raw.SGL';
+% file_name = '181012/AuNPfilm_flipped_AHD1@0nm_t0[60]_dx[100µm]_dy[100µm]_dt[4ns]_57s10m18h_12-10-18_avg1_2D_raw.SGL';
+file_name = '181023/OPO600_AuNP[unbacked]_AHD1_avg100@0nm_t0[0]_dx[0µm]_dy[100µm]_dt[4ns]_29s35m12h_23-10-18_avg100_1D_raw.SGL';
+file_name = '181023/OPO600_AuNP[unbacked]_flipped_AHD1_avg100@0nm_t0[0]_dx[0µm]_dy[100µm]_dt[4ns]_49s50m12h_23-10-18_avg100_1D_raw.SGL';
     t_0 = 0;
 
 %% heatingEffects: pulse2pulse
@@ -50,13 +52,15 @@ file_name = '181012/AuNPfilm_flipped_AHD1@0nm_t0[60]_dx[100µm]_dy[100µm]_dt[4ns]
 
 %% viewSGL: map laserGenUS in transmission  &  freqSpecSGL
 [dataSGL, params] = loadSGL( [file_dir file_name] );
-slice_x = 50;
-slice_y = 50;
-viewSGL(dataSGL(:,:,850:1100),params,t_0,slice_x,slice_y)
+% slice_x = 50;
+% slice_y = 50;
+% viewSGL(dataSGL,params,t_0,slice_x,slice_y)
+slice = 75;
+viewSGLline(dataSGL,params,t_0,slice)
 % t_min = 100;
 % t_max = 300;
 % freqSpecSGL(dataSGL,1/dt,slice_x,slice_y,t_min,t_max)
-[frequency, f_series_avg] = freqSpecSGLavg(dataSGL(45:55,45:55,850:1100),1/params.dt);
+% [frequency, f_series_avg] = freqSpecSGLavg(dataSGL(45:55,45:55,850:1100),1/params.dt);
 
 %% get PMAX and TOA in 2d grid and vector
 [ PMAX_xy, TOA_xy ] = max(-dataSGL,[],3);
