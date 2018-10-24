@@ -19,8 +19,9 @@ function viewSGLline(dataSGL,params,t_0,slice)
         positionString = ['x = ',num2str(kgrid.x_vec(slice)*1e3),' mm'];
     end
     
-    figure('pos',[80 50 600 800])
-    
+%     figure('pos',[80 50 600 800])
+    figure(1)
+
     % plot whole slice
     subplot(2,1,1)
     %data_V = dataSGL / 0.033 * 81.2 *1e-3 ;        % V-pressure conversion
@@ -37,5 +38,6 @@ function viewSGLline(dataSGL,params,t_0,slice)
         title(['time series at ',positionString])
         xlabel('time / \mu s')
         ylabel('signal amplitude / V')
+        ylim([-0.02,0.1])
 
 end
