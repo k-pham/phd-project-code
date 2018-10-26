@@ -11,10 +11,21 @@ if min(Nx,Ny) ~= 1
     error('Data not from a line scan.');
 end
 
-f_series_avg = zeros(1,Nt/2+1);
+% f_series_avg = zeros(1,Nt/2+1);
+
+% ---
+f_series_avg = zeros(1,21);
+% ---
 
 for slice = 1:max(Nx,Ny)
+    
     t_series = dataSGL(slice,:);
+        
+    % ---
+    [~ , maxIndex] = max(t_series);
+    t_series = t_series(:,maxIndex-20:maxIndex+20);
+    % ---
+    
     [frequency, f_series] = spect(t_series,freq_sampling); %,'Window','Cosine');
     f_series_avg = f_series_avg + f_series;
 
