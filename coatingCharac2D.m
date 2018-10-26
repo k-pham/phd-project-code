@@ -55,12 +55,14 @@ file_name = '181023/OPO600_AuNP[unbacked]_flipped_AHD1_avg100@0nm_t0[0]_dx[0µm]_
 % slice_x = 50;
 % slice_y = 50;
 % viewSGL(dataSGL,params,t_0,slice_x,slice_y)
-slice = 75;
-viewSGLline(dataSGL,params,t_0,slice)
+for slice = 1:150
+    viewSGLline(dataSGL,params,t_0,slice)
+%     pause
+end
 % t_min = 100;
 % t_max = 300;
 % freqSpecSGL(dataSGL,1/dt,slice_x,slice_y,t_min,t_max)
-% [frequency, f_series_avg] = freqSpecSGLavg(dataSGL(45:55,45:55,850:1100),1/params.dt);
+[frequency, f_series_avg] = freqSpecSGLavgLine(dataSGL(:,700:999),params);
 
 %% get PMAX and TOA in 2d grid and vector
 [ PMAX_xy, TOA_xy ] = max(-dataSGL,[],3);
