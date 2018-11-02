@@ -578,18 +578,49 @@ file_dir = '..\data\imagingUS\';
 
 %% 181019 mouseKidneyInAgar2/3/_flipped BK31[CNT]
 
-file_name = '181019\mouseKidneyInAgar2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_56s50m17h_19-10-18_avg1_2D_raw.SGL';
-file_name = '181019\mouseKidneyInAgar2_flipped_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_49s33m18h_19-10-18_avg1_2D_raw.SGL';
-file_name = '181019\mouseKidneyInAgar3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_21s05m19h_19-10-18_avg1_2D_raw.SGL';
-file_name = '181019\mouseKidneyInAgar3_flipped_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_47s32m19h_19-10-18_avg1_2D_raw.SGL';
-c0 = 1500;
+% file_name = '181019\mouseKidneyInAgar2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_56s50m17h_19-10-18_avg1_2D_raw.SGL';
+% file_name = '181019\mouseKidneyInAgar2_flipped_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_49s33m18h_19-10-18_avg1_2D_raw.SGL';
+% file_name = '181019\mouseKidneyInAgar3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_21s05m19h_19-10-18_avg1_2D_raw.SGL';
+% file_name = '181019\mouseKidneyInAgar3_flipped_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_47s32m19h_19-10-18_avg1_2D_raw.SGL';
+% c0 = 1500;
+% 
+% trigger_delay = 0;
+% 
+% dim = 3;
+% 
+% samples_cut_off = 50;
+% samples_t0_correct = -9;
+
+
+%% 181030 mouseKidneyInOptiLube BK31[CNT] - BAD IMAGE LOTS OF BUBBLES/HIGH INTENSITY NOISE
+
+% file_name = '181030\mouseKidneyInOptiLube_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_09s27m15h_30-10-18_avg1_2D_raw.SGL';
+% c0 = 1520;
+% 
+% trigger_delay = 0;
+% 
+% dim = 3;
+% 
+% samples_cut_off = 50;
+% samples_t0_correct = -9; % try -6 -> -9
+
+
+%% 181102 mouseKidneyInAgar #4 (flipped) BK31[CNT]
+
+% file_name = '181102\mouseKidneyInAgar4_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_25s45m17h_02-11-18_avg1_2D_raw.SGL';
+% file_name = '181102\mouseKidneyInAgar42_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_29s05m19h_02-11-18_avg1_2D_raw.SGL';
+file_name = '181102\mouseKidneyInAgar42_BK31[CNT]_avg5@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_30s48m20h_02-11-18_avg5_2D_raw.SGL';
+c0 = 1520;
 
 trigger_delay = 0;
 
 dim = 3;
 
 samples_cut_off = 50;
-samples_t0_correct = -9;
+samples_t0_correct = -9; % try -6 -> -9
+
+
+
 
 
 
