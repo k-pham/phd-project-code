@@ -620,7 +620,7 @@ file_dir = '..\data\imagingUS\';
 % samples_t0_correct = -9; % try -6 -> -9
 
 
-%% 181119 mouseKidneyInAgar #4 (flipped) BK31[CNT]
+%% 181119 polymerLeaf (curved, flipped) BK31[CNT]
 
 file_name = '181119\polymerLeaf_flipped_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_28s20m12h_19-11-18_avg1_2D_raw.SGL';
 c0 = 1484;
