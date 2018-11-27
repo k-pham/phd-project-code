@@ -26,8 +26,11 @@ t_array = linspace(1,samples_total,samples_total)*dt;
 
 %% image reconstruction
 
-% remove the source from the time series // add zero padding for delay
-sensor_data = cat(3, zeros(Nx,Ny,int32(samples_delay)), zeros(Nx,Ny,samples_cut_off), sensor_data(:,:,samples_cut_off+1:end) );
+% remove the source from the time series
+sensor_data = cat(3, zeros(Nx,Ny,samples_cut_off), sensor_data(:,:,samples_cut_off+1:end) );
+
+% add zero padding for delay
+sensor_data = cat(3, zeros(Nx,Ny,int32(samples_delay)), sensor_data );
 
 % add/remove samples from sensor_data for t0 correction
 if samples_t0_correct > 0
@@ -74,15 +77,14 @@ sensor_data_apodised = permute(sensor_data_apodised,[3 1 2]);       % reorder p_
 reflection_image = kspacePlaneRecon_US(sensor_data_apodised, dx, dy, dt, c0);   % output as p_zxy
 reflection_image = permute(reflection_image,[2 3 1]);               % reorder p_zxy to p_xyz
 
-% time gain compensation
+% % time gain compensation
 % tgc_exponent = 0.3;
 % % tgc = exp(tgc_exponent * t_array * c0); % exponential
 % tgc = tgc_exponent * t_array * c0; % linear
 % tgc = reshape(tgc, 1, 1, length(tgc));
 % reflection_image = bsxfun(@times, tgc, reflection_image);
 
-% positivity constraint (remove all negative intensities in image, e.g.
-% back of sensor) - DOESN'T WORK SO WELL
+% % positivity constraint (remove all negative intensities in image, e.g. back of sensor) - DOESN'T WORK SO WELL
 % reflection_image(reflection_image<0) = 0;
 
 % envelope detection per slice
