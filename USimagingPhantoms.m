@@ -622,15 +622,36 @@ file_dir = '..\data\imagingUS\';
 
 %% 181119 polymerLeaf (curved, flipped) BK31[CNT]
 
-file_name = '181119\polymerLeaf_flipped_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_28s20m12h_19-11-18_avg1_2D_raw.SGL';
-c0 = 1484;
+% file_name = '181119\polymerLeaf_flipped_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_28s20m12h_19-11-18_avg1_2D_raw.SGL';
+% c0 = 1484;
+% 
+% trigger_delay = 0;
+% 
+% dim = 3;
+% 
+% samples_cut_off = 50;
+% samples_t0_correct = -9;
 
-trigger_delay = 0;
 
-dim = 3;
+%% 181119 hair - multiple times for averaging (SNR increased ?) BK31[CNT]
 
-samples_cut_off = 50;
-samples_t0_correct = -9;
+% file_name = '181119\hair_BK31[CNT]_1@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_14s28m16h_19-11-18_avg1_2D_raw.SGL';
+% file_name = '181119\hair_BK31[CNT]_2@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_46s42m16h_19-11-18_avg1_2D_raw.SGL';
+% file_name = '181119\hair_BK31[CNT]_3@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_36s53m16h_19-11-18_avg1_2D_raw.SGL';
+% file_name = '181119\hair_BK31[CNT]_4@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_50s03m17h_19-11-18_avg1_2D_raw.SGL';
+% file_name = '181119\hair_BK31[CNT]_5@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_07s14m17h_19-11-18_avg1_2D_raw.SGL';
+% file_name = '181119\hair_BK31[CNT]_6@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_17s24m17h_19-11-18_avg1_2D_raw.SGL';
+% c0 = 1484;
+% 
+% trigger_delay = 0;
+% 
+% dim = 3;
+% 
+% samples_cut_off = 50;
+% samples_t0_correct = -9;
+
+
+
 
 
 
