@@ -33,7 +33,7 @@ display(['Viewing: ' file_name])
 % sensor_data = squeeze(sensor_data(:,47,:));
 
 figure
-set(gcf,'Position',[100,500,800,450])
+set(gcf,'Position',[100,150,600,800])
 switch dim
     case 2
         imagesc(sensor_data')
