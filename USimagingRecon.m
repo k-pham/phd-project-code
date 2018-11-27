@@ -76,7 +76,7 @@ elseif dim == 3
 end
 
 phantom_id = strtok(file_name,'@'); % parse string up to specified delimiter
-phantom_id = phantom_id(8:end);     % remove date folder from string
+phantom_id = phantom_id(27:end);     % remove date folder from string
 save(['recon_data\' phantom_id '.mat'],'volume_data','volume_spacing','-v7.3')
 
 sliceViewer
