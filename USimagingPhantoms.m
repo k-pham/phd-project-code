@@ -653,20 +653,31 @@ file_dir = '..\data\imagingUS\';
 
 %% 181126 hair bundle - multi/16-beam by Trung BF26(?)[CNT] - 850 nm 100 Hz OPO
 
-file_name = '/181126 (Trung multi-beam)/Full_scan1_hair1@850nm_t0[0]_dx[106µm]_dy[106µm]_dt[17ns]_59s15m15h_26-11-18_avg1_2D_raw.SGL';
-% file_name = '/181126 (Trung multi-beam)/Full_scan1_hair2@850nm_t0[0]_dx[106µm]_dy[106µm]_dt[17ns]_38s00m16h_26-11-18_avg1_2D_raw.SGL';
+% file_name = '/181126 (Trung multi-beam)/Full_scan1_hair1@850nm_t0[0]_dx[106µm]_dy[106µm]_dt[17ns]_59s15m15h_26-11-18_avg1_2D_raw.SGL';
+% % file_name = '/181126 (Trung multi-beam)/Full_scan1_hair2@850nm_t0[0]_dx[106µm]_dy[106µm]_dt[17ns]_38s00m16h_26-11-18_avg1_2D_raw.SGL';
+% 
+% c0 = 1484;
+% 
+% trigger_delay = 0;
+% 
+% dim = 3;
+% 
+% samples_cut_off = 50;
+% samples_t0_correct = -15;
 
-c0 = 1484;
+
+%% 181128 lymph node 1 - BK31[CNT]
+
+file_name = '181128/lymphNode1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_00s13m14h_28-11-18_avg1_2D_raw.SGL';
+
+c0 = 1520;
 
 trigger_delay = 0;
 
 dim = 3;
 
 samples_cut_off = 50;
-samples_t0_correct = -15;
-
-
-
+samples_t0_correct = -6;
 
 
 
