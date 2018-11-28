@@ -48,23 +48,23 @@ Nx = Nx + 2*pads;
 Ny = Ny + 2*pads;
 kgrid = kWaveGrid(Nx, dx, Ny, dy);
 
-% upsample along space (x and y)
-sensor_data_upsampled = zeros( 2*Nx , 2*Ny, samples_total );
-for i = 1:Nx
-    for j = 1:Ny
-        sensor_data_upsampled(2*i-1,2*j-1,:) = sensor_data(i,j,:);
-        sensor_data_upsampled(2*i-1,2*j  ,:) = sensor_data(i,j,:);
-        sensor_data_upsampled(2*i  ,2*j-1,:) = sensor_data(i,j,:);
-        sensor_data_upsampled(2*i  ,2*j  ,:) = sensor_data(i,j,:);
-    end
-end
-sensor_data = sensor_data_upsampled;
-clear sensor_data_upsampled
-dx = dx/2;
-dy = dy/2;
-Nx = 2*Nx;
-Ny = 2*Ny;
-kgrid = kWaveGrid(Nx, dx, Ny, dy);
+% % upsample along space (x and y)
+% sensor_data_upsampled = zeros( 2*Nx , 2*Ny, samples_total );
+% for i = 1:Nx
+%     for j = 1:Ny
+%         sensor_data_upsampled(2*i-1,2*j-1,:) = sensor_data(i,j,:);
+%         sensor_data_upsampled(2*i-1,2*j  ,:) = sensor_data(i,j,:);
+%         sensor_data_upsampled(2*i  ,2*j-1,:) = sensor_data(i,j,:);
+%         sensor_data_upsampled(2*i  ,2*j  ,:) = sensor_data(i,j,:);
+%     end
+% end
+% sensor_data = sensor_data_upsampled;
+% clear sensor_data_upsampled
+% dx = dx/2;
+% dy = dy/2;
+% Nx = 2*Nx;
+% Ny = 2*Ny;
+% kgrid = kWaveGrid(Nx, dx, Ny, dy);
 
 % window the data (apodising to remove artefacts due to edge of sensor)
 win = getWin([Nx Ny], 'Cosine');
