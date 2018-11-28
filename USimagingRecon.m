@@ -27,7 +27,7 @@ run('USimagingPhantoms.m')
 display(['Viewing: ' file_name])
 
 [sensor_data, params] = loadSGL([file_dir file_name]);
-% sensor_data = sensor_data(:,:,1:1000);
+sensor_data = sensor_data(:,:,1:1400);
 
 % dim = 2;
 % sensor_data = squeeze(sensor_data(:,47,:));
@@ -76,7 +76,7 @@ elseif dim == 3
 end
 
 phantom_id = strtok(file_name,'@'); % parse string up to specified delimiter
-phantom_id = phantom_id(27:end);     % remove date folder from string
+phantom_id = phantom_id(8:end);     % remove date folder from string
 save(['recon_data\' phantom_id '.mat'],'volume_data','volume_spacing','-v7.3')
 
 sliceViewer
