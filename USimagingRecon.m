@@ -27,7 +27,7 @@ run('USimagingPhantoms.m')
 display(['Viewing: ' file_name])
 
 [sensor_data, params] = loadSGL([file_dir file_name]);
-sensor_data = sensor_data(:,:,1:1400);
+% sensor_data = sensor_data(:,:,1:1400);
 
 % dim = 2;
 % sensor_data = squeeze(sensor_data(:,47,:));
