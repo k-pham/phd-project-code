@@ -668,9 +668,23 @@ file_dir = '..\data\imagingUS\';
 
 %% 181128 lymph node 1 - BK31[CNT]
 
-file_name = '181128/lymphNode1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_00s13m14h_28-11-18_avg1_2D_raw.SGL';
+% file_name = '181128/lymphNode1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_00s13m14h_28-11-18_avg1_2D_raw.SGL';
+% 
+% c0 = 1520;
+% 
+% trigger_delay = 0;
+% 
+% dim = 3;
+% 
+% samples_cut_off = 50;
+% samples_t0_correct = -6;
 
-c0 = 1520;
+
+%% 181204 agar-based tissue mimicking phantom (atmm) with orgasol - BK31[CNT]
+
+file_name = '181204/atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
+
+c0 = 1544;
 
 trigger_delay = 0;
 
@@ -678,10 +692,6 @@ dim = 3;
 
 samples_cut_off = 50;
 samples_t0_correct = -6;
-
-
-
-
 
 
 
