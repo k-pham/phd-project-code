@@ -67,10 +67,10 @@ kgrid = kWaveGrid(Nx, dx, Ny, dy);
 % kgrid = kWaveGrid(Nx, dx, Ny, dy);
 
 % window the data (apodising to remove artefacts due to edge of sensor)
-win = getWin([Nx Ny], 'Cosine');
-win = win + 0.5;
-sensor_data_apodised = bsxfun(@times, win, sensor_data);
-% sensor_data_apodised = sensor_data;
+% win = getWin([Nx Ny], 'Cosine');
+% win = win + 0.5;
+% sensor_data_apodised = bsxfun(@times, win, sensor_data);
+sensor_data_apodised = sensor_data;
 
 % reconstruct an image using a k-space method
 sensor_data_apodised = permute(sensor_data_apodised,[3 1 2]);       % reorder p_xyt to p_txy
