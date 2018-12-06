@@ -83,14 +83,15 @@ if toUpsample
 end
 
 % window the data (apodising to remove artefacts due to edge of sensor)
-% win = getWin([Nx Ny], 'Cosine');
-% win = win + 0.5;
-% sensor_data_apodised = bsxfun(@times, win, sensor_data);
-sensor_data_apodised = sensor_data;
+if toApodise
+    win = getWin([Nx Ny], 'Cosine');
+    win = win + 0.5;
+    sensor_data = bsxfun(@times, win, sensor_data);
+end
 
 % reconstruct an image using a k-space method
-sensor_data_apodised = permute(sensor_data_apodised,[3 1 2]);       % reorder p_xyt to p_txy
-reflection_image = kspacePlaneRecon_US(sensor_data_apodised, dx, dy, dt, c0);   % output as p_zxy
+sensor_data = permute(sensor_data,[3 1 2]);       % reorder p_xyt to p_txy
+reflection_image = kspacePlaneRecon_US(sensor_data, dx, dy, dt, c0);   % output as p_zxy
 reflection_image = permute(reflection_image,[2 3 1]);               % reorder p_zxy to p_xyz
 
 % % time gain compensation
