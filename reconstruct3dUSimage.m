@@ -2,7 +2,7 @@ function [reflection_image, t_array, kgrid] = ...
     reconstruct3dUSimage(sensor_data, params, c0, varargin)
 
 % set usage defaults
-num_req_input_variables = 6;
+num_req_input_variables = 3;
 zero_pad_sides = 0;
 toUpsample = false;
 toApodise = false;
