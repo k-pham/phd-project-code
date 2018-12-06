@@ -49,14 +49,9 @@ kgrid = kWaveGrid(Nx, dx, Ny, dy);
 % scope parameters to make time array
 Nt = params.Nt;                         % number of samples in acquisition - alternatively: size(sensor_data,3)
 dt = params.dt;                         % dt between samples [s]
-%trigger_delay = 8e-6;                  % delay of acquisition post-trigger [s]
 Nt_delay = trigger_delay / dt;          % number of samples to delay OR READ OUT FROM FILE NAME - HOW?
-%samples_t0_correct = 0;                % number of samples to add to correct for t0
 Nt = Nt_delay + Nt + Nt_t0_correct;
 t_array = linspace(1,Nt,Nt)*dt;
-
-% medium parameters
-%c0 = 1467;                          % sound speed [m/s]
 
 
 %% image reconstruction
