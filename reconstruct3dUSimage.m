@@ -73,13 +73,15 @@ elseif samples_t0_correct < 0
 end
 
 % zero pad the sides
-pads = 10;
-sensor_data_padded = zeros(Nx+2*pads, Ny+2*pads, samples_total);
-sensor_data_padded(pads+1:Nx+pads, pads+1:Ny+pads, :) = sensor_data;
-sensor_data = sensor_data_padded;
-Nx = Nx + 2*pads;
-Ny = Ny + 2*pads;
-kgrid = kWaveGrid(Nx, dx, Ny, dy);
+if zero_pad_sides
+    pads = zero_pad_sides;
+    sensor_data_padded = zeros(Nx+2*pads, Ny+2*pads, samples_total);
+    sensor_data_padded(pads+1:Nx+pads, pads+1:Ny+pads, :) = sensor_data;
+    sensor_data = sensor_data_padded;
+    Nx = Nx + 2*pads;
+    Ny = Ny + 2*pads;
+    kgrid = kWaveGrid(Nx, dx, Ny, dy);
+end
 
 % % upsample along space (x and y)
 % sensor_data_upsampled = zeros( 2*Nx , 2*Ny, samples_total );
