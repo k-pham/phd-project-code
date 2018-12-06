@@ -1,5 +1,5 @@
 function [reflection_image, t_array, kgrid] = ...
-    reconstruct3dUSimage(sensor_data, params, trigger_delay, Nt_zero_pad_source, Nt_t0_correct, c0, varargin)
+    reconstruct3dUSimage(sensor_data, params, c0, varargin)
 
 % set usage defaults
 num_req_input_variables = 6;
@@ -49,24 +49,24 @@ kgrid = kWaveGrid(Nx, dx, Ny, dy);
 % scope parameters to make time array
 Nt = params.Nt;                         % number of samples in acquisition - alternatively: size(sensor_data,3)
 dt = params.dt;                         % dt between samples [s]
-Nt_delay = trigger_delay / dt;          % number of samples to delay OR READ OUT FROM FILE NAME - HOW?
-Nt = Nt_delay + Nt + Nt_t0_correct;
+Nt_delay = params.trigger_delay / dt;   % number of samples to delay OR READ OUT FROM FILE NAME - HOW?
+Nt = Nt_delay + Nt + params.Nt_t0_correct;
 t_array = linspace(1,Nt,Nt)*dt;
 
 
 %% image reconstruction
 
 % remove the source from the time series
-sensor_data = cat(3, zeros(Nx,Ny,Nt_zero_pad_source), sensor_data(:,:,Nt_zero_pad_source+1:end) );
+sensor_data = cat(3, zeros(Nx,Ny,params.Nt_zero_pad_source), sensor_data(:,:,params.Nt_zero_pad_source+1:end) );
 
 % add zero padding for delay
 sensor_data = cat(3, zeros(Nx,Ny,int32(Nt_delay)), sensor_data );
 
 % add/remove samples from sensor_data for t0 correction
-if Nt_t0_correct > 0
-    sensor_data = cat(3, zeros(Nx,Ny,int32(Nt_t0_correct)), sensor_data );
-elseif Nt_t0_correct < 0
-    sensor_data = sensor_data(:,:,-Nt_t0_correct+1:end);
+if params.Nt_t0_correct > 0
+    sensor_data = cat(3, zeros(Nx,Ny,int32(params.Nt_t0_correct)), sensor_data );
+elseif params.Nt_t0_correct < 0
+    sensor_data = sensor_data(:,:,-params.Nt_t0_correct+1:end);
 end
 
 % zero pad the sides
