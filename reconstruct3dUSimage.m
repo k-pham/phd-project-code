@@ -113,10 +113,12 @@ if toEnvelopeDetect
     end
 end
 
-% % log compression
-% compression_ratio = 3;
-% reflection_image = logCompression(reflection_image, compression_ratio, true);
-
+% log compression
+if toLogCompress
+    compression_ratio = 3;
+    reflection_image = logCompression(reflection_image, compression_ratio, true);
+end
+ 
 end
 
 
