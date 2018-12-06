@@ -74,13 +74,7 @@ end
 
 % zero pad the sides
 if zero_pad_sides
-    pads = zero_pad_sides;
-    sensor_data_padded = zeros(Nx+2*pads, Ny+2*pads, samples_total);
-    sensor_data_padded(pads+1:Nx+pads, pads+1:Ny+pads, :) = sensor_data;
-    sensor_data = sensor_data_padded;
-    Nx = Nx + 2*pads;
-    Ny = Ny + 2*pads;
-    kgrid = kWaveGrid(Nx, dx, Ny, dy);
+    sensor_data = zero_padding_sides(sensor_data,zero_pad_sides);
 end
 
 % upsample along space (x and y)
@@ -133,6 +127,17 @@ end
 % compression_ratio = 3;
 % reflection_image = logCompression(reflection_image, compression_ratio, true);
 
+end
+
+
+function sensor_data_padded = zero_padding_sides(sensor_data, pads)
+
+    sensor_data_padded = zeros(Nx+2*pads, Ny+2*pads, samples_total);
+    sensor_data_padded(pads+1:Nx+pads, pads+1:Ny+pads, :) = sensor_data;
+    Nx = Nx + 2*pads;
+    Ny = Ny + 2*pads;
+    kgrid = kWaveGrid(Nx, dx, Ny, dy);
+    
 end
 
 
