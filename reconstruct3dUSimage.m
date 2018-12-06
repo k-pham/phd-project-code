@@ -74,7 +74,7 @@ end
 
 % zero pad the sides
 if zero_pad_sides
-    sensor_data = zero_padding_sides(sensor_data, Nx, Ny, zero_pad_sides);
+    sensor_data = zero_padding_sides(sensor_data, Nx, Ny, dx, dy, samples_total, zero_pad_sides);
 end
 
 % upsample along space (x and y)
@@ -122,7 +122,7 @@ end
 end
 
 
-function sensor_data_padded = zero_padding_sides(sensor_data, Nx, Ny, pads)
+function sensor_data_padded = zero_padding_sides(sensor_data, Nx, Ny, dx, dy, samples_total, pads)
 
     sensor_data_padded = zeros(Nx+2*pads, Ny+2*pads, samples_total);
     sensor_data_padded(pads+1:Nx+pads, pads+1:Ny+pads, :) = sensor_data;
