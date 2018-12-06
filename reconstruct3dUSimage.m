@@ -94,12 +94,14 @@ sensor_data = permute(sensor_data,[3 1 2]);       % reorder p_xyt to p_txy
 reflection_image = kspacePlaneRecon_US(sensor_data, dx, dy, dt, c0);   % output as p_zxy
 reflection_image = permute(reflection_image,[2 3 1]);               % reorder p_zxy to p_xyz
 
-% % time gain compensation
-% tgc_exponent = 0.3;
-% % tgc = exp(tgc_exponent * t_array * c0); % exponential
-% tgc = tgc_exponent * t_array * c0; % linear
-% tgc = reshape(tgc, 1, 1, length(tgc));
-% reflection_image = bsxfun(@times, tgc, reflection_image);
+% time gain compensation
+if toTimeGainCompensate
+    tgc_exponent = 0.3;
+    % tgc = exp(tgc_exponent * t_array * c0); % exponential
+    tgc = tgc_exponent * t_array * c0; % linear
+    tgc = reshape(tgc, 1, 1, length(tgc));
+    reflection_image = bsxfun(@times, tgc, reflection_image);
+end
 
 % % positivity constraint (remove all negative intensities in image, e.g. back of sensor) - DOESN'T WORK SO WELL
 % reflection_image(reflection_image<0) = 0;
