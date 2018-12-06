@@ -74,27 +74,12 @@ end
 
 % zero pad the sides
 if zero_pad_sides
-    sensor_data = zero_padding_sides(sensor_data,zero_pad_sides);
+    sensor_data = zero_padding_sides(sensor_data, Nx, Ny, zero_pad_sides);
 end
 
 % upsample along space (x and y)
 if toUpsample
-    sensor_data_upsampled = zeros( 2*Nx , 2*Ny, samples_total );
-    for i = 1:Nx
-        for j = 1:Ny
-            sensor_data_upsampled(2*i-1,2*j-1,:) = sensor_data(i,j,:);
-            sensor_data_upsampled(2*i-1,2*j  ,:) = sensor_data(i,j,:);
-            sensor_data_upsampled(2*i  ,2*j-1,:) = sensor_data(i,j,:);
-            sensor_data_upsampled(2*i  ,2*j  ,:) = sensor_data(i,j,:);
-        end
-    end
-    sensor_data = sensor_data_upsampled;
-    clear sensor_data_upsampled
-    dx = dx/2;
-    dy = dy/2;
-    Nx = 2*Nx;
-    Ny = 2*Ny;
-    kgrid = kWaveGrid(Nx, dx, Ny, dy);
+    sensor_data = upsampling_data_x2(sensor_data,Nx,Ny,dx,dy);
 end
 
 % window the data (apodising to remove artefacts due to edge of sensor)
@@ -130,7 +115,7 @@ end
 end
 
 
-function sensor_data_padded = zero_padding_sides(sensor_data, pads)
+function sensor_data_padded = zero_padding_sides(sensor_data, Nx, Ny, pads)
 
     sensor_data_padded = zeros(Nx+2*pads, Ny+2*pads, samples_total);
     sensor_data_padded(pads+1:Nx+pads, pads+1:Ny+pads, :) = sensor_data;
@@ -138,6 +123,25 @@ function sensor_data_padded = zero_padding_sides(sensor_data, pads)
     Ny = Ny + 2*pads;
     kgrid = kWaveGrid(Nx, dx, Ny, dy);
     
+end
+
+function sensor_data_upsampled = upsampling_data_x2(sensor_data,Nx,Ny,dx,dy)
+
+    sensor_data_upsampled = zeros( 2*Nx , 2*Ny, samples_total );
+    for i = 1:Nx
+        for j = 1:Ny
+            sensor_data_upsampled(2*i-1,2*j-1,:) = sensor_data(i,j,:);
+            sensor_data_upsampled(2*i-1,2*j  ,:) = sensor_data(i,j,:);
+            sensor_data_upsampled(2*i  ,2*j-1,:) = sensor_data(i,j,:);
+            sensor_data_upsampled(2*i  ,2*j  ,:) = sensor_data(i,j,:);
+        end
+    end
+    dx = dx/2;
+    dy = dy/2;
+    Nx = 2*Nx;
+    Ny = 2*Ny;
+    kgrid = kWaveGrid(Nx, dx, Ny, dy);
+
 end
 
 
