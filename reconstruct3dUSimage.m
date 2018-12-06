@@ -1,5 +1,5 @@
-function [reflection_image, samples_total, t_array, kgrid] = ...
-    reconstruct3dUSimage(sensor_data, params, trigger_delay, samples_cut_off, samples_t0_correct, c0, varargin)
+function [reflection_image, t_array, kgrid] = ...
+    reconstruct3dUSimage(sensor_data, params, trigger_delay, Nt_zero_pad_source, Nt_t0_correct, c0, varargin)
 
 % set usage defaults
 num_req_input_variables = 6;
@@ -37,6 +37,8 @@ end
 
 %% define parameters
 
+global Nx Ny Nt dx dy dt
+
 % create the computational grid
 Nx = params.Nx;                      % number of grid points in the x (row) direction
 Ny = params.Ny;                      % number of grid points in the y (column) direction
@@ -45,13 +47,13 @@ dy = params.dy;                      % grid point spacing in the y direction [m]
 kgrid = kWaveGrid(Nx, dx, Ny, dy);
 
 % scope parameters to make time array
+Nt = params.Nt;                         % number of samples in acquisition - alternatively: size(sensor_data,3)
 dt = params.dt;                         % dt between samples [s]
 %trigger_delay = 8e-6;                  % delay of acquisition post-trigger [s]
-samples_delay = trigger_delay / dt;     % number of samples to delay OR READ OUT FROM FILE NAME - HOW?
-samples_data = size(sensor_data,3);     % number of samples in acquisition
+Nt_delay = trigger_delay / dt;          % number of samples to delay OR READ OUT FROM FILE NAME - HOW?
 %samples_t0_correct = 0;                % number of samples to add to correct for t0
-samples_total = samples_delay + samples_data + samples_t0_correct;
-t_array = linspace(1,samples_total,samples_total)*dt;
+Nt = Nt_delay + Nt + Nt_t0_correct;
+t_array = linspace(1,Nt,Nt)*dt;
 
 % medium parameters
 %c0 = 1467;                          % sound speed [m/s]
@@ -60,21 +62,21 @@ t_array = linspace(1,samples_total,samples_total)*dt;
 %% image reconstruction
 
 % remove the source from the time series
-sensor_data = cat(3, zeros(Nx,Ny,samples_cut_off), sensor_data(:,:,samples_cut_off+1:end) );
+sensor_data = cat(3, zeros(Nx,Ny,Nt_zero_pad_source), sensor_data(:,:,Nt_zero_pad_source+1:end) );
 
 % add zero padding for delay
-sensor_data = cat(3, zeros(Nx,Ny,int32(samples_delay)), sensor_data );
+sensor_data = cat(3, zeros(Nx,Ny,int32(Nt_delay)), sensor_data );
 
 % add/remove samples from sensor_data for t0 correction
-if samples_t0_correct > 0
-    sensor_data = cat(3, zeros(Nx,Ny,int32(samples_t0_correct)), sensor_data );
-elseif samples_t0_correct < 0
-    sensor_data = sensor_data(:,:,-samples_t0_correct+1:end);
+if Nt_t0_correct > 0
+    sensor_data = cat(3, zeros(Nx,Ny,int32(Nt_t0_correct)), sensor_data );
+elseif Nt_t0_correct < 0
+    sensor_data = sensor_data(:,:,-Nt_t0_correct+1:end);
 end
 
 % zero pad the sides
 if zero_pad_sides
-    sensor_data = zero_padding_sides(sensor_data, Nx, Ny, dx, dy, samples_total, zero_pad_sides);
+    sensor_data = zero_padding_sides(sensor_data, Nx, Ny, dx, dy, Nt, zero_pad_sides);
 end
 
 % upsample along space (x and y)
