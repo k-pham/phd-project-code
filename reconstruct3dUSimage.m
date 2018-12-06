@@ -1,6 +1,39 @@
 function [reflection_image, samples_total, t_array, kgrid] = ...
-    reconstruct3dUSimage(sensor_data, params, trigger_delay, samples_cut_off, samples_t0_correct, c0)
+    reconstruct3dUSimage(sensor_data, params, trigger_delay, samples_cut_off, samples_t0_correct, c0, varargin)
 
+% set usage defaults
+num_req_input_variables = 6;
+zero_pad_sides = 0;
+toUpsample = false;
+toApodise = false;
+toTimeGainCompensate = false;
+toEnvelopeDetect = false;
+toLogCompress = false;
+
+
+% replace with user defined values if provided
+if nargin < num_req_input_variables
+    error('Incorrect number of inputs.');
+elseif ~isempty(varargin)
+    for input_index = 1:2:length(varargin)
+        switch varargin{input_index}
+            case 'ZeroPad'
+                zero_pad_sides = varargin{input_index + 1};
+            case 'Upsample'
+                toUpsample = varargin{input_index + 1};
+            case 'Apodise'
+                toApodise = varargin{input_index + 1};
+            case 'TimeGainCompensate'
+                toTimeGainCompensate = varargin{input_index + 1};
+            case 'EnvelopeDetect'
+                toEnvelopeDetect = varargin{input_index + 1};
+            case 'LogCompress'
+                toLogCompress = varargin{input_index + 1};
+            otherwise
+                error('Unknown optional input.');
+        end
+    end
+end
 
 %% define parameters
 
