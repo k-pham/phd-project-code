@@ -107,8 +107,10 @@ end
 % reflection_image(reflection_image<0) = 0;
 
 % envelope detection per slice
-for i = 1:Ny
-    reflection_image(:,i,:) = envelopeDetection(squeeze(reflection_image(:,i,:)));
+if toEnvelopeDetect
+    for i = 1:Ny
+        reflection_image(:,i,:) = envelopeDetection(squeeze(reflection_image(:,i,:)));
+    end
 end
 
 % % log compression
