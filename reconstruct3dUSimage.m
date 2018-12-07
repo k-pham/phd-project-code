@@ -84,9 +84,7 @@ end
 
 % apodising data (to remove edge wave artefacts)
 if toApodise
-    win = getWin([Nx Ny], 'Cosine');
-    win = win + 0.5;
-    sensor_data = bsxfun(@times, win, sensor_data);
+    sensor_data = apodising(sensor_data);
 end
 
 
@@ -190,6 +188,17 @@ function sensor_data_upsampled = upsampling_data_x2(sensor_data)
     Ny = 2*Ny;
     kgrid = kWaveGrid(Nx, dx, Ny, dy);
 
+end
+
+
+%% apodising data
+function sensor_data_apodised = apodising(sensor_data)
+
+    global Nx Ny
+    win = getWin([Nx Ny], 'Cosine');
+    win = win + 0.5;
+    sensor_data_apodised = bsxfun(@times, win, sensor_data);
+    
 end
 
 
