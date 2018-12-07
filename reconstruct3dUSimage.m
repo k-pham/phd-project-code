@@ -119,8 +119,9 @@ end
 function sensor_data_padded = zero_padding_source(sensor_data, pads)
 
     global Nx Ny
+    
     sensor_data_padded = cat(3, zeros(Nx,Ny,pads), sensor_data(:,:,pads+1:end) );
-    assert(size(sensor_data)==size(sensor_data_padded))
+    assert( size(sensor_data_padded) == size(sensor_data) )
 
 end
 
@@ -129,8 +130,10 @@ end
 function sensor_data_padded = zero_padding_delay(sensor_data, pads)
 
     global Nx Ny Nt
+    
     sensor_data_padded = cat(3, zeros(Nx,Ny,pads), sensor_data );
-    assert(size(sensor_data)+pads==size(sensor_data_padded))
+    assert( size(sensor_data_padded) == size(sensor_data)+[0,0,pads] )
+    
     Nt = Nt + pads;
 
 end
@@ -140,11 +143,14 @@ end
 function sensor_data_t0_corrected = correcting_t0(sensor_data, correction)
 
     global Nx Ny Nt
+    
     if correction > 0
         sensor_data_t0_corrected = cat(3, zeros(Nx,Ny,correction), sensor_data);
     elseif correction < 0
         sensor_data_t0_corrected = sensor_data(:,:,-correction+1:end);
     end
+	assert( size(sensor_data_t0_corrected) == size(sensor_data)+[0,0,correction] )
+    
     Nt = Nt + correction;
 
 end
@@ -157,6 +163,8 @@ function sensor_data_padded = zero_padding_sides(sensor_data, pads)
     
     sensor_data_padded = zeros(Nx+2*pads, Ny+2*pads, Nt);
     sensor_data_padded(pads+1:Nx+pads, pads+1:Ny+pads, :) = sensor_data;
+    assert( size(sensor_data_padded) == size(sensor_data)+[2*pads,2*pads,0] )
+    
     Nx = Nx + 2*pads;
     Ny = Ny + 2*pads;
     
@@ -166,9 +174,9 @@ end
 %% upsampling data *2
 function sensor_data_upsampled = upsampling_data_x2(sensor_data)
 
-    global Nx Ny dx dy
+    global Nx Ny Nt dx dy
 
-    sensor_data_upsampled = zeros( 2*Nx , 2*Ny, samples_total );
+    sensor_data_upsampled = zeros( 2*Nx , 2*Ny, Nt );
     for i = 1:Nx
         for j = 1:Ny
             sensor_data_upsampled(2*i-1,2*j-1,:) = sensor_data(i,j,:);
@@ -177,10 +185,12 @@ function sensor_data_upsampled = upsampling_data_x2(sensor_data)
             sensor_data_upsampled(2*i  ,2*j  ,:) = sensor_data(i,j,:);
         end
     end
+    assert( size(sensor_data_upsampled) ==  [2*Nx, 2*Ny, Nt] )
+    
+	Nx = 2*Nx;
+    Ny = 2*Ny;
     dx = dx/2;
     dy = dy/2;
-    Nx = 2*Nx;
-    Ny = 2*Ny;
 
 end
 
