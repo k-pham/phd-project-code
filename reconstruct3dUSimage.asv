@@ -75,12 +75,12 @@ end
 
 % zero pad the sides
 if zero_pad_sides
-    sensor_data = zero_padding_sides(sensor_data, zero_pad_sides);
+    sensor_data = zero_padding_sides(sensor_data, Nx, Ny, dx, dy, Nt, zero_pad_sides);
 end
 
 % upsample along space (x and y)
 if toUpsample
-    sensor_data = upsampling_data_x2(sensor_data);
+    sensor_data = upsampling_data_x2(sensor_data,Nx,Ny,dx,dy);
 end
 
 % apodising data (to remove edge wave artefacts)
@@ -126,11 +126,11 @@ end
 
 
 %%
-function sensor_data_padded = zero_padding_sides(sensor_data, pads)
+function sensor_data_padded = zero_padding_sides(sensor_data, samples_total, pads)
 
-    global Nx Ny Nt dx dy
+    global Nx Ny dx dy
     
-    sensor_data_padded = zeros(Nx+2*pads, Ny+2*pads, Nt);
+    sensor_data_padded = zeros(Nx+2*pads, Ny+2*pads, samples_total);
     sensor_data_padded(pads+1:Nx+pads, pads+1:Ny+pads, :) = sensor_data;
     Nx = Nx + 2*pads;
     Ny = Ny + 2*pads;
@@ -139,9 +139,7 @@ function sensor_data_padded = zero_padding_sides(sensor_data, pads)
 end
 
 %%
-function sensor_data_upsampled = upsampling_data_x2(sensor_data)
-
-    global Nx Ny dx dy
+function sensor_data_upsampled = upsampling_data_x2(sensor_data,Nx,Ny,dx,dy)
 
     sensor_data_upsampled = zeros( 2*Nx , 2*Ny, samples_total );
     for i = 1:Nx
