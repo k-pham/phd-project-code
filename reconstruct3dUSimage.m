@@ -59,19 +59,17 @@ t_array = linspace(1,Nt,Nt)*dt;
 
 % zero pad noise from the source in the time series
 if params.Nt_zero_pad_source
-    sensor_data = cat(3, zeros(Nx,Ny,params.Nt_zero_pad_source), sensor_data(:,:,params.Nt_zero_pad_source+1:end) );
+    sensor_data = zero_padding_source(sensor_data, params.Nt_zero_pad_source);
 end
 
 % add zero padding for delay
 if int32(Nt_delay)
-    sensor_data = cat(3, zeros(Nx,Ny,int32(Nt_delay)), sensor_data );
+    sensor_data = zero_padding_delay(sensor_data, int32(Nt_delay));
 end
 
 % add/remove samples from sensor_data for t0 correction
-if params.Nt_t0_correct > 0
-    sensor_data = cat(3, zeros(Nx,Ny,int32(params.Nt_t0_correct)), sensor_data );
-elseif params.Nt_t0_correct < 0
-    sensor_data = sensor_data(:,:,-params.Nt_t0_correct+1:end);
+if int32(params.Nt_t0_correct)
+    sensor_data = correcting_t0(sensor_data, int32(params.Nt_t0_correct));
 end
 
 % zero pad the sides
@@ -124,6 +122,36 @@ if toLogCompress
     compression_ratio = 3;
     reflection_image = logCompression(reflection_image, compression_ratio, true);
 end
+
+end
+
+
+%% zero padding source
+function sensor_data_padded = zero_padding_source(sensor_data, pads)
+
+    global Nx Ny
+    sensor_data_padded = cat(3, zeros(Nx,Ny,pads), sensor_data(:,:,pads+1:end) );
+
+end
+
+
+%% zero padding delay
+function sensor_data_padded = zero_padding_delay(sensor_data, pads)
+
+    global Nx Ny
+    sensor_data_padded = cat(3, zeros(Nx,Ny,pads), sensor_data );
+
+end
+
+
+%% correcting t0
+function sensor_data_t0_corrected = correcting_t0(sensor_data, correction)
+
+    if correction > 0
+        sensor_data_t0_corrected = cat(3, zeros(Nx,Ny,correction), sensor_data);
+    elseif correction < 0
+        sensor_data_t0_corrected = sensor_data(:,:,-correction+1:end);
+    end
 
 end
 
