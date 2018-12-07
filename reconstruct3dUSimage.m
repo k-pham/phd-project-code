@@ -7,7 +7,7 @@ num_req_input_variables = 3;
 zero_pad_sides = 0;
 toUpsample = false;
 toApodise = false;
-toTimeGainCompensate = false;
+tgc_params = false;
 toEnvelopeDetect = false;
 toLogCompress = false;
 
@@ -24,12 +24,13 @@ elseif ~isempty(varargin)
             case 'Apodise'
                 toApodise = varargin{input_index + 1};
             case 'TimeGainCompensate'
-                toTimeGainCompensate = varargin{input_index + 1};
-                assert(iscell(toTimeGainCompensate),'Need cell with {method, strength}.')
+                tgc_params = varargin{input_index + 1};
+                assert(iscell(tgc_params),'Need cell with {method, strength}.')
             case 'EnvelopeDetect'
                 toEnvelopeDetect = varargin{input_index + 1};
             case 'LogCompress'
                 toLogCompress = varargin{input_index + 1};
+                assert(isnumeric(toLogCompress),'Need number for compression ratio.')
             otherwise
                 error('Unknown optional input.');
         end
@@ -48,7 +49,7 @@ dx = params.dx;                      % grid point spacing in the x direction [m]
 dy = params.dy;                      % grid point spacing in the y direction [m]
 
 % scope parameters to make time array
-Nt = params.Nt;                         % number of samples in acquisition - alternatively: size(sensor_data,3)
+Nt = size(sensor_data,3);               % number of samples in acquisition - alternatively: params.Nt
 dt = params.dt;                         % dt between samples [s]
 Nt_delay = params.trigger_delay / dt;   % number of samples to delay OR READ OUT FROM FILE NAME - HOW?
 
@@ -61,12 +62,12 @@ if params.Nt_zero_pad_source
 end
 
 % add zero padding for delay
-if int32(Nt_delay)
-    sensor_data = zero_padding_delay(sensor_data, int32(Nt_delay));
+if Nt_delay ~= 0
+    sensor_data = zero_padding_delay(sensor_data, Nt_delay);
 end
 
 % add/remove samples from sensor_data for t0 correction
-if int32(params.Nt_t0_correct)
+if params.Nt_t0_correct
     sensor_data = correcting_t0(sensor_data, params.Nt_t0_correct);
 end
 
@@ -101,8 +102,8 @@ t_array = linspace(1,Nt,Nt)*dt;
 
 %% image processing steps
 
-if toTimeGainCompensate
-    reflection_image = time_gain_compensating(reflection_image, c0, toTimeGainCompensate);
+if ~isempty(tgc_params)
+    reflection_image = time_gain_compensating(reflection_image, c0, tgc_params);
 end
 
 if toEnvelopeDetect
@@ -110,7 +111,7 @@ if toEnvelopeDetect
 end
 
 if toLogCompress
-    reflection_image = log_compressing(reflection_image);
+    reflection_image = log_compressing(reflection_image, toLogCompress);
 end
 
 end
@@ -132,7 +133,7 @@ function sensor_data_padded = zero_padding_delay(sensor_data, pads)
 
     global Nx Ny Nt
     
-    sensor_data_padded = cat(3, zeros(Nx,Ny,pads), sensor_data );
+    sensor_data_padded = cat(3, zeros(Nx,Ny,int32(pads)), sensor_data );
     assert(isequal( size(sensor_data_padded), size(sensor_data)+[0,0,pads] ))
     
     Nt = Nt + pads;
@@ -210,14 +211,14 @@ end
 
 
 %% time gain compensation
-function reflection_image_tgc = time_gain_compensating(reflection_image, c0, params)
+function reflection_image_tgc = time_gain_compensating(reflection_image, c0, tgc_params)
 
     global t_array
     
     disp('Time gain compensating ...')
     tic
     
-    [method, strength] = params{:};
+    [method, strength] = tgc_params{:};
     
     switch method
         case 'Linear'
@@ -239,7 +240,7 @@ function reflection_image_env = envelope_detecting(reflection_image)
 
     global Ny
     
-    disp('Envelope detection ...')
+    disp('Envelope detecting ...')
     tic
     
     reflection_image_env = zeros(size(reflection_image));
@@ -254,13 +255,13 @@ end
 
 
 %% log compression
-function reflection_image_log = log_compressing(reflection_image)
+function reflection_image_log = log_compressing(reflection_image, compression_ratio)
 
     disp('Log Compressing ...')
     tic
     
-    compression_ratio = 3;
     reflection_image_log = logCompression(reflection_image, compression_ratio, true);
+    assert(isequal( size(reflection_image_log), size(reflection_image) ))
     
     disp(['  completed in ' scaleTime(toc)]);
 
