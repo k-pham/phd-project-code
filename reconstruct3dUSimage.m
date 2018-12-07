@@ -7,9 +7,9 @@ num_req_input_variables = 3;
 zero_pad_sides = 0;
 toUpsample = false;
 toApodise = false;
-tgc_params = false;
+tgc_params = {};
 toEnvelopeDetect = false;
-toLogCompress = false;
+toLogCompress = 0;
 
 % replace with user defined values if provided
 if nargin < num_req_input_variables
@@ -56,7 +56,7 @@ Nt_delay = params.trigger_delay / dt;   % number of samples to delay OR READ OUT
 
 %% prepare data for reconstruction
 
-% zero pad noise from the source in the time series
+% zero pad source noise in the time series
 if params.Nt_zero_pad_source
     sensor_data = zero_padding_source(sensor_data, params.Nt_zero_pad_source);
 end
@@ -219,7 +219,6 @@ function reflection_image_tgc = time_gain_compensating(reflection_image, c0, tgc
     tic
     
     [method, strength] = tgc_params{:};
-    
     switch method
         case 'Linear'
             tgc = strength * t_array * c0;
