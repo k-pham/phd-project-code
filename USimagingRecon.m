@@ -61,19 +61,20 @@ if dim == 2
     [reflection_image, samples_total, t_array, kgrid] = ...
                 reconstruct2dUSimage(sensor_data, params, trigger_delay, samples_cut_off, samples_t0_correct, c0);
 elseif dim == 3
-    [reflection_image, t_array, kgrid] = ...
-                reconstruct3dUSimage(sensor_data, params, c0, 'ZeroPad', 10);
+    [reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, 'ZeroPad', 10, 'EnvelopeDetect', true);
 end
 
 
 %% save volume data for sliceViewer
 
+global Nx Ny kgrid t_array
+
 if dim == 2
-    [Nx, Nz] = size(reflection_image);
+    [Nz] = size(reflection_image,2);
     volume_data = reshape(reflection_image,Nx,1,Nz);
     volume_spacing = [kgrid.dx, kgrid.dx, params.dt*c0];
 elseif dim == 3
-    [Nx, Ny, Nz] = size(reflection_image);
+    [Nz] = size(reflection_image,3);
     volume_data = reshape(reflection_image,Nx,Ny,Nz);
     volume_spacing = [kgrid.dx, kgrid.dy, params.dt*c0];
 end

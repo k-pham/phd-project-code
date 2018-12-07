@@ -1,5 +1,6 @@
-function [reflection_image, t_array, kgrid] = ...
-    reconstruct3dUSimage(sensor_data, params, c0, varargin)
+function [reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, varargin)
+
+%% read from varargin
 
 % set usage defaults
 num_req_input_variables = 3;
@@ -9,7 +10,6 @@ toApodise = false;
 toTimeGainCompensate = false;
 toEnvelopeDetect = false;
 toLogCompress = false;
-
 
 % replace with user defined values if provided
 if nargin < num_req_input_variables
@@ -35,9 +35,10 @@ elseif ~isempty(varargin)
     end
 end
 
-%% define parameters
 
-global Nx Ny Nt dx dy dt
+%% assign parameters from params to use in script and globally
+
+global Nx Ny Nt dx dy dt kgrid t_array
 
 % create the computational grid
 Nx = params.Nx;                      % number of grid points in the x (row) direction
@@ -125,10 +126,10 @@ end
 end
 
 
-%%
+%% zero padding sides
 function sensor_data_padded = zero_padding_sides(sensor_data, pads)
 
-    global Nx Ny Nt dx dy
+    global Nx Ny Nt dx dy kgrid
     
     sensor_data_padded = zeros(Nx+2*pads, Ny+2*pads, Nt);
     sensor_data_padded(pads+1:Nx+pads, pads+1:Ny+pads, :) = sensor_data;
@@ -138,10 +139,11 @@ function sensor_data_padded = zero_padding_sides(sensor_data, pads)
     
 end
 
-%%
+
+%% upsampling data *2
 function sensor_data_upsampled = upsampling_data_x2(sensor_data)
 
-    global Nx Ny dx dy
+    global Nx Ny dx dy kgrid
 
     sensor_data_upsampled = zeros( 2*Nx , 2*Ny, samples_total );
     for i = 1:Nx
