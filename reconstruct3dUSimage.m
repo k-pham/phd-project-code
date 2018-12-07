@@ -49,7 +49,7 @@ kgrid = kWaveGrid(Nx, dx, Ny, dy);
 % scope parameters to make time array
 Nt = params.Nt;                         % number of samples in acquisition - alternatively: size(sensor_data,3)
 dt = params.dt;                         % dt between samples [s]
-Nt_delay = int32( params.trigger_delay / dt );   % number of samples to delay OR READ OUT FROM FILE NAME - HOW?
+Nt_delay = params.trigger_delay / dt;   % number of samples to delay OR READ OUT FROM FILE NAME - HOW?
 Nt = Nt_delay + Nt + params.Nt_t0_correct;
 t_array = linspace(1,Nt,Nt)*dt;
 
@@ -57,12 +57,12 @@ t_array = linspace(1,Nt,Nt)*dt;
 %% prepare data for reconstruction
 
 % zero pad noise from the source in the time series
-if Nt_zero_pad_source
+if params.Nt_zero_pad_source
     sensor_data = cat(3, zeros(Nx,Ny,params.Nt_zero_pad_source), sensor_data(:,:,params.Nt_zero_pad_source+1:end) );
 end
 
 % add zero padding for delay
-if Nt_delay
+if int32(Nt_delay)
     sensor_data = cat(3, zeros(Nx,Ny,int32(Nt_delay)), sensor_data );
 end
 
