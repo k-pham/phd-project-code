@@ -49,20 +49,20 @@ kgrid = kWaveGrid(Nx, dx, Ny, dy);
 % scope parameters to make time array
 Nt = params.Nt;                         % number of samples in acquisition - alternatively: size(sensor_data,3)
 dt = params.dt;                         % dt between samples [s]
-Nt_delay = params.trigger_delay / dt;   % number of samples to delay OR READ OUT FROM FILE NAME - HOW?
+Nt_delay = int32( params.trigger_delay / dt );   % number of samples to delay OR READ OUT FROM FILE NAME - HOW?
 Nt = Nt_delay + Nt + params.Nt_t0_correct;
 t_array = linspace(1,Nt,Nt)*dt;
 
 
-%% image reconstruction
+%% prepare data for reconstruction
 
 % zero pad noise from the source in the time series
-if Nt_zero_pad_source ~= 0
+if Nt_zero_pad_source
     sensor_data = cat(3, zeros(Nx,Ny,params.Nt_zero_pad_source), sensor_data(:,:,params.Nt_zero_pad_source+1:end) );
 end
 
 % add zero padding for delay
-if Nt_delay ~= 0
+if Nt_delay
     sensor_data = cat(3, zeros(Nx,Ny,int32(Nt_delay)), sensor_data );
 end
 
@@ -90,10 +90,15 @@ if toApodise
     sensor_data = bsxfun(@times, win, sensor_data);
 end
 
-% reconstruct an image using a k-space method
-sensor_data = permute(sensor_data,[3 1 2]);       % reorder p_xyt to p_txy
-reflection_image = kspacePlaneRecon_US(sensor_data, dx, dy, dt, c0);   % output as p_zxy
-reflection_image = permute(reflection_image,[2 3 1]);               % reorder p_zxy to p_xyz
+
+%% reconstruct image using k-space method
+
+sensor_data = permute(sensor_data,[3 1 2]);                             % reorder p_xyt to p_txy
+reflection_image = kspacePlaneRecon_US(sensor_data, dx, dy, dt, c0);    % output as p_zxy
+reflection_image = permute(reflection_image,[2 3 1]);                   % reorder p_zxy to p_xyz
+
+
+%% image processing steps
 
 % time gain compensation
 if toTimeGainCompensate
@@ -103,9 +108,6 @@ if toTimeGainCompensate
     tgc = reshape(tgc, 1, 1, length(tgc));
     reflection_image = bsxfun(@times, tgc, reflection_image);
 end
-
-% % positivity constraint (remove all negative intensities in image, e.g. back of sensor) - DOESN'T WORK SO WELL
-% reflection_image(reflection_image<0) = 0;
 
 % envelope detection per slice
 if toEnvelopeDetect
@@ -123,6 +125,7 @@ end
 end
 
 
+%%
 function sensor_data_padded = zero_padding_sides(sensor_data, Nx, Ny, dx, dy, samples_total, pads)
 
     sensor_data_padded = zeros(Nx+2*pads, Ny+2*pads, samples_total);
@@ -133,6 +136,7 @@ function sensor_data_padded = zero_padding_sides(sensor_data, Nx, Ny, dx, dy, sa
     
 end
 
+%%
 function sensor_data_upsampled = upsampling_data_x2(sensor_data,Nx,Ny,dx,dy)
 
     sensor_data_upsampled = zeros( 2*Nx , 2*Ny, samples_total );
