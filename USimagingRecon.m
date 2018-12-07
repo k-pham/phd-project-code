@@ -5,7 +5,7 @@
 
 %% get phantom parameters and SGL file locations from USimagingPhantoms.m
 
-clearvars
+clear all %#ok<CLALL>
 run('USimagingPhantoms.m')
 
 
@@ -28,9 +28,9 @@ display(['Viewing: ' file_name])
 
 [sensor_data, params] = loadSGL([file_dir file_name]);
 % sensor_data = sensor_data(:,:,1:1400);
-params.trigger_delay = trigger_delay;
-params.Nt_zero_pad_source = samples_cut_off;
-params.Nt_t0_correct = samples_t0_correct;
+params.trigger_delay        = trigger_delay;
+params.Nt_zero_pad_source   = samples_cut_off;
+params.Nt_t0_correct        = samples_t0_correct;
 
 % dim = 2;
 % sensor_data = squeeze(sensor_data(:,47,:));
@@ -61,7 +61,14 @@ if dim == 2
     [reflection_image, samples_total, t_array, kgrid] = ...
                 reconstruct2dUSimage(sensor_data, params, trigger_delay, samples_cut_off, samples_t0_correct, c0);
 elseif dim == 3
-    [reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, 'ZeroPad', 10, 'EnvelopeDetect', true);
+    [reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, ...
+                                'ZeroPad', 10, ...
+                                'Upsample', true, ...
+                                'Apodise', true, ...
+                                'EnvelopeDetect', true, ...
+                                'TimeGainCompensate', {'Linear',100}, ...
+                                'LogCompress', 3 ...
+                            );
 end
 
 
