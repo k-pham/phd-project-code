@@ -45,14 +45,11 @@ Nx = params.Nx;                      % number of grid points in the x (row) dire
 Ny = params.Ny;                      % number of grid points in the y (column) direction
 dx = params.dx;                      % grid point spacing in the x direction [m]
 dy = params.dy;                      % grid point spacing in the y direction [m]
-kgrid = kWaveGrid(Nx, dx, Ny, dy);
 
 % scope parameters to make time array
 Nt = params.Nt;                         % number of samples in acquisition - alternatively: size(sensor_data,3)
 dt = params.dt;                         % dt between samples [s]
 Nt_delay = params.trigger_delay / dt;   % number of samples to delay OR READ OUT FROM FILE NAME - HOW?
-Nt = Nt_delay + Nt + params.Nt_t0_correct;
-t_array = linspace(1,Nt,Nt)*dt;
 
 
 %% prepare data for reconstruction
@@ -95,6 +92,12 @@ reflection_image = kspacePlaneRecon_US(sensor_data, dx, dy, dt, c0);    % output
 reflection_image = permute(reflection_image,[2 3 1]);                   % reorder p_zxy to p_xyz
 
 
+%% update kgrid and make t_array for use outside
+
+kgrid = kWaveGrid(Nx, dx, Ny, dy);
+t_array = linspace(1,Nt,Nt)*dt;
+
+
 %% image processing steps
 
 if toTimeGainCompensate
@@ -125,8 +128,10 @@ end
 %% zero padding delay
 function sensor_data_padded = zero_padding_delay(sensor_data, pads)
 
-    global Nx Ny
+    global Nx Ny Nt
     sensor_data_padded = cat(3, zeros(Nx,Ny,pads), sensor_data );
+    assert(size(sensor_data)+pads==size(sensor_data_padded))
+    Nt = Nt + pads;
 
 end
 
@@ -134,11 +139,13 @@ end
 %% correcting t0
 function sensor_data_t0_corrected = correcting_t0(sensor_data, correction)
 
+    global Nx Ny Nt
     if correction > 0
         sensor_data_t0_corrected = cat(3, zeros(Nx,Ny,correction), sensor_data);
     elseif correction < 0
         sensor_data_t0_corrected = sensor_data(:,:,-correction+1:end);
     end
+    Nt = Nt + correction;
 
 end
 
@@ -146,13 +153,12 @@ end
 %% zero padding sides
 function sensor_data_padded = zero_padding_sides(sensor_data, pads)
 
-    global Nx Ny Nt dx dy kgrid
+    global Nx Ny Nt
     
     sensor_data_padded = zeros(Nx+2*pads, Ny+2*pads, Nt);
     sensor_data_padded(pads+1:Nx+pads, pads+1:Ny+pads, :) = sensor_data;
     Nx = Nx + 2*pads;
     Ny = Ny + 2*pads;
-    kgrid = kWaveGrid(Nx, dx, Ny, dy);
     
 end
 
@@ -160,7 +166,7 @@ end
 %% upsampling data *2
 function sensor_data_upsampled = upsampling_data_x2(sensor_data)
 
-    global Nx Ny dx dy kgrid
+    global Nx Ny dx dy
 
     sensor_data_upsampled = zeros( 2*Nx , 2*Ny, samples_total );
     for i = 1:Nx
@@ -175,7 +181,6 @@ function sensor_data_upsampled = upsampling_data_x2(sensor_data)
     dy = dy/2;
     Nx = 2*Nx;
     Ny = 2*Ny;
-    kgrid = kWaveGrid(Nx, dx, Ny, dy);
 
 end
 
@@ -232,6 +237,8 @@ function reflection_image_log = log_compressing(reflection_image)
     disp(['  completed in ' scaleTime(toc)]);
 
 end
+
+
 %% plot slice of the reconstructed image
 % 
 % slice = 70;
