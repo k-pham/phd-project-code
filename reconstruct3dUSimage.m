@@ -25,6 +25,7 @@ elseif ~isempty(varargin)
                 toApodise = varargin{input_index + 1};
             case 'TimeGainCompensate'
                 toTimeGainCompensate = varargin{input_index + 1};
+                assert(iscell(toTimeGainCompensate),'Need cell with {method, strength}.')
             case 'EnvelopeDetect'
                 toEnvelopeDetect = varargin{input_index + 1};
             case 'LogCompress'
@@ -66,7 +67,7 @@ end
 
 % add/remove samples from sensor_data for t0 correction
 if int32(params.Nt_t0_correct)
-    sensor_data = correcting_t0(sensor_data, int32(params.Nt_t0_correct));
+    sensor_data = correcting_t0(sensor_data, params.Nt_t0_correct);
 end
 
 % zero pad the sides
@@ -76,7 +77,7 @@ end
 
 % upsample along space (x and y)
 if toUpsample
-    sensor_data = upsampling_data_x2(sensor_data);
+    sensor_data = upsampling_x2(sensor_data);
 end
 
 % apodising data (to remove edge wave artefacts)
@@ -101,7 +102,7 @@ t_array = linspace(1,Nt,Nt)*dt;
 %% image processing steps
 
 if toTimeGainCompensate
-    reflection_image = time_gain_compensating(reflection_image, c0);
+    reflection_image = time_gain_compensating(reflection_image, c0, toTimeGainCompensate);
 end
 
 if toEnvelopeDetect
@@ -121,7 +122,7 @@ function sensor_data_padded = zero_padding_source(sensor_data, pads)
     global Nx Ny
     
     sensor_data_padded = cat(3, zeros(Nx,Ny,pads), sensor_data(:,:,pads+1:end) );
-    assert( size(sensor_data_padded) == size(sensor_data) )
+    assert(isequal( size(sensor_data_padded), size(sensor_data) ))
 
 end
 
@@ -132,7 +133,7 @@ function sensor_data_padded = zero_padding_delay(sensor_data, pads)
     global Nx Ny Nt
     
     sensor_data_padded = cat(3, zeros(Nx,Ny,pads), sensor_data );
-    assert( size(sensor_data_padded) == size(sensor_data)+[0,0,pads] )
+    assert(isequal( size(sensor_data_padded), size(sensor_data)+[0,0,pads] ))
     
     Nt = Nt + pads;
 
@@ -149,7 +150,7 @@ function sensor_data_t0_corrected = correcting_t0(sensor_data, correction)
     elseif correction < 0
         sensor_data_t0_corrected = sensor_data(:,:,-correction+1:end);
     end
-	assert( size(sensor_data_t0_corrected) == size(sensor_data)+[0,0,correction] )
+	assert(isequal( size(sensor_data_t0_corrected), size(sensor_data)+[0,0,correction] ))
     
     Nt = Nt + correction;
 
@@ -163,7 +164,7 @@ function sensor_data_padded = zero_padding_sides(sensor_data, pads)
     
     sensor_data_padded = zeros(Nx+2*pads, Ny+2*pads, Nt);
     sensor_data_padded(pads+1:Nx+pads, pads+1:Ny+pads, :) = sensor_data;
-    assert( size(sensor_data_padded) == size(sensor_data)+[2*pads,2*pads,0] )
+    assert(isequal( size(sensor_data_padded), size(sensor_data)+[2*pads,2*pads,0] ))
     
     Nx = Nx + 2*pads;
     Ny = Ny + 2*pads;
@@ -172,11 +173,11 @@ end
 
 
 %% upsampling data *2
-function sensor_data_upsampled = upsampling_data_x2(sensor_data)
+function sensor_data_upsampled = upsampling_x2(sensor_data)
 
     global Nx Ny Nt dx dy
 
-    sensor_data_upsampled = zeros( 2*Nx , 2*Ny, Nt );
+    sensor_data_upsampled = zeros( 2*Nx, 2*Ny, Nt );
     for i = 1:Nx
         for j = 1:Ny
             sensor_data_upsampled(2*i-1,2*j-1,:) = sensor_data(i,j,:);
@@ -185,7 +186,7 @@ function sensor_data_upsampled = upsampling_data_x2(sensor_data)
             sensor_data_upsampled(2*i  ,2*j  ,:) = sensor_data(i,j,:);
         end
     end
-    assert( size(sensor_data_upsampled) ==  [2*Nx, 2*Ny, Nt] )
+    assert(isequal( size(sensor_data_upsampled), [2*Nx, 2*Ny, Nt] ))
     
 	Nx = 2*Nx;
     Ny = 2*Ny;
@@ -199,24 +200,35 @@ end
 function sensor_data_apodised = apodising(sensor_data)
 
     global Nx Ny
+    
     win = getWin([Nx Ny], 'Cosine');
     win = win + 0.5;
     sensor_data_apodised = bsxfun(@times, win, sensor_data);
+    assert(isequal( size(sensor_data_apodised), size(sensor_data) ))
     
 end
 
 
 %% time gain compensation
-function reflection_image_tgc = time_gain_compensating(reflection_image, c0)
+function reflection_image_tgc = time_gain_compensating(reflection_image, c0, params)
 
     global t_array
+    
     disp('Time gain compensating ...')
     tic
-    tgc_exponent = 0.3;
-    % tgc = exp(tgc_exponent * t_array * c0); % exponential
-    tgc = tgc_exponent * t_array * c0; % linear
+    
+    [method, strength] = params{:};
+    
+    switch method
+        case 'Linear'
+            tgc = strength * t_array * c0;
+        case 'Exponential'
+            tgc = exp(strength * t_array * c0);
+    end    
     tgc = reshape(tgc, 1, 1, length(tgc));
     reflection_image_tgc = bsxfun(@times, tgc, reflection_image);
+    assert(isequal( size(reflection_image_tgc), size(reflection_image) ))
+    
     disp(['  completed in ' scaleTime(toc)]);
     
 end
@@ -226,12 +238,16 @@ end
 function reflection_image_env = envelope_detecting(reflection_image)
 
     global Ny
+    
     disp('Envelope detection ...')
     tic
+    
     reflection_image_env = zeros(size(reflection_image));
     for i = 1:Ny
-        reflection_image(:,i,:) = envelopeDetection(squeeze(reflection_image(:,i,:)));
+        reflection_image_env(:,i,:) = envelopeDetection(squeeze(reflection_image(:,i,:)));
     end
+    assert(isequal( size(reflection_image_env), size(reflection_image) ))
+    
     disp(['  completed in ' scaleTime(toc)]);
 
 end
@@ -242,8 +258,10 @@ function reflection_image_log = log_compressing(reflection_image)
 
     disp('Log Compressing ...')
     tic
+    
     compression_ratio = 3;
     reflection_image_log = logCompression(reflection_image, compression_ratio, true);
+    
     disp(['  completed in ' scaleTime(toc)]);
 
 end
