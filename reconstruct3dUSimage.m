@@ -56,11 +56,15 @@ t_array = linspace(1,Nt,Nt)*dt;
 
 %% image reconstruction
 
-% remove the source from the time series
-sensor_data = cat(3, zeros(Nx,Ny,params.Nt_zero_pad_source), sensor_data(:,:,params.Nt_zero_pad_source+1:end) );
+% zero pad noise from the source in the time series
+if Nt_zero_pad_source ~= 0
+    sensor_data = cat(3, zeros(Nx,Ny,params.Nt_zero_pad_source), sensor_data(:,:,params.Nt_zero_pad_source+1:end) );
+end
 
 % add zero padding for delay
-sensor_data = cat(3, zeros(Nx,Ny,int32(Nt_delay)), sensor_data );
+if Nt_delay ~= 0
+    sensor_data = cat(3, zeros(Nx,Ny,int32(Nt_delay)), sensor_data );
+end
 
 % add/remove samples from sensor_data for t0 correction
 if params.Nt_t0_correct > 0
