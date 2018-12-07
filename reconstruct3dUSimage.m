@@ -83,7 +83,7 @@ if toUpsample
     sensor_data = upsampling_data_x2(sensor_data,Nx,Ny,dx,dy);
 end
 
-% window the data (apodising to remove artefacts due to edge of sensor)
+% apodising data (to remove edge wave artefacts)
 if toApodise
     win = getWin([Nx Ny], 'Cosine');
     win = win + 0.5;
@@ -100,8 +100,8 @@ reflection_image = permute(reflection_image,[2 3 1]);                   % reorde
 
 %% image processing steps
 
-% time gain compensation
 if toTimeGainCompensate
+    disp('Time gain compensating ...')
     tgc_exponent = 0.3;
     % tgc = exp(tgc_exponent * t_array * c0); % exponential
     tgc = tgc_exponent * t_array * c0; % linear
@@ -109,19 +109,19 @@ if toTimeGainCompensate
     reflection_image = bsxfun(@times, tgc, reflection_image);
 end
 
-% envelope detection per slice
 if toEnvelopeDetect
+    disp('Envelope detection ...')
     for i = 1:Ny
         reflection_image(:,i,:) = envelopeDetection(squeeze(reflection_image(:,i,:)));
     end
 end
 
-% log compression
 if toLogCompress
+    disp('Log Compressing ...')
     compression_ratio = 3;
     reflection_image = logCompression(reflection_image, compression_ratio, true);
 end
- 
+
 end
 
 
