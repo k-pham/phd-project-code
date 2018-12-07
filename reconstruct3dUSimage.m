@@ -98,27 +98,15 @@ reflection_image = permute(reflection_image,[2 3 1]);                   % reorde
 %% image processing steps
 
 if toTimeGainCompensate
-    disp('Time gain compensating ...')
-    tgc_exponent = 0.3;
-    % tgc = exp(tgc_exponent * t_array * c0); % exponential
-    tgc = tgc_exponent * t_array * c0; % linear
-    tgc = reshape(tgc, 1, 1, length(tgc));
-    reflection_image = bsxfun(@times, tgc, reflection_image);
+    reflection_image = time_gain_compensating(reflection_image, c0);
 end
 
 if toEnvelopeDetect
-    disp('Envelope detection ...')
-    tic
-    for i = 1:Ny
-        reflection_image(:,i,:) = envelopeDetection(squeeze(reflection_image(:,i,:)));
-    end
-    disp(['  completed in ' scaleTime(toc)]);
+    reflection_image = envelope_detecting(reflection_image);
 end
 
 if toLogCompress
-    disp('Log Compressing ...')
-    compression_ratio = 3;
-    reflection_image = logCompression(reflection_image, compression_ratio, true);
+    reflection_image = log_compressing(reflection_image);
 end
 
 end
@@ -129,6 +117,7 @@ function sensor_data_padded = zero_padding_source(sensor_data, pads)
 
     global Nx Ny
     sensor_data_padded = cat(3, zeros(Nx,Ny,pads), sensor_data(:,:,pads+1:end) );
+    assert(size(sensor_data)==size(sensor_data_padded))
 
 end
 
@@ -202,6 +191,47 @@ function sensor_data_apodised = apodising(sensor_data)
 end
 
 
+%% time gain compensation
+function reflection_image_tgc = time_gain_compensating(reflection_image, c0)
+
+    global t_array
+    disp('Time gain compensating ...')
+    tic
+    tgc_exponent = 0.3;
+    % tgc = exp(tgc_exponent * t_array * c0); % exponential
+    tgc = tgc_exponent * t_array * c0; % linear
+    tgc = reshape(tgc, 1, 1, length(tgc));
+    reflection_image_tgc = bsxfun(@times, tgc, reflection_image);
+    disp(['  completed in ' scaleTime(toc)]);
+    
+end
+
+
+%% envelope detection
+function reflection_image_env = envelope_detecting(reflection_image)
+
+    global Ny
+    disp('Envelope detection ...')
+    tic
+    reflection_image_env = zeros(size(reflection_image));
+    for i = 1:Ny
+        reflection_image(:,i,:) = envelopeDetection(squeeze(reflection_image(:,i,:)));
+    end
+    disp(['  completed in ' scaleTime(toc)]);
+
+end
+
+
+%% log compression
+function reflection_image_log = log_compressing(reflection_image)
+
+    disp('Log Compressing ...')
+    tic
+    compression_ratio = 3;
+    reflection_image_log = logCompression(reflection_image, compression_ratio, true);
+    disp(['  completed in ' scaleTime(toc)]);
+
+end
 %% plot slice of the reconstructed image
 % 
 % slice = 70;
