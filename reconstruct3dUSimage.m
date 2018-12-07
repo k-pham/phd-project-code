@@ -112,9 +112,11 @@ end
 
 if toEnvelopeDetect
     disp('Envelope detection ...')
+    tic
     for i = 1:Ny
         reflection_image(:,i,:) = envelopeDetection(squeeze(reflection_image(:,i,:)));
     end
+    disp(['  completed in ' scaleTime(toc)]);
 end
 
 if toLogCompress
