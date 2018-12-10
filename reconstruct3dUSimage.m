@@ -7,7 +7,7 @@ num_req_input_variables = 3;
 zero_pad_sides = 0;
 toUpsample = false;
 toApodise = false;
-freq_band = [];
+freqfilter_params = {};
 tgc_params = {};
 toEnvelopeDetect = false;
 toLogCompress = 0;
@@ -25,8 +25,8 @@ elseif ~isempty(varargin)
             case 'Apodise'
                 toApodise = varargin{input_index + 1};
             case 'FreqBandFilter'
-                freq_band = varargin{input_index + 1};
-                assert(length(freq_band)==2,'Need list with 2 cut-off frequencies.')
+                freqfilter_params = varargin{input_index + 1};
+                assert(iscell(freqfilter_params),'Need cell with {centre_freq(Hz) bandwidth(Hz)}.')
             case 'TimeGainCompensate'
                 tgc_params = varargin{input_index + 1};
                 assert(iscell(tgc_params),'Need cell with {method, strength}.')
@@ -91,8 +91,8 @@ if toApodise
 end
 
 % frequency band filtering data (to use for frequency compounding)
-if ~isempty(freq_band)
-    sensor_data = freq_filtering(sensor_data, freq_band);
+if ~isempty(freqfilter_params)
+    sensor_data = freq_filtering(sensor_data, freqfilter_params);
 end
 
 
@@ -277,17 +277,17 @@ end
 
 
 %% frequency bandpass filtering data (for frequency compounding)
-function sensor_data_filtered = freq_filtering(sensor_data, freq_band)
+function sensor_data_filtered = freq_filtering(sensor_data, freqfilter_params)
 
-    global Nx Ny dt
+    global Nx dt
     
     disp('Frequency bandpass filtering ...'),
     tic
     
+    [centre_freq, bandwidth] = freqfilter_params{:};
+    bandwidth_pc = bandwidth / centre_freq * 100;       % convert bandwidth to % of centre frequency for gaussianFilter
     for i = 1:Nx
-        for j = 1:Ny
-            sensor_data_filtered(i,j,:) = applyFilter(squeeze(sensor_data(i,j,:)),1/dt,freq_band,'BandPass');
-        end
+        sensor_data_filtered(i,:,:) = gaussianFilter(squeeze(sensor_data(i,:,:)),1/dt,centre_freq,bandwidth_pc);
     end
     
     disp(['  completed in ' scaleTime(toc)]);
