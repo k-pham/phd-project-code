@@ -7,6 +7,7 @@ num_req_input_variables = 3;
 zero_pad_sides = 0;
 toUpsample = false;
 toApodise = false;
+freq_band = [];
 tgc_params = {};
 toEnvelopeDetect = false;
 toLogCompress = 0;
@@ -23,6 +24,9 @@ elseif ~isempty(varargin)
                 toUpsample = varargin{input_index + 1};
             case 'Apodise'
                 toApodise = varargin{input_index + 1};
+            case 'FreqBandFilter'
+                freq_band = varargin{input_index + 1};
+                assert(length(freq_band)==2,'Need list with 2 cut-off frequencies.')
             case 'TimeGainCompensate'
                 tgc_params = varargin{input_index + 1};
                 assert(iscell(tgc_params),'Need cell with {method, strength}.')
@@ -84,6 +88,11 @@ end
 % apodising data (to remove edge wave artefacts)
 if toApodise
     sensor_data = apodising(sensor_data);
+end
+
+% frequency band filtering data (to use for frequency compounding)
+if ~isempty(freq_band)
+    sensor_data = freq_filtering(sensor_data, freq_band);
 end
 
 
@@ -261,6 +270,25 @@ function reflection_image_log = log_compressing(reflection_image, compression_ra
     
     reflection_image_log = logCompression(reflection_image, compression_ratio, true);
     assert(isequal( size(reflection_image_log), size(reflection_image) ))
+    
+    disp(['  completed in ' scaleTime(toc)]);
+
+end
+
+
+%% frequency bandpass filtering data (for frequency compounding)
+function sensor_data_filtered = freq_filtering(sensor_data, freq_band)
+
+    global Nx Ny dt
+    
+    disp('Frequency bandpass filtering ...'),
+    tic
+    
+    for i = 1:Nx
+        for j = 1:Ny
+            sensor_data_filtered(i,j,:) = applyFilter(squeeze(sensor_data(i,j,:)),1/dt,freq_band,'BandPass');
+        end
+    end
     
     disp(['  completed in ' scaleTime(toc)]);
 
