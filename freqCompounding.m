@@ -7,9 +7,10 @@ params.trigger_delay        = trigger_delay;
 params.Nt_zero_pad_source   = samples_cut_off;
 params.Nt_t0_correct        = samples_t0_correct;
 
+global Nx Ny kgrid
 
-centre_freq = 25e6;
-bandwidth = 20e6;
+for centre_freq = [5:5:35]*1e6
+bandwidth = 10e6;
 
 [reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, ...
                             'ZeroPad', 10, ...
@@ -18,7 +19,10 @@ bandwidth = 20e6;
                         );
 
 
-global Nx Ny kgrid
+
+
+disp('Saving data to .mat ...'),
+tic
 
 [Nz] = size(reflection_image,3);
 volume_data = reshape(reflection_image,Nx,Ny,Nz);
@@ -32,7 +36,11 @@ file_path = ['recon_data\' phantom_id ...
              '.mat'];
 save(file_path,'volume_data','volume_spacing','-v7.3')
 
-sliceViewer
+disp(['  completed in ' scaleTime(toc)]);
+
+end
+
+% sliceViewer
 
 % title(['z-x MeanIP 1.5 mm slice: f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6)])
 
