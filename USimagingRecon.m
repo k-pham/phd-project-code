@@ -75,23 +75,7 @@ elseif dim == 3
 end
 
 
-%% save volume data for sliceViewer
-
-global Nx Ny kgrid t_array
-
-if dim == 2
-    [Nz] = size(reflection_image,2);
-    volume_data = reshape(reflection_image,Nx,1,Nz);
-    volume_spacing = [kgrid.dx, kgrid.dx, params.dt*c0];
-elseif dim == 3
-    [Nz] = size(reflection_image,3);
-    volume_data = reshape(reflection_image,Nx,Ny,Nz);
-    volume_spacing = [kgrid.dx, kgrid.dy, params.dt*c0];
-end
-
-phantom_id = strtok(file_name,'@'); % parse string up to specified delimiter
-phantom_id = phantom_id(8:end);     % remove date folder from string
-save(['recon_data\' phantom_id '.mat'],'volume_data','volume_spacing','-v7.3')
+%%
 
 sliceViewer
 
