@@ -31,7 +31,7 @@ display(['Viewing: ' file_name])
 params.trigger_delay        = trigger_delay;
 params.Nt_zero_pad_source   = samples_cut_off;
 params.Nt_t0_correct        = samples_t0_correct;
-params.file_path            = file_path;
+params.file_data            = file_name;
 
 % dim = 2;
 % sensor_data = squeeze(sensor_data(:,47,:));

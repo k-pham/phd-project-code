@@ -131,7 +131,7 @@ end
 %% saving image data to .mat
 
 if toSaveImage
-    savingImageData(reflection_image,params.file_path)
+    savingImageToMat(reflection_image, params.file_data, dt*c0)     % omit factor 1/2 in dz because of doubled depth bug
 end
 
 
@@ -308,7 +308,7 @@ end
 
 
 %% saving image data to .mat (for sliceViewer)
-function savingImageData(reflection_image,file_name)
+function savingImageToMat(reflection_image, file_data, dz)
 
     global Nx Ny kgrid
     
@@ -317,11 +317,13 @@ function savingImageData(reflection_image,file_name)
 
     Nz = size(reflection_image,3);
     volume_data = reshape(reflection_image,Nx,Ny,Nz);       %#ok<NASGU>
-    volume_spacing = [kgrid.dx, kgrid.dy, params.dt*c0];    %#ok<NASGU>
+    volume_spacing = [kgrid.dx, kgrid.dy, dz];              %#ok<NASGU>
 
-    phantom_id = strtok(file_name,'@'); % parse string up to specified delimiter
+    phantom_id = strtok(file_data,'@'); % parse string up to specified delimiter
     phantom_id = phantom_id(8:end);     % remove date folder from string
-    save(['recon_data\' phantom_id '.mat'],'volume_data','volume_spacing','-v7.3')
+    file_image = ['recon_data\' phantom_id '.mat'];
+    
+    save(file_image,'volume_data','volume_spacing','-v7.3')
     
     disp(['  completed in ' scaleTime(toc)]);
     
