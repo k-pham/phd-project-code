@@ -69,5 +69,15 @@ reflection_image = envelopeDetection(squeeze(reflection_image));            % p_
 % compression_ratio = 3;
 % reflection_image = logCompression(reflection_image, compression_ratio, true);   % p_xz
 
+% saving image data to .mat - NOT TESTED
+[Nz] = size(reflection_image,2);
+volume_data = reshape(reflection_image,Nx,1,Nz);
+volume_spacing = [kgrid.dx, kgrid.dx, params.dt*c0];
+
+phantom_id = strtok(file_name,'@'); % parse string up to specified delimiter
+phantom_id = phantom_id(8:end);     % remove date folder from string
+save(['recon_data\' phantom_id '.mat'],'volume_data','volume_spacing','-v7.3')
+
+
 
 end
