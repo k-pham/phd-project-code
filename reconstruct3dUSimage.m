@@ -11,6 +11,7 @@ freqfilter_params = {};
 tgc_params = {};
 toEnvelopeDetect = false;
 toLogCompress = 0;
+toSaveImage = false;
 
 % replace with user defined values if provided
 if nargin < num_req_input_variables
@@ -36,6 +37,8 @@ elseif ~isempty(varargin)
             case 'LogCompress'
                 toLogCompress = varargin{input_index + 1};
                 assert(isnumeric(toLogCompress),'Need number for compression ratio.')
+            case 'SaveImageToFile'
+                toSaveImage = varargin{input_index + 1};
             otherwise
                 error('Unknown optional input.');
         end
@@ -123,6 +126,14 @@ end
 if toLogCompress
     reflection_image = log_compressing(reflection_image, toLogCompress);
 end
+
+
+%% saving image data to .mat
+
+if toSaveImage
+    savingImageData(reflection_image,params.file_path)
+end
+
 
 end
 
@@ -294,6 +305,28 @@ function sensor_data_filtered = freq_filtering(sensor_data, freqfilter_params)
     disp(['  completed in ' scaleTime(toc)]);
 
 end
+
+
+%% saving image data to .mat (for sliceViewer)
+function savingImageData(reflection_image,file_name)
+
+    global Nx Ny kgrid
+    
+    disp('Saving data to .mat ...'),
+    tic
+
+    Nz = size(reflection_image,3);
+    volume_data = reshape(reflection_image,Nx,Ny,Nz);       %#ok<NASGU>
+    volume_spacing = [kgrid.dx, kgrid.dy, params.dt*c0];    %#ok<NASGU>
+
+    phantom_id = strtok(file_name,'@'); % parse string up to specified delimiter
+    phantom_id = phantom_id(8:end);     % remove date folder from string
+    save(['recon_data\' phantom_id '.mat'],'volume_data','volume_spacing','-v7.3')
+    
+    disp(['  completed in ' scaleTime(toc)]);
+    
+end
+
 
 
 
