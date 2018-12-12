@@ -20,6 +20,7 @@ elseif ~isempty(varargin)
         switch varargin{input_index}
             case 'ZeroPad'
                 zero_pad_sides = varargin{input_index + 1};
+                assert(isnumeric(zero_pad_sides),'Need number for number of pads.')
             case 'Upsample'
                 toUpsample = varargin{input_index + 1};
             case 'Apodise'
