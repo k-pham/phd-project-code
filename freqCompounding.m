@@ -9,36 +9,28 @@ params.Nt_t0_correct        = samples_t0_correct;
 
 global Nx Ny kgrid
 
+compound_image = zeros([172, 171, 2994]);
+
 for centre_freq = [5:5:35]*1e6
 bandwidth = 10e6;
 
 [reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, ...
                             'ZeroPad', 10, ...
                             'FreqBandFilter', {centre_freq, bandwidth}, ...
-                            'EnvelopeDetect', true ...
+                            'EnvelopeDetect', true, ...
+                            'SaveImageToFile', true ...
                         );
 
+compound_image = compound_image + reflection_image;
 
-
-
-disp('Saving data to .mat ...'),
-tic
-
-[Nz] = size(reflection_image,3);
-volume_data = reshape(reflection_image,Nx,Ny,Nz);
-volume_spacing = [kgrid.dx, kgrid.dy, params.dt*c0];
-
-phantom_id = strtok(file_name,'@'); % parse string up to specified delimiter
-phantom_id = phantom_id(8:end);     % remove date folder from string
-file_path = ['recon_data\' phantom_id ...
-             '_f' num2str(centre_freq/1e6) ...
-             '_bw' num2str(bandwidth/1e6) ...
-             '.mat'];
-save(file_path,'volume_data','volume_spacing','-v7.3')
-
-disp(['  completed in ' scaleTime(toc)]);
+% file_path = ['recon_data\' phantom_id ...
+%              '_f' num2str(centre_freq/1e6) ...
+%              '_bw' num2str(bandwidth/1e6) ...
+%              '.mat'];
 
 end
+
+reflection_image = reflection_image / length(centre_freq);
 
 % sliceViewer
 
