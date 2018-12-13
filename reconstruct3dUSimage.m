@@ -10,7 +10,7 @@ toApodise = false;
 freqfilter_params = {};
 tgc_params = {};
 toEnvelopeDetect = false;
-toLogCompress = 0;
+compression_ratio = 0;
 toSaveImage = false;
 
 % replace with user defined values if provided
@@ -35,8 +35,8 @@ elseif ~isempty(varargin)
             case 'EnvelopeDetect'
                 toEnvelopeDetect = varargin{input_index + 1};
             case 'LogCompress'
-                toLogCompress = varargin{input_index + 1};
-                assert(isnumeric(toLogCompress),'Need number for compression ratio.')
+                compression_ratio = varargin{input_index + 1};
+                assert(isnumeric(compression_ratio),'Need number for compression ratio.')
             case 'SaveImageToFile'
                 toSaveImage = varargin{input_index + 1};
             otherwise
@@ -123,8 +123,8 @@ if toEnvelopeDetect
     reflection_image = envelope_detecting(reflection_image);
 end
 
-if toLogCompress
-    reflection_image = log_compressing(reflection_image, toLogCompress);
+if compression_ratio ~= 0
+    reflection_image = log_compressing(reflection_image, compression_ratio);
 end
 
 
