@@ -28,10 +28,12 @@ elseif ~isempty(varargin)
                 toApodise = varargin{input_index + 1};
             case 'FreqBandFilter'
                 freqfilter_params = varargin{input_index + 1};
-                assert(iscell(freqfilter_params),'Need cell with {centre_freq(Hz) bandwidth(Hz)}.')
+                assert(iscell(freqfilter_params),'Need cell array {centre_freq(Hz) bandwidth(Hz)}.')
+                assert(length(freqfilter_params)==2,'Need cell array of length 2.')
             case 'TimeGainCompensate'
                 tgc_params = varargin{input_index + 1};
-                assert(iscell(tgc_params),'Need cell with {method, strength}.')
+                assert(iscell(tgc_params),'Need cell array {method, strength}.')
+                assert(length(tgc_params)==2,'Need cell array of length 2.')
             case 'EnvelopeDetect'
                 toEnvelopeDetect = varargin{input_index + 1};
             case 'LogCompress'
