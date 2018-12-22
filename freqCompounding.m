@@ -6,6 +6,7 @@ run('USimagingPhantoms.m')
 params.trigger_delay        = trigger_delay;
 params.Nt_zero_pad_source   = samples_cut_off;
 params.Nt_t0_correct        = samples_t0_correct;
+params.file_data            = file_name;
 
 global Nx Ny kgrid
 
@@ -22,11 +23,6 @@ bandwidth = 10e6;
                         );
 
 compound_image = compound_image + reflection_image;
-
-% file_path = ['recon_data\' phantom_id ...
-%              '_f' num2str(centre_freq/1e6) ...
-%              '_bw' num2str(bandwidth/1e6) ...
-%              '.mat'];
 
 end
 
