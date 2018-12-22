@@ -133,7 +133,7 @@ end
 %% saving image data to .mat
 
 if toSaveImage
-    savingImageToMat(reflection_image, params.file_data, dt*c0)     % omit factor 1/2 in dz because of doubled depth bug
+    savingImageToMat(reflection_image, params.file_data, dt*c0, freqfilter_params)     % omit factor 1/2 in dz because of doubled depth bug
 end
 
 
@@ -322,7 +322,6 @@ function savingImageToMat(reflection_image, file_data, dz, freqfilter_params)
     Nz = size(reflection_image,3);
     volume_data = reshape(reflection_image,Nx,Ny,Nz);       %#ok<NASGU>
     volume_spacing = [kgrid.dx, kgrid.dy, dz];              %#ok<NASGU>
-
 
     phantom_id = strtok(file_data,'@'); % parse string up to specified delimiter
     phantom_id = phantom_id(8:end);     % remove date folder from string
