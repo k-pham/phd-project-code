@@ -300,6 +300,8 @@ function sensor_data_filtered = freq_filtering(sensor_data, freqfilter_params)
     
     [centre_freq, bandwidth] = freqfilter_params{:};
     bandwidth_pc = bandwidth / centre_freq * 100;       % convert bandwidth to % of centre frequency for gaussianFilter
+    sensor_data_filtered = zeros(size(sensor_data));
+    
     for i = 1:Nx
         sensor_data_filtered(i,:,:) = gaussianFilter(squeeze(sensor_data(i,:,:)),1/dt,centre_freq,bandwidth_pc);
     end
