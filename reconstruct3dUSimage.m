@@ -312,7 +312,7 @@ end
 
 
 %% saving image data to .mat (for sliceViewer)
-function savingImageToMat(reflection_image, file_data, dz)
+function savingImageToMat(reflection_image, file_data, dz, freqfilter_params)
 
     global Nx Ny kgrid
     
@@ -323,9 +323,13 @@ function savingImageToMat(reflection_image, file_data, dz)
     volume_data = reshape(reflection_image,Nx,Ny,Nz);       %#ok<NASGU>
     volume_spacing = [kgrid.dx, kgrid.dy, dz];              %#ok<NASGU>
 
+
     phantom_id = strtok(file_data,'@'); % parse string up to specified delimiter
     phantom_id = phantom_id(8:end);     % remove date folder from string
-    file_image = ['recon_data\' phantom_id '.mat'];
+    [centre_freq, bandwidth] = freqfilter_params{:};
+    file_image = ['recon_data\' phantom_id ...
+                    '_f' num2str(centre_freq) '_bw' num2str(bandwidth) ... % incl freq filtering info in image file name
+                    '.mat'];
     
     save(file_image,'volume_data','volume_spacing','-v7.3')
     
