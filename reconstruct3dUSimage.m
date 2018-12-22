@@ -328,7 +328,8 @@ function savingImageToMat(reflection_image, file_data, dz, freqfilter_params)
     phantom_id = phantom_id(8:end);     % remove date folder from string
     [centre_freq, bandwidth] = freqfilter_params{:};
     file_image = ['recon_data\' phantom_id ...
-                    '_f' num2str(centre_freq) '_bw' num2str(bandwidth) ... % incl freq filtering info in image file name
+                    '_f' num2str(centre_freq/1e6) ... % incl freq filtering info ...
+                    '_bw' num2str(bandwidth/1e6) ...  % in image file name
                     '.mat'];
     
     save(file_image,'volume_data','volume_spacing','-v7.3')
