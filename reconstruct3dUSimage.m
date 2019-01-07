@@ -372,11 +372,11 @@ end
 %% trim image in z direction
 function reflection_image_trimmed = trim_image_z(reflection_image,zStart,zEnd)
 
-    global Nz
+    global Nt
 
     reflection_image_trimmed = reflection_image(:,:,zStart:zEnd);
     
-    Nz = size(reflection_image_trimmed,3);
+    Nt = size(reflection_image_trimmed,3);
 
 end
 
