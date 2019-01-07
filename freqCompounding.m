@@ -1,5 +1,9 @@
+%% loading sensor data & preparing for reconstruction
+
 clear all %#ok<CLALL>
 run('USimagingPhantoms.m')
+
+phantom_id = 'atmm_orgasol1_BK31[CNT]';
 
 [sensor_data, params] = loadSGL([file_dir file_name]);
 
@@ -8,34 +12,51 @@ params.Nt_zero_pad_source   = samples_cut_off;
 params.Nt_t0_correct        = samples_t0_correct;
 params.file_data            = file_name;
 
-global Nx Ny kgrid
+global Nx Ny kgrid t_array
 
-compound_image = zeros([172, 171, 2994]);
 
-for centre_freq = 1*1e6
-bandwidth = 1e6;
+%% generate lots of different reconstructions with varying freq filters
+% and save image in .mat and meanIP in .jpg/.fig
 
-[reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, ...
-                            'ZeroPad', 10, ...
-                            'FreqBandFilter', {centre_freq, bandwidth}, ...
-                            'TimeGainCompensate',{'Exponential',50}, ...
-                            'EnvelopeDetect', true, ...
-                            'SaveImageToFile', true ...
-                        );
+bandwidths   = [1:1:3,4:2:10,15:5:40] *1e6;
+centre_freqs = (1:1:35) *1e6;
 
-compound_image = compound_image + reflection_image;
+for bandwidth = bandwidths
+    for centre_freq = centre_freqs
 
+        [reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, ...
+                                    'ZeroPad', 10, ...
+                                    'FreqBandFilter', {centre_freq, bandwidth}, ...
+                                    'TimeGainCompensate',{'Exponential',50}, ...
+                                    'EnvelopeDetect', true, ...
+                                    'SaveImageToFile', true ...
+                                );
+
+        meanIP = squeeze(mean(reflection_image(:,20:40,:),2));
+        figure
+        imagesc(kgrid.x_vec*1e3,t_array*c0*1e3,meanIP')
+            axis image
+            colormap(gray)
+            brighten(0.5)
+            title(['z-x MeanIP 1.5 mm slice: f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6)])
+            xlabel('x-position [mm]')
+            ylabel('z-position [mm]')
+            set(gca,'FontName','Arial')
+            set(gca,'FontSize',12)
+
+        file_img = ['..\figures\_Matlab figs\freqCompounding\' phantom_id ...
+             '_f' num2str(centre_freq/1e6) ...
+             '_bw' num2str(bandwidth/1e6)   ];
+        saveas(gcf,[file_img '.fig'])
+        saveas(gcf,[file_img '.jpg'])
+
+    end
 end
-
-reflection_image = reflection_image / length(centre_freq);
 
 % sliceViewer
 
-% title(['z-x MeanIP 1.5 mm slice: f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6)])
 
 %% compounding
-
-phantom_id = 'atmm_orgasol1_BK31[CNT]';
 
 centre_freq = [5:5:35]*1e6;
 bandwidth = 2e6;
