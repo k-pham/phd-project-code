@@ -109,6 +109,13 @@ reflection_image = kspacePlaneRecon_US(sensor_data, dx, dy, dt, c0);    % output
 reflection_image = permute(reflection_image,[2 3 1]);                   % reorder p_zxy to p_xyz
 
 
+%% image trimming & interpolation
+
+reflection_image = trim_image_x(reflection_image,xStart,xEnd);
+reflection_image = trim_image_y(reflection_image,yStart,yEnd);
+reflection_image = trim_image_z(reflection_image,zStart,zEnd);
+
+
 %% update kgrid and make t_array for use outside
 
 kgrid = kWaveGrid(Nx, dx, Ny, dy);
@@ -336,6 +343,48 @@ function savingImageToMat(reflection_image, file_data, dz, freqfilter_params)
     disp(['  completed in ' scaleTime(toc)]);
     
 end
+
+
+%% trim image in x direction
+function reflection_image = trim_image_x(reflection_image,xStart,xEnd)
+
+    global Nx
+
+    reflection_image = reflection_image(xStart:xEnd,:,:);
+    
+    Nx = size(reflection_image,1);
+
+end
+
+
+%% trim image in y direction
+function reflection_image = trim_image_y(reflection_image,yStart,yEnd)
+
+    global Ny
+
+    reflection_image = reflection_image(:,yStart:yEnd,:);
+    
+    Ny = size(reflection_image,2);
+
+end
+
+
+%% trim image in z direction
+function reflection_image = trim_image_z(reflection_image,zStart,zEnd)
+
+    global Nz
+
+    reflection_image = reflection_image(:,:,zStart:zEnd);
+    
+    Nz = size(reflection_image,3);
+
+end
+
+
+
+
+
+
 
 
 
