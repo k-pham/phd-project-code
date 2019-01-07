@@ -346,37 +346,37 @@ end
 
 
 %% trim image in x direction
-function reflection_image = trim_image_x(reflection_image,xStart,xEnd)
+function reflection_image_trimmed = trim_image_x(reflection_image,xStart,xEnd)
 
     global Nx
 
-    reflection_image = reflection_image(xStart:xEnd,:,:);
+    reflection_image_trimmed = reflection_image(xStart:xEnd,:,:);
     
-    Nx = size(reflection_image,1);
+    Nx = size(reflection_image_trimmed,1);
 
 end
 
 
 %% trim image in y direction
-function reflection_image = trim_image_y(reflection_image,yStart,yEnd)
+function reflection_image_trimmed = trim_image_y(reflection_image,yStart,yEnd)
 
     global Ny
 
-    reflection_image = reflection_image(:,yStart:yEnd,:);
+    reflection_image_trimmed = reflection_image(:,yStart:yEnd,:);
     
-    Ny = size(reflection_image,2);
+    Ny = size(reflection_image_trimmed,2);
 
 end
 
 
 %% trim image in z direction
-function reflection_image = trim_image_z(reflection_image,zStart,zEnd)
+function reflection_image_trimmed = trim_image_z(reflection_image,zStart,zEnd)
 
     global Nz
 
-    reflection_image = reflection_image(:,:,zStart:zEnd);
+    reflection_image_trimmed = reflection_image(:,:,zStart:zEnd);
     
-    Nz = size(reflection_image,3);
+    Nz = size(reflection_image_trimmed,3);
 
 end
 
