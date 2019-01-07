@@ -1,3 +1,5 @@
+# autosave files
+*.asv
 
 # personal folders
 /archive/
