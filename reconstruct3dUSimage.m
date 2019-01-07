@@ -111,9 +111,9 @@ reflection_image = permute(reflection_image,[2 3 1]);                   % reorde
 
 %% image trimming & interpolation
 
-reflection_image = trim_image_x(reflection_image,xStart,xEnd);
-reflection_image = trim_image_y(reflection_image,yStart,yEnd);
-reflection_image = trim_image_z(reflection_image,zStart,zEnd);
+% reflection_image = trim_image_x(reflection_image,xStart,xEnd);
+% reflection_image = trim_image_y(reflection_image,yStart,yEnd);
+reflection_image = trim_image_z(reflection_image,80,1040);
 
 
 %% update kgrid and make t_array for use outside
@@ -254,7 +254,7 @@ function reflection_image_tgc = time_gain_compensating(reflection_image, c0, tgc
             tgc = strength * t_array * c0;
         case 'Exponential'
             tgc = exp(strength * t_array * c0);
-    end    
+    end
     tgc = reshape(tgc, 1, 1, length(tgc));
     reflection_image_tgc = bsxfun(@times, tgc, reflection_image);
     assert(isequal( size(reflection_image_tgc), size(reflection_image) ))
