@@ -40,6 +40,37 @@ end
 % sliceViewer
 
 
+%% load set of images and find cmap suitable for each set with single bandwidth
+
+cmins = NaN(size(bandwidths));
+cmaxs = NaN(size(bandwidths));
+
+bw_index = 1;
+
+for bandwidth = bandwidths
+
+    for centre_freq = centre_freqs
+
+        file_path = ['recon_data\' phantom_id ...
+             '_f' num2str(centre_freq/1e6) ...
+             '_bw' num2str(bandwidth/1e6) ...
+             '.mat'];
+        image_data = load(file_path);
+        reflection_image = image_data.volume_data;
+        
+        min_intensity = min(min(min(reflection_image)));
+        max_intensity = max(max(max(reflection_image)));
+        
+        cmins(bw_index) = maybe_update_minimum( cmins(bw_index), min_intensity );
+        cmaxs(bw_index) = maybe_update_maximum( cmaxs(bw_index), max_intensity );
+
+    end
+    
+    bw_index = bw_index + 1;
+    
+end
+
+
 %% compounding
 
 centre_freq = [5:5:35]*1e6;
@@ -100,7 +131,7 @@ end
 
 function min = maybe_update_minimum(min, new_value)
 
-    if new_value < min
+    if new_value < min || isnan(min)
         min = new_value;
     end
 
@@ -108,7 +139,7 @@ end
 
 function max = maybe_update_maximum(max, new_value)
 
-    if new_value > max
+    if new_value > max || isnan(max)
         max = new_value;
     end
 
