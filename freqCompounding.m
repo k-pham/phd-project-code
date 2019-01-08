@@ -12,7 +12,7 @@ params.Nt_zero_pad_source   = samples_cut_off;
 params.Nt_t0_correct        = samples_t0_correct;
 params.file_data            = file_name;
 
-global Nx Ny kgrid t_array
+global Nx Ny kgrid t_array %#ok<NUSED>
 
 
 %% generate lots of different reconstructions with varying freq filters
@@ -32,23 +32,7 @@ for bandwidth = bandwidths
                                     'SaveImageToFile', true ...
                                 );
 
-        meanIP = squeeze(mean(reflection_image(:,20:40,:),2));
-        figure
-        imagesc(kgrid.x_vec*1e3,t_array*c0*1e3,meanIP')
-            axis image
-            colormap(gray)
-            brighten(0.5)
-            title(['z-x MeanIP 1.5 mm slice: f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6)])
-            xlabel('x-position [mm]')
-            ylabel('z-position [mm]')
-            set(gca,'FontName','Arial')
-            set(gca,'FontSize',12)
-
-        file_img = ['..\figures\_Matlab figs\freqCompounding\' phantom_id ...
-             '_f' num2str(centre_freq/1e6) ...
-             '_bw' num2str(bandwidth/1e6)   ];
-        saveas(gcf,[file_img '.fig'])
-        saveas(gcf,[file_img '.jpg'])
+        display_and_save_meanIP(reflection_image, c0, centre_freq, bandwidth, phantom_id)
 
     end
 end
@@ -84,6 +68,40 @@ file_path = ['recon_data\' phantom_id '_compound.mat'];
 save(file_path,'volume_data','volume_spacing','-v7.3')
 
 sliceViewer
+
+
+%% local functions
+
+function display_and_save_meanIP(reflection_image,c0,centre_freq,bandwidth,phantom_id)
+
+    global kgrid t_array
+
+    meanIP = squeeze(mean(reflection_image(:,20:40,:),2));
+    
+    figure
+    imagesc(kgrid.x_vec*1e3,t_array*c0*1e3,meanIP')
+        axis image
+        colormap(gray)
+%         caxis([0 ])
+        brighten(0.5)
+        title(['z-x MeanIP 1.5 mm slice: f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6)])
+        xlabel('x-position [mm]')
+        ylabel('z-position [mm]')
+        set(gca,'FontName','Arial')
+        set(gca,'FontSize',12)
+
+    file_img = ['..\figures\_Matlab figs\freqCompounding\' phantom_id ...
+         '_f' num2str(centre_freq/1e6) ...
+         '_bw' num2str(bandwidth/1e6)   ];
+    saveas(gcf,[file_img '.fig'])
+    saveas(gcf,[file_img '.jpg'])
+
+end
+
+
+
+
+
 
 
 
