@@ -98,8 +98,25 @@ function display_and_save_meanIP(reflection_image,c0,centre_freq,bandwidth,phant
 
 end
 
+function new_min = maybe_update_minimum(old_min, new_value)
 
+    if new_value < old_min
+        new_min = new_value;
+    else
+        new_min = old_min;
+    end
 
+end
+
+function new_max = maybe_update_maximum(old_max, new_value)
+
+    if new_value > old_max
+        new_max = new_value;
+    else
+        new_max = old_max;
+    end
+
+end
 
 
 
