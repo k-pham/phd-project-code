@@ -58,8 +58,10 @@ for bandwidth = bandwidths
         image_data = load(file_path);
         reflection_image = image_data.volume_data;
         
-        min_intensity = min(min(min(reflection_image)));
-        max_intensity = max(max(max(reflection_image)));
+        meanIP = squeeze(mean(reflection_image(:,20:40,:),2));
+        
+        min_intensity = min(min(meanIP));
+        max_intensity = max(max(meanIP));
         
         cmins(bw_index) = maybe_update_minimum( cmins(bw_index), min_intensity );
         cmaxs(bw_index) = maybe_update_maximum( cmaxs(bw_index), max_intensity );
@@ -68,6 +70,29 @@ for bandwidth = bandwidths
     
     bw_index = bw_index + 1;
     
+end
+
+save(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_caxes'], 'cmins', 'cmaxs')
+
+
+%% replot images with same coloraxis for each set of images with single bandwidth
+
+bw_index = 1;
+
+for bandwidth = bandwidths
+    for centre_freq = centre_freqs
+        
+        file_path = ['recon_data\' phantom_id ...
+             '_f' num2str(centre_freq/1e6) ...
+             '_bw' num2str(bandwidth/1e6) ...
+             '.mat'];
+        image_data = load(file_path);
+        reflection_image = image_data.volume_data;
+
+        display_and_save_meanIP(reflection_image,c0,centre_freq,bandwidth,phantom_id,[cmins(bw_index),cmaxs(bw_index)])
+    
+    end
+    bw_index = bw_index + 1;
 end
 
 
@@ -103,7 +128,8 @@ sliceViewer
 
 %% local functions
 
-function display_and_save_meanIP(reflection_image,c0,centre_freq,bandwidth,phantom_id)
+function display_and_save_meanIP(reflection_image,c0,centre_freq,bandwidth,phantom_id,varargin)
+% varargin to allow for optional specification of colour axis
 
     global kgrid t_array
 
@@ -113,7 +139,9 @@ function display_and_save_meanIP(reflection_image,c0,centre_freq,bandwidth,phant
     imagesc(kgrid.x_vec*1e3,t_array*c0*1e3,meanIP')
         axis image
         colormap(gray)
-%         caxis([0 ])
+        if ~isempty(varargin{1})
+            caxis(varargin{1})
+        end
         brighten(0.5)
         title(['z-x MeanIP 1.5 mm slice: f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6)])
         xlabel('x-position [mm]')
