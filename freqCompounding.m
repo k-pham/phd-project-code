@@ -96,17 +96,26 @@ for bandwidth = bandwidths
 end
 
 
-%% compounding
+%% get some SNR measures
 
-centre_freq = [5:5:35]*1e6;
-bandwidth = 2e6;
+meanIP = squeeze(mean(reflection_image(:,20:40,:),2));
+
+meanIP_1D = mean(meanIP(40:44,1:500),1);
+
+figure
+plot(meanIP_1D)
+
+
+%% compounding
 
 compound_image = zeros([Nx,Ny,Nz]);
 
-for f = centre_freq
+for bandwidth = bandwidths
+
+for centre_freq = centre_freqs
 
     file_path = ['recon_data\frequency compounding\' phantom_id ...
-         '_f' num2str(f/1e6) ...
+         '_f' num2str(centre_freq/1e6) ...
          '_bw' num2str(bandwidth/1e6) ...
          '.mat'];
     data = load(file_path);
@@ -116,6 +125,8 @@ for f = centre_freq
 end
 
 compound_image = compound_image / length(centre_freq);
+
+end
 
 volume_data = reshape(compound_image,Nx,Ny,Nz);
 volume_spacing = [kgrid.dx, kgrid.dy, params.dt*c0];
@@ -172,6 +183,8 @@ function max = maybe_update_maximum(max, new_value)
     end
 
 end
+
+
 
 
 
