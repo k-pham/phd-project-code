@@ -48,7 +48,6 @@ cmaxs = NaN(size(bandwidths));
 bw_index = 1;
 
 for bandwidth = bandwidths
-
     for centre_freq = centre_freqs
 
         reflection_image = load_image(phantom_id, centre_freq, bandwidth);
@@ -62,9 +61,7 @@ for bandwidth = bandwidths
         cmaxs(bw_index) = maybe_update_maximum( cmaxs(bw_index), max_intensity );
 
     end
-    
     bw_index = bw_index + 1;
-    
 end
 
 save(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_caxes'], 'cmins', 'cmaxs')
@@ -101,7 +98,6 @@ plot(meanIP_1D)
 compound_image = zeros([Nx,Ny,Nz]);
 
 for bandwidth = bandwidths
-
     for centre_freq = centre_freqs
 
         reflection_image = load_image(phantom_id, centre_freq, bandwidth);
@@ -109,9 +105,7 @@ for bandwidth = bandwidths
         compound_image = compound_image + reflection_image;
 
     end
-
     compound_image = compound_image / length(centre_freq);
-
 end
 
 volume_data = reshape(compound_image,Nx,Ny,Nz);
