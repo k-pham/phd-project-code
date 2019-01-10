@@ -51,12 +51,7 @@ for bandwidth = bandwidths
 
     for centre_freq = centre_freqs
 
-        file_path = ['recon_data\frequency compounding\' phantom_id ...
-             '_f' num2str(centre_freq/1e6) ...
-             '_bw' num2str(bandwidth/1e6) ...
-             '.mat'];
-        image_data = load(file_path);
-        reflection_image = image_data.volume_data;
+        reflection_image = load_image(phantom_id, centre_freq, bandwidth);
         
         meanIP = squeeze(mean(reflection_image(:,20:40,:),2));
         
@@ -82,12 +77,7 @@ bw_index = 1;
 for bandwidth = bandwidths
     for centre_freq = centre_freqs
         
-        file_path = ['recon_data\frequency compounding\' phantom_id ...
-             '_f' num2str(centre_freq/1e6) ...
-             '_bw' num2str(bandwidth/1e6) ...
-             '.mat'];
-        image_data = load(file_path);
-        reflection_image = image_data.volume_data;
+        reflection_image = load_image(phantom_id, centre_freq, bandwidth);
 
         display_and_save_meanIP(reflection_image,c0,centre_freq,bandwidth,phantom_id,[cmins(bw_index),cmaxs(bw_index)])
     
@@ -112,19 +102,15 @@ compound_image = zeros([Nx,Ny,Nz]);
 
 for bandwidth = bandwidths
 
-for centre_freq = centre_freqs
+    for centre_freq = centre_freqs
 
-    file_path = ['recon_data\frequency compounding\' phantom_id ...
-         '_f' num2str(centre_freq/1e6) ...
-         '_bw' num2str(bandwidth/1e6) ...
-         '.mat'];
-    data = load(file_path);
-    
-    compound_image = compound_image + data.volume_data;
+        reflection_image = load_image(phantom_id, centre_freq, bandwidth);
 
-end
+        compound_image = compound_image + reflection_image;
 
-compound_image = compound_image / length(centre_freq);
+    end
+
+    compound_image = compound_image / length(centre_freq);
 
 end
 
@@ -138,6 +124,17 @@ sliceViewer
 
 
 %% local functions
+
+function reflection_image = load_image(phantom_id, centre_freq, bandwidth)
+
+    file_path = ['recon_data\frequency compounding\' phantom_id ...
+         '_f' num2str(centre_freq/1e6) ...
+         '_bw' num2str(bandwidth/1e6) ...
+         '.mat'];
+    image_data = load(file_path);
+    reflection_image = image_data.volume_data;
+
+end
 
 function display_and_save_meanIP(reflection_image,c0,centre_freq,bandwidth,phantom_id,varargin)
 % varargin to allow for optional specification of colour axis
