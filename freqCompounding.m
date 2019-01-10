@@ -14,12 +14,12 @@ params.file_data            = file_name;
 
 global Nx Ny kgrid t_array %#ok<NUSED>
 
+bandwidths   = [1:1:3,4:2:10,15:5:40] *1e6;
+centre_freqs = (1:1:35) *1e6;
+
 
 %% generate lots of different reconstructions with varying freq filters
 % and save image in .mat and meanIP in .jpg/.fig
-
-bandwidths   = [1:1:3,4:2:10,15:5:40] *1e6;
-centre_freqs = (1:1:35) *1e6;
 
 for bandwidth = bandwidths
     for centre_freq = centre_freqs
