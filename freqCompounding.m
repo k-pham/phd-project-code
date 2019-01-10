@@ -85,20 +85,43 @@ end
 
 %% estimate SNR and CNR measures
 
-reflection_image = load_image(phantom_id, centre_freq, bandwidth);
+tic
 
-meanIP = get_mean_intensity_projection(reflection_image);
-figure
-imagesc(meanIP')
+signal_tube_ar   = zeros(length(bandwidths),length(centre_freqs));
+scatter_water_ar = zeros(length(bandwidths),length(centre_freqs));
+scatter_atmm_ar  = zeros(length(bandwidths),length(centre_freqs));
 
-show_axial_and_lateral_profiles(meanIP)
+bw_index = 1;
+cf_index = 1;
 
-signal_tube   = get_peak_signal_of_tube(meanIP);
-scatter_water = get_avg_scattering_in_water(meanIP);
-scatter_atmm  = get_avg_scattering_in_atmm(meanIP);
+for bandwidth = bandwidths(8)
+    for centre_freq = centre_freqs(1:10)
 
-SNR = signal_tube / scatter_water;
-CNR = scatter_atmm / scatter_water;
+        reflection_image = load_image(phantom_id, centre_freq, bandwidth);
+
+        meanIP = get_mean_intensity_projection(reflection_image);
+        %figure
+        %imagesc(meanIP')
+
+        %show_axial_and_lateral_profiles(meanIP)
+
+        signal_tube   = get_peak_signal_of_tube(meanIP);
+        scatter_water = get_avg_scattering_in_water(meanIP);
+        scatter_atmm  = get_avg_scattering_in_atmm(meanIP);
+
+        signal_tube_ar(bw_index,cf_index)   = signal_tube;
+        scatter_water_ar(bw_index,cf_index) = scatter_water;
+        scatter_atmm_ar(bw_index,cf_index)  = scatter_atmm;
+        
+        %SNR = signal_tube / scatter_water;
+        %CNR = scatter_atmm / scatter_water;
+
+        cf_index = cf_index + 1;
+    end
+    bw_index = bw_index + 1;
+end
+
+disp(['  completed in ' scaleTime(toc)]);
 
 
 %% compounding
