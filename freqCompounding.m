@@ -52,7 +52,7 @@ for bandwidth = bandwidths
 
         reflection_image = load_image(phantom_id, centre_freq, bandwidth);
         
-        meanIP = squeeze(mean(reflection_image(:,20:40,:),2));
+        meanIP = get_mean_intensity_projection(reflection_image);
         
         min_intensity = min(min(meanIP));
         max_intensity = max(max(meanIP));
@@ -83,14 +83,22 @@ for bandwidth = bandwidths
 end
 
 
-%% get some SNR measures
+%% estimate SNR and CNR measures
 
-meanIP = squeeze(mean(reflection_image(:,20:40,:),2));
+reflection_image = load_image(phantom_id, centre_freq, bandwidth);
 
-meanIP_1D = mean(meanIP(40:44,1:500),1);
-
+meanIP = get_mean_intensity_projection(reflection_image);
 figure
-plot(meanIP_1D)
+imagesc(meanIP')
+
+show_axial_and_lateral_profiles(meanIP)
+
+signal_tube   = get_peak_signal_of_tube(meanIP);
+scatter_water = get_avg_scattering_in_water(meanIP);
+scatter_atmm  = get_avg_scattering_in_atmm(meanIP);
+
+SNR = signal_tube / scatter_water;
+CNR = scatter_atmm / scatter_water;
 
 
 %% compounding
@@ -130,12 +138,19 @@ function reflection_image = load_image(phantom_id, centre_freq, bandwidth)
 
 end
 
+function meanIP = get_mean_intensity_projection(reflection_image) % hard numbers !
+% limits customised to atmm_orgasol1_BK31[CNT]
+
+    meanIP = squeeze(mean(reflection_image(:,20:40,:),2));
+
+end
+
 function display_and_save_meanIP(reflection_image,c0,centre_freq,bandwidth,phantom_id,varargin)
 % varargin to allow for optional specification of colour axis
 
     global kgrid t_array
 
-    meanIP = squeeze(mean(reflection_image(:,20:40,:),2));
+    meanIP = get_mean_intensity_projection(reflection_image);
     
     figure
     imagesc(kgrid.x_vec*1e3,t_array*c0*1e3,meanIP')
@@ -175,10 +190,48 @@ function max = maybe_update_maximum(max, new_value)
 
 end
 
+function show_axial_and_lateral_profiles(meanIP) % hard numbers !
+    
+    % second tube
+    % meanIP_1D_axi = mean(meanIP(40:44,:),1);
+    % meanIP_1D_lat = mean(meanIP(:,225:265),2);
 
+    % third tube
+    meanIP_1D_axi = mean(meanIP(61:65,:),1);
+    meanIP_1D_lat = mean(meanIP(:,385:425),2);
 
+    figure
+    plot(meanIP_1D_axi)
+    figure
+    plot(meanIP_1D_lat)
+    
+end
 
+function signal_tube = get_peak_signal_of_tube(meanIP) % hard numbers !
+% limits customised to third tube
 
+    signal_tube_front = max(max(meanIP(61:65,300:400)));
+    signal_tube_back  = max(max(meanIP(61:65,400:500)));
+    signal_tube = mean([signal_tube_front,signal_tube_back]);
 
+end
+
+function scatter_water = get_avg_scattering_in_water(meanIP) % hard numbers !
+% limits customised to third tube
+
+    scatter_water = mean(mean(meanIP(61:65,385:425)));
+
+end
+
+function scatter_atmm = get_avg_scattering_in_atmm(meanIP) % hard numbers !
+% limits customised to third tube
+
+    scatter_atmm_left  = mean(mean(meanIP(51:55,385:425)));
+    scatter_atmm_right = mean(mean(meanIP(72:76,385:425)));
+    scatter_atmm_front = mean(mean(meanIP(61:65,300:340)));
+    scatter_atmm_back  = mean(mean(meanIP(61:65,465:505)));
+    scatter_atmm = mean([scatter_atmm_left,scatter_atmm_right,scatter_atmm_front,scatter_atmm_back]);
+
+end
 
 
