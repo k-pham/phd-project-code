@@ -52,7 +52,6 @@ cmins = NaN(size(bandwidths));
 cmaxs = NaN(size(bandwidths));
 
 bw_index = 1;
-
 for bandwidth = bandwidths
     for centre_freq = centre_freqs
 
@@ -80,7 +79,6 @@ disp(['  completed in ' scaleTime(toc)]);
 tic
 
 bw_index = 1;
-
 for bandwidth = bandwidths
     for centre_freq = centre_freqs
         
@@ -104,9 +102,9 @@ scatter_water_ar = zeros(length(bandwidths),length(centre_freqs));
 scatter_atmm_ar  = zeros(length(bandwidths),length(centre_freqs));
 
 bw_index = 1;
-cf_index = 1;
-
 for bandwidth = bandwidths
+
+    cf_index = 1;
     for centre_freq = centre_freqs
 
         reflection_image = load_image(phantom_id, centre_freq, bandwidth);
@@ -132,6 +130,13 @@ for bandwidth = bandwidths
     end
     bw_index = bw_index + 1;
 end
+
+save(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_imageAnalysis'], 'signal_tube_ar', 'scatter_water_ar', 'scatter_atmm_ar')
+
+SNR = signal_tube_ar ./ scatter_water_ar;
+CNR = scatter_atmm_ar ./ scatter_water_ar;
+
+save(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_imageQuality'], 'SNR', 'CNR')
 
 disp(['  completed in ' scaleTime(toc)]);
 
