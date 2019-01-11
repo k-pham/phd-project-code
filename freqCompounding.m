@@ -21,6 +21,8 @@ centre_freqs = (1:1:35) *1e6;
 %% generate lots of different reconstructions with varying freq filters
 % and save image in .mat and meanIP in .jpg/.fig
 
+tic
+
 for bandwidth = bandwidths
     for centre_freq = centre_freqs
 
@@ -37,10 +39,14 @@ for bandwidth = bandwidths
     end
 end
 
+disp(['  completed in ' scaleTime(toc)]);
+
 % sliceViewer
 
 
 %% load set of images and find cmap suitable for each set with single bandwidth
+
+tic
 
 cmins = NaN(size(bandwidths));
 cmaxs = NaN(size(bandwidths));
@@ -66,8 +72,12 @@ end
 
 save(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_caxes'], 'cmins', 'cmaxs')
 
+disp(['  completed in ' scaleTime(toc)]);
+
 
 %% replot images with same coloraxis for each set of images with single bandwidth
+
+tic
 
 bw_index = 1;
 
@@ -82,6 +92,8 @@ for bandwidth = bandwidths
     bw_index = bw_index + 1;
 end
 
+disp(['  completed in ' scaleTime(toc)]);
+
 
 %% estimate SNR and CNR measures
 
@@ -94,8 +106,8 @@ scatter_atmm_ar  = zeros(length(bandwidths),length(centre_freqs));
 bw_index = 1;
 cf_index = 1;
 
-for bandwidth = bandwidths(8)
-    for centre_freq = centre_freqs(1:10)
+for bandwidth = bandwidths
+    for centre_freq = centre_freqs
 
         reflection_image = load_image(phantom_id, centre_freq, bandwidth);
 
