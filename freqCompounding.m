@@ -141,6 +141,26 @@ save(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_imageQuality'], 'S
 disp(['  completed in ' scaleTime(toc)]);
 
 
+%% plot SNR and CNR measures in 2D vs centre freq and bandwidth
+
+plot_fields = {signal_tube_ar,scatter_water_ar,scatter_atmm_ar,SNR,CNR};
+plot_titles = {'signal tube','scatter water','scatter atmm','SNR','CNR'};
+
+idx = 1;
+for plot_field = plot_fields
+    
+    figure
+    imagesc(plot_field{1})
+        title(plot_titles{idx})
+        xlabel('centre frequency [MHz]')
+        ylabel('bandwidth [MHz]')
+        yticks(1:13)
+        yticklabels({'1','2','3','4','6','8','10','15','20','25','30','35','40'})
+        
+    idx = idx + 1;
+end
+
+
 %% compounding
 
 compound_image = zeros([Nx,Ny,Nz]);
@@ -274,4 +294,8 @@ function scatter_atmm = get_avg_scattering_in_atmm(meanIP) % hard numbers !
 
 end
 
+function name_as_string = name_of_variable(variable) %#ok<INUSD>
 
+    name_as_string = inputname(1);
+
+end
