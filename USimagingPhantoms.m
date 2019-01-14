@@ -725,9 +725,23 @@ file_dir = '..\data\imagingUS\';
 
 %% 181214 atmm sith SiC #2 - BK31[CNT]
 
-file_name = '181214/atmm_SiC2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_26s27m19h_14-12-18_avg1_2D_raw.SGL';
+% file_name = '181214/atmm_SiC2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_26s27m19h_14-12-18_avg1_2D_raw.SGL';
+% 
+% c0 = 1544;
+% 
+% trigger_delay = 0;
+% 
+% dim = 3;
+% 
+% samples_cut_off = 50;
+% samples_t0_correct = -6;
 
-c0 = 1544;
+
+%% 190114 lymph node (L3) 2nd try - BK31[CNT]
+
+file_name = '190114/lymphNode2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_13s51m16h_14-01-19_avg1_2D_raw.SGL';
+
+c0 = 1520;
 
 trigger_delay = 0;
 
@@ -735,11 +749,6 @@ dim = 3;
 
 samples_cut_off = 50;
 samples_t0_correct = -6;
-
-
-
-
-
 
 
 
