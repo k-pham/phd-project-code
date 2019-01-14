@@ -117,7 +117,7 @@ reflection_image = permute(reflection_image,[2 3 1]);                   % reorde
 
 % reflection_image = trim_image_x(reflection_image,xStart,xEnd);
 % reflection_image = trim_image_y(reflection_image,yStart,yEnd);
-reflection_image = trim_image_z(reflection_image,80,1040);
+reflection_image = trim_image_z(reflection_image,1,round(Nt/2));
 
 
 %% update kgrid and make t_array for use outside
