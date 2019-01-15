@@ -12,7 +12,7 @@ params.Nt_zero_pad_source   = samples_cut_off;
 params.Nt_t0_correct        = samples_t0_correct;
 params.file_data            = file_name;
 
-global Nx Ny kgrid t_array %#ok<NUSED>
+global Nx Ny Nt kgrid t_array %#ok<NUSED>
 
 bandwidths   = [1:1:3,4:2:10,15:5:40] *1e6;
 centre_freqs = (1:1:35) *1e6;
@@ -178,33 +178,46 @@ enough_scatSNR = scatSNR > min_scatSNR;
 enough_scatSNR(1,1) = 0;
 enough_CNR = CNR > min_CNR;
 
-plot_fields = {enough_specSNR, enough_scatSNR, enough_CNR};
+image_good_enough = enough_specSNR + enough_scatSNR + enough_CNR;
+
+plot_fields = {enough_specSNR, enough_scatSNR, enough_CNR, image_good_enough};
 plot_titles = {['specSNR > ' num2str(min_specSNR)], ...
                ['scatSNR > ' num2str(min_scatSNR)], ...
-               ['CNR > ' num2str(min_CNR)] };
+               ['CNR > ' num2str(min_CNR)], ...
+               'image good enough' };
 img_files = {['specSNR_gt_' num2str(min_specSNR)], ...
              ['scatSNR_gt_' num2str(min_scatSNR)], ...
-             ['CNR_gt_' num2str(min_CNR)] };
+             ['CNR_gt_' num2str(min_CNR)], ...
+             'image_good_enough' };
 
 display_and_save_multiple_fields_vs_bw_cf(plot_fields, plot_titles, img_files)
 
 
 %% compounding
 
-compound_image = zeros([Nx,Ny,Nz]);
+compound_image = zeros([Nx,Ny,Nt]);
+num_images_compounded = 0;
 
+bw_index = 1;
 for bandwidth = bandwidths
+
+    cf_index = 1;
     for centre_freq = centre_freqs
 
-        reflection_image = load_image(phantom_id, centre_freq, bandwidth);
+        if image_good_enough(bw_index,cf_index)
+            reflection_image = load_image(phantom_id, centre_freq, bandwidth);
+            compound_image = compound_image + reflection_image;
+            num_images_compounded = num_images_compounded + 1;
+        end
 
-        compound_image = compound_image + reflection_image;
-
+        cf_index = cf_index + 1;
     end
-    compound_image = compound_image / length(centre_freq);
+    bw_index = bw_index + 1;
 end
 
-volume_data = reshape(compound_image,Nx,Ny,Nz);
+compound_image = compound_image / num_images_compounded;
+
+volume_data = reshape(compound_image,Nx,Ny,Nt);
 volume_spacing = [kgrid.dx, kgrid.dy, params.dt*c0];
 
 file_path = ['recon_data\' phantom_id '_compound.mat'];
