@@ -294,8 +294,4 @@ function scatter_atmm = get_avg_scattering_in_atmm(meanIP) % hard numbers !
 
 end
 
-function name_as_string = name_of_variable(variable) %#ok<INUSD>
 
-    name_as_string = inputname(1);
-
-end
