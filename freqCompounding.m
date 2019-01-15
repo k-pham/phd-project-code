@@ -162,24 +162,31 @@ img_files = {'signal_tube', 'scatter_water_mean', 'scatter_water_std', 'scatter_
                 'scatSNR', ...
                 'CNR'};
 
-idx = 1;
-for plot_field = plot_fields
-    
-    figure
-    imagesc(plot_field{1})
-        title(plot_titles{idx})
-        xlabel('centre frequency [MHz]')
-        ylabel('bandwidth [MHz]')
-        yticks(1:13)
-        yticklabels({'1','2','3','4','6','8','10','15','20','25','30','35','40'})
-        run('formatFigures.m')
-        
-    file_img = ['..\figures\_Matlab figs\freqCompounding\' img_files{idx} ];
-    saveas(gcf,[file_img '.fig'])
-    saveas(gcf,[file_img '.jpg'])
-    
-    idx = idx + 1;
-end
+display_and_save_multiple_fields_vs_bw_cf(plot_fields, plot_titles, img_files)
+
+
+%% select which images to use for compounding
+
+% load(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_imageQuality'])
+
+min_specSNR = 5;
+min_scatSNR = 1.25;
+min_CNR = 0.9;
+
+enough_specSNR = specSNR > min_specSNR;
+enough_scatSNR = scatSNR > min_scatSNR;
+enough_scatSNR(1,1) = 0;
+enough_CNR = CNR > min_CNR;
+
+plot_fields = {enough_specSNR, enough_scatSNR, enough_CNR};
+plot_titles = {['specSNR > ' num2str(min_specSNR)], ...
+               ['scatSNR > ' num2str(min_scatSNR)], ...
+               ['CNR > ' num2str(min_CNR)] };
+img_files = {['specSNR_gt_' num2str(min_specSNR)], ...
+             ['scatSNR_gt_' num2str(min_scatSNR)], ...
+             ['CNR_gt_' num2str(min_CNR)] };
+
+display_and_save_multiple_fields_vs_bw_cf(plot_fields, plot_titles, img_files)
 
 
 %% compounding
@@ -322,6 +329,27 @@ function [scatter_atmm_mean, scatter_atmm_std] = get_scattering_distr_in_atmm(me
 
 end
 
+function display_and_save_multiple_fields_vs_bw_cf(plot_fields, plot_titles, img_files)
 
+    idx = 1;
+    for plot_field = plot_fields
+
+        figure
+        imagesc(plot_field{1})
+            title(plot_titles{idx})
+            xlabel('centre frequency [MHz]')
+            ylabel('bandwidth [MHz]')
+            yticks(1:13)
+            yticklabels({'1','2','3','4','6','8','10','15','20','25','30','35','40'})
+            run('formatFigures.m')
+
+        file_img = ['..\figures\_Matlab figs\freqCompounding\' img_files{idx} ];
+        saveas(gcf,[file_img '.fig'])
+        saveas(gcf,[file_img '.jpg'])
+
+        idx = idx + 1;
+    end
+
+end
 
 
