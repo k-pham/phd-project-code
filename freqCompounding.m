@@ -97,9 +97,11 @@ disp(['  completed in ' scaleTime(toc)]);
 
 tic
 
-signal_tube_ar   = zeros(length(bandwidths),length(centre_freqs));
-scatter_water_ar = zeros(length(bandwidths),length(centre_freqs));
-scatter_atmm_ar  = zeros(length(bandwidths),length(centre_freqs));
+signal_tube_ar        = zeros(length(bandwidths),length(centre_freqs));
+scatter_water_mean_ar = zeros(length(bandwidths),length(centre_freqs));
+scatter_water_std_ar  = zeros(length(bandwidths),length(centre_freqs));
+scatter_atmm_mean_ar  = zeros(length(bandwidths),length(centre_freqs));
+scatter_atmm_std_ar   = zeros(length(bandwidths),length(centre_freqs));
 
 bw_index = 1;
 for bandwidth = bandwidths
@@ -115,36 +117,50 @@ for bandwidth = bandwidths
 
         %show_axial_and_lateral_profiles(meanIP)
 
-        signal_tube   = get_peak_signal_of_tube(meanIP);
-        scatter_water = get_avg_scattering_in_water(meanIP);
-        scatter_atmm  = get_avg_scattering_in_atmm(meanIP);
+        signal_tube                             = get_peak_signal_of_tube(meanIP);
+        [scatter_water_mean, scatter_water_std] = get_scattering_distr_in_water(meanIP);
+        [scatter_atmm_mean, scatter_atmm_std]   = get_scattering_distr_in_atmm(meanIP);
 
-        signal_tube_ar(bw_index,cf_index)   = signal_tube;
-        scatter_water_ar(bw_index,cf_index) = scatter_water;
-        scatter_atmm_ar(bw_index,cf_index)  = scatter_atmm;
+        signal_tube_ar(bw_index,cf_index)        = signal_tube;
+        scatter_water_mean_ar(bw_index,cf_index) = scatter_water_mean;
+        scatter_water_std_ar(bw_index,cf_index)  = scatter_water_std;
+        scatter_atmm_mean_ar(bw_index,cf_index)  = scatter_atmm_mean;
+        scatter_atmm_std_ar(bw_index,cf_index)   = scatter_atmm_std;
         
-        %SNR = signal_tube / scatter_water;
-        %CNR = scatter_atmm / scatter_water;
-
         cf_index = cf_index + 1;
     end
     bw_index = bw_index + 1;
 end
 
-save(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_imageAnalysis'], 'signal_tube_ar', 'scatter_water_ar', 'scatter_atmm_ar')
+save(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_imageAnalysis'], ...
+    'signal_tube_ar', 'scatter_water_mean_ar', 'scatter_water_std_ar', 'scatter_atmm_mean_ar', 'scatter_atmm_std_ar')
 
-SNR = signal_tube_ar ./ scatter_water_ar;
-CNR = scatter_atmm_ar ./ scatter_water_ar;
+specSNR = signal_tube_ar       ./ scatter_water_mean_ar;
+scatSNR = scatter_atmm_mean_ar ./ scatter_water_mean_ar;
+CNR = (scatter_atmm_mean_ar - scatter_water_mean_ar) ./ (scatter_atmm_std_ar + scatter_water_std_ar);
 
-save(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_imageQuality'], 'SNR', 'CNR')
+save(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_imageQuality'], 'specSNR', 'scatSNR', 'CNR')
 
 disp(['  completed in ' scaleTime(toc)]);
 
 
 %% plot SNR and CNR measures in 2D vs centre freq and bandwidth
 
-plot_fields = {signal_tube_ar,scatter_water_ar,scatter_atmm_ar,SNR,CNR};
-plot_titles = {'signal tube','scatter water','scatter atmm','SNR','CNR'};
+load(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_imageAnalysis'])
+load(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_imageQuality'])
+
+plot_fields = {signal_tube_ar, scatter_water_mean_ar, scatter_water_std_ar, scatter_atmm_mean_ar, scatter_atmm_std_ar, ...
+                specSNR, ...
+                scatSNR, ...
+                CNR};
+plot_titles = {'signal tube', 'scatter water mean', 'scatter water std', 'scatter atmm mean', 'scatter atmm std', ...
+                'specSNR = signal tube / scatter water mean', ...
+                'scatSNR = scatter atmm mean / scatter water mean', ...
+                'CNR = (atmm mean - water mean) / (atmm std + water std)'};
+img_files = {'signal_tube', 'scatter_water_mean', 'scatter_water_std', 'scatter_atmm mean', 'scatter_atmm_std', ...
+                'specSNR', ...
+                'scatSNR', ...
+                'CNR'};
 
 idx = 1;
 for plot_field = plot_fields
@@ -156,7 +172,12 @@ for plot_field = plot_fields
         ylabel('bandwidth [MHz]')
         yticks(1:13)
         yticklabels({'1','2','3','4','6','8','10','15','20','25','30','35','40'})
+        run('formatFigures.m')
         
+    file_img = ['..\figures\_Matlab figs\freqCompounding\' img_files{idx} ];
+    saveas(gcf,[file_img '.fig'])
+    saveas(gcf,[file_img '.jpg'])
+    
     idx = idx + 1;
 end
 
@@ -276,22 +297,31 @@ function signal_tube = get_peak_signal_of_tube(meanIP) % hard numbers !
 
 end
 
-function scatter_water = get_avg_scattering_in_water(meanIP) % hard numbers !
+function [scatter_water_mean, scatter_water_std] = get_scattering_distr_in_water(meanIP) % hard numbers !
 % limits customised to third tube
 
-    scatter_water = mean(mean(meanIP(61:65,385:425)));
+    ROI = meanIP(61:65,385:425);
+    
+    scatter_water_mean = mean(ROI(:));
+    scatter_water_std  = std(ROI(:));
 
 end
 
-function scatter_atmm = get_avg_scattering_in_atmm(meanIP) % hard numbers !
+function [scatter_atmm_mean, scatter_atmm_std] = get_scattering_distr_in_atmm(meanIP) % hard numbers !
 % limits customised to third tube
 
-    scatter_atmm_left  = mean(mean(meanIP(51:55,385:425)));
-    scatter_atmm_right = mean(mean(meanIP(72:76,385:425)));
-    scatter_atmm_front = mean(mean(meanIP(61:65,300:340)));
-    scatter_atmm_back  = mean(mean(meanIP(61:65,465:505)));
-    scatter_atmm = mean([scatter_atmm_left,scatter_atmm_right,scatter_atmm_front,scatter_atmm_back]);
+    ROI_left  = meanIP(51:55,385:425);
+    ROI_right = meanIP(72:76,385:425);
+    ROI_front = meanIP(61:65,300:340);
+    ROI_back  = meanIP(61:65,465:505);
+    
+    ROI = [ROI_left ROI_right ROI_front ROI_back];
+
+    scatter_atmm_mean = mean(ROI(:));
+    scatter_atmm_std  = std(ROI(:));
 
 end
+
+
 
 
