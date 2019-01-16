@@ -21,8 +21,6 @@ centre_freqs = (1:1:35) *1e6;
 %% generate lots of different reconstructions with varying freq filters
 % and save image in .mat and meanIP in .jpg/.fig
 
-tic
-
 for bandwidth = bandwidths
     for centre_freq = centre_freqs
 
@@ -38,8 +36,6 @@ for bandwidth = bandwidths
 
     end
 end
-
-disp(['  completed in ' scaleTime(toc)]);
 
 % sliceViewer
 
@@ -167,7 +163,7 @@ display_and_save_multiple_fields_vs_bw_cf(plot_fields, plot_titles, img_files)
 
 %% select which images to use for compounding
 
-% load(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_imageQuality'])
+load(['..\figures\_Matlab figs\freqCompounding\' phantom_id '_imageQuality'])
 
 min_specSNR = 5;
 min_scatSNR = 1.25;
@@ -195,6 +191,9 @@ display_and_save_multiple_fields_vs_bw_cf(plot_fields, plot_titles, img_files)
 
 %% compounding
 
+tic
+
+Nx = 172; Ny = 171; Nt = 961;
 compound_image = zeros([Nx,Ny,Nt]);
 num_images_compounded = 0;
 
@@ -217,13 +216,37 @@ end
 
 compound_image = compound_image / num_images_compounded;
 
+disp(['  completed in ' scaleTime(toc)]);
+
 volume_data = reshape(compound_image,Nx,Ny,Nt);
 volume_spacing = [kgrid.dx, kgrid.dy, params.dt*c0];
 
-file_path = ['recon_data\' phantom_id '_compound.mat'];
+% file_path = ['recon_data\' phantom_id '_compound.mat'];
+file_path = ['recon_data\' phantom_id '_compound_bw10.mat'];
 save(file_path,'volume_data','volume_spacing','-v7.3')
 
 sliceViewer
+
+
+%% assess quality of unfiltered, compound and compound with bw10 only
+
+file_path = ['recon_data\' phantom_id '.mat'];
+% file_path = ['recon_data\' phantom_id '_compound.mat'];
+% file_path = ['recon_data\' phantom_id '_compound_bw10.mat'];
+image_data = load(file_path);
+compound_image = image_data.volume_data;
+
+compound_image = compound_image(:,:,80:1040);
+
+meanIP = get_mean_intensity_projection(compound_image);
+
+signal_tube = get_peak_signal_of_tube(meanIP);
+[scatter_water_mean, scatter_water_std] = get_scattering_distr_in_water(meanIP);
+[scatter_atmm_mean, scatter_atmm_std] = get_scattering_distr_in_atmm(meanIP);
+
+specSNR = signal_tube       / scatter_water_mean;
+scatSNR = scatter_atmm_mean / scatter_water_mean;
+CNR = (scatter_atmm_mean - scatter_water_mean) / (scatter_atmm_std + scatter_water_std);
 
 
 %% local functions
