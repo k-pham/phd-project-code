@@ -37,7 +37,7 @@ for bandwidth = bandwidths
     end
 end
 
-% sliceViewer
+sliceViewer
 
 
 %% load set of images and find cmap suitable for each set with single bandwidth
@@ -108,10 +108,10 @@ for bandwidth = bandwidths
         reflection_image = load_image(phantom_id, centre_freq, bandwidth);
 
         meanIP = get_mean_intensity_projection(reflection_image);
-        %figure
-        %imagesc(meanIP')
+        figure
+        imagesc(meanIP')
 
-        %show_axial_and_lateral_profiles(meanIP)
+        show_axial_and_lateral_profiles(meanIP)
 
         signal_tube                             = get_peak_signal_of_tube(meanIP);
         [scatter_water_mean, scatter_water_std] = get_scattering_distr_in_water(meanIP);
@@ -190,6 +190,7 @@ display_and_save_multiple_fields_vs_bw_cf(plot_fields, plot_titles, img_files)
 
 
 %% compounding
+% uses image_good_enough binary field to choose images for compounding
 
 tic
 
@@ -230,13 +231,13 @@ sliceViewer
 
 %% assess quality of unfiltered, compound and compound with bw10 only
 
-file_path = ['recon_data\' phantom_id '.mat'];
+% file_path = ['recon_data\' phantom_id '.mat'];
 % file_path = ['recon_data\' phantom_id '_compound.mat'];
-% file_path = ['recon_data\' phantom_id '_compound_bw10.mat'];
+file_path = ['recon_data\' phantom_id '_compound_bw10.mat'];
 image_data = load(file_path);
 compound_image = image_data.volume_data;
 
-compound_image = compound_image(:,:,80:1040);
+% compound_image = compound_image(:,:,80:1040); % trim unfiltered image to same depth
 
 meanIP = get_mean_intensity_projection(compound_image);
 
