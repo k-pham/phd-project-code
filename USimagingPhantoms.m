@@ -768,7 +768,8 @@ file_dir = '..\data\imagingDM\';
 
 %% 190124 DM atmm + india ink tubes - BF16[AuNP]
 
-file_name = '190124/atmm+indiaInk_BF16[AuNP]_600nm@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_35s46m19h_24-01-19_avg1_2D_raw.SGL';
+% file_name = '190124/atmm+indiaInk_BF16[AuNP]_600nm@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_35s46m19h_24-01-19_avg1_2D_raw.SGL';
+file_name = '190124/atmm+indiaInk2_BF16[AuNP]_600nm@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_35s21m21h_24-01-19_avg1_2D_raw.SGL';
 
 c0 = 1544;
 
