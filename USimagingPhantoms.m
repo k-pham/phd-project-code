@@ -754,17 +754,30 @@ file_dir = '..\data\imagingDM\';
 %% 190122 DM polymer leaf - BF16[AuNP]
 
 % file_name = '190122/polymerLeaf_BF16[AuNP]_600nm@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_52s22m21h_22-01-19_avg1_2D_raw.SGL';
-file_name = '190122/polymerLeaf_BF16[AuNP]_900nm_02@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_15s25m22h_22-01-19_avg1_2D_raw.SGL';
+% file_name = '190122/polymerLeaf_BF16[AuNP]_900nm_02@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_15s25m22h_22-01-19_avg1_2D_raw.SGL';
+% 
+% c0 = 1484;
+% 
+% trigger_delay = 0;
+% 
+% dim = 3;
+% 
+% samples_cut_off = 100;
+% samples_t0_correct = -10;
 
-c0 = 1484;
+
+%% 190124 DM atmm + india ink tubes - BF16[AuNP]
+
+file_name = '190124/atmm+indiaInk_BF16[AuNP]_600nm@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_35s46m19h_24-01-19_avg1_2D_raw.SGL';
+
+c0 = 1544;
 
 trigger_delay = 0;
 
 dim = 3;
 
-samples_cut_off = 100;
-samples_t0_correct = -10;
-
+samples_cut_off = 50;
+samples_t0_correct = -5;
 
 
 
