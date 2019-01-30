@@ -769,9 +769,37 @@ file_dir = '..\data\imagingDM\';
 %% 190124 DM atmm + india ink tubes - BF16[AuNP]
 
 % file_name = '190124/atmm+indiaInk_BF16[AuNP]_600nm@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_35s46m19h_24-01-19_avg1_2D_raw.SGL';
-file_name = '190124/atmm+indiaInk2_BF16[AuNP]_600nm@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_35s21m21h_24-01-19_avg1_2D_raw.SGL';
+% file_name = '190124/atmm+indiaInk2_BF16[AuNP]_600nm@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_35s21m21h_24-01-19_avg1_2D_raw.SGL';
+% 
+% c0 = 1544;
+% 
+% trigger_delay = 0;
+% 
+% dim = 3;
+% 
+% samples_cut_off = 50;
+% samples_t0_correct = -5;
 
-c0 = 1544;
+
+%% 190129 DM agar + ink/water tubes(PMMA) - BF16[AuNP]
+
+% file_name = '190129/agar+inkORwater_BF16[AuNP]_600nm@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_41s54m21h_29-01-19_avg1_2D_raw.SGL';
+% 
+% c0 = 1544;
+% 
+% trigger_delay = 0;
+% 
+% dim = 3;
+% 
+% samples_cut_off = 50;
+% samples_t0_correct = -5;
+
+
+%% 190129 ink tubes(soft rubber) - BF16[AuNP]
+
+file_name = '190129/inkTubes_BF16[AuNP]_600nm@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_31s20m23h_29-01-19_avg1_2D_raw.SGL';
+
+c0 = 1484;
 
 trigger_delay = 0;
 
@@ -779,7 +807,5 @@ dim = 3;
 
 samples_cut_off = 50;
 samples_t0_correct = -5;
-
-
 
 
