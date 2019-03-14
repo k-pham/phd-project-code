@@ -12,9 +12,9 @@ classdef SensorData < handle
         dy
         dt
         trigger_delay
+        Nt_delay
         Nt_zero_pad_source
         Nt_t0_correct
-        
     end
     
     methods
@@ -39,9 +39,11 @@ classdef SensorData < handle
             obj.dx = obj.params.dx;
             obj.dy = obj.params.dy;
             obj.dt = obj.params.dt;
+            
+            obj.Nt_delay = obj.trigger_delay / obj.dt;
         end
         
-        % zero padding source        
+        % zero padding source
         function obj = zero_padding_source(obj, pads)
             obj.sensor_data = cat(3, zeros(obj.Nx,obj.Ny,pads), obj.sensor_data(:,:,pads+1:end) );
         end
