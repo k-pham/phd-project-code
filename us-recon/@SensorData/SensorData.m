@@ -30,78 +30,32 @@ classdef SensorData < handle
         end
         
         % load data and params
-        function obj = load_data_and_params(obj)
-            [obj.sensor_data, obj.params] = loadSGL([obj.file_dir obj.file_name]);
-            
-            obj.Nx = obj.params.Nx;
-            obj.Ny = obj.params.Ny;
-            obj.Nt = obj.params.Nt;
-            obj.dx = obj.params.dx;
-            obj.dy = obj.params.dy;
-            obj.dt = obj.params.dt;
-            
-            obj.Nt_delay = obj.trigger_delay / obj.dt;
-        end
+        obj = load_data_and_params(obj)
         
         % zero padding source
-        function obj = zero_padding_source(obj, pads)
-            obj.sensor_data = cat(3, zeros(obj.Nx,obj.Ny,pads), obj.sensor_data(:,:,pads+1:end) );
-        end
+        obj = zero_padding_source(obj, pads)
         
         % zero padding delay
-        function obj = zero_padding_delay(obj, pads)
-            obj.sensor_data = cat(3, zeros(obj.Nx,obj.Ny,int32(pads)), obj.sensor_data );
-            obj.Nt = obj.Nt + pads;
-        end
+        obj = zero_padding_delay(obj, pads)
         
         % t0 correction
-        function obj = correcting_t0(obj, correction)
-            if correction > 0
-                obj.sensor_data = cat(3, zeros(obj.Nx,obj.Ny,correction), obj.sensor_data);
-            elseif correction < 0
-                obj.sensor_data = obj.sensor_data(:,:,-correction+1:end);
-            end
-            obj.Nt = obj.Nt + correction;
-        end
+        obj = correcting_t0(obj, correction)
         
         % zero padding sides
-        function obj = zero_padding_sides(obj, pads)
-            sensor_data_padded = zeros(obj.Nx+2*pads, obj.Ny+2*pads, obj.Nt);
-            sensor_data_padded(pads+1:obj.Nx+pads, pads+1:obj.Ny+pads, :) = obj.sensor_data;
-            assert(isequal( size(sensor_data_padded), size(obj.sensor_data)+[2*pads,2*pads,0] ))
-
-            obj.sensor_data = sensor_data_padded;
-            obj.Nx = obj.Nx + 2*pads;
-            obj.Ny = obj.Ny + 2*pads;
-        end
+        obj = zero_padding_sides(obj, pads)
         
         % upsampling data *2
-        function obj = upsampling_x2(obj)
-            sensor_data_upsampled = zeros( 2*obj.Nx, 2*obj.Ny, obj.Nt );
-            for i = 1:obj.Nx
-                for j = 1:obj.Ny
-                    sensor_data_upsampled(2*i-1,2*j-1,:) = obj.sensor_data(i,j,:);
-                    sensor_data_upsampled(2*i-1,2*j  ,:) = obj.sensor_data(i,j,:);
-                    sensor_data_upsampled(2*i  ,2*j-1,:) = obj.sensor_data(i,j,:);
-                    sensor_data_upsampled(2*i  ,2*j  ,:) = obj.sensor_data(i,j,:);
-                end
-            end
-            assert(isequal( size(sensor_data_upsampled), [2*obj.Nx, 2*obj.Ny, obj.Nt] ))
-            
-            obj.sensor_data = sensor_data_upsampled;
-            obj.Nx = 2*obj.Nx;
-            obj.Ny = 2*obj.Ny;
-            obj.dx = obj.dx/2;
-            obj.dy = obj.dy/2;
-        end
+        obj = upsampling_x2(obj)
         
         % apodising data
-        function obj = apodising(obj)
-            win = getWin([obj.Nx obj.Ny], 'Cosine');
-            win = win + 0.5;
-            obj.sensor_data = bsxfun(@times, win, obj.sensor_data);
-        end
+        obj = apodising(obj)
 
+        % frequency bandpass filtering data
+        obj = freq_filtering(obj, freqfilter_params)
+        
+        % prepare data maybe using all processing methods
+        obj = prepare_data(obj, varargin)
+        
     end
     
 end
