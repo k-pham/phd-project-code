@@ -40,7 +40,7 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
     end
 
     % plot
-    figure(1000)
+    figure(6)
     set(gcf,'Position',[200 600 700 400])
     plot(time,vAC)
     %plot(vAC)
@@ -51,12 +51,12 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
                 ylim([-0.1 1.1])
             case false
                 title({'SPI time series',file_name},'Interpreter','none')
-                ylim([-0.1 1])    % NL prop range
+%                 ylim([-0.1 1])    % NL prop range
     %             ylim([-1 1])    % laserGenUS range
         end
         xlabel('time / \mu s')
         ylabel('signal amplitude / V')
-        xlim([5.70 5.90])    % NL prop range
+%         xlim([5.70 5.90])    % NL prop range
     %     xlim([6 16])    % laserGenUS range
     
 end
