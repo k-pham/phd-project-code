@@ -29,6 +29,14 @@ fclose(fileID);
 % extract time series from data
 t_series = dataSGLsingle(2,t_min:t_max);
 
+% remove DC base line (average of 10%-pre-peak signal)
+avg_DCoffset = mean(t_series(1:round(length(t_series)/10)));
+t_series = t_series - avg_DCoffset;
+
+% filter t_series with Tukey window
+win = getWin(length(t_series),'Tukey');
+t_series = bsxfun(@times, win', t_series);
+
 % FFT time series to get frequency spectrum using spect
 [frequency, f_series] = spect(t_series,freq_sampling);
 
