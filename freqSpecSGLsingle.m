@@ -28,6 +28,7 @@ fclose(fileID);
 
 % extract time series from data
 t_series = dataSGLsingle(2,t_min:t_max);
+time = dataSGLsingle(1,t_min:t_max) * 1e-3; % in us
 
 % remove DC base line (average of 10%-pre-peak signal)
 avg_DCoffset = mean(t_series(1:round(length(t_series)/10)));
@@ -55,13 +56,40 @@ hold on
     switch toNormalise
         case true
             title({'normalised freqSpec of SPI time series',file_name},'Interpreter','none')
-            ylim([1e-3 1])
+            ylim([1e-4 1])
+            xlim([0,400])
         case false
             title({'freqSpec of SPI time series',file_name},'Interpreter','none')
-            ylim([1e-5 1e-1])
+%             ylim([1e-5 1e-1])
     end
     xlabel('frequency / MHz')
     ylabel('signal amplitude / V')
     %xlim([0 1])
+    
+% plot with part of time series used, Tukey filter, freq spectrum
+figure(1)
+set(gcf,'Position',[200 300 700 700])
+subplot(3,1,1)
+hold on
+plot(time,t_series)
+    title('time series used for spect')
+    xlabel('time [us]')
+    ylabel('signal [mV]')
+%     axis([3,3.5,-100,1000])
+subplot(3,1,2)
+hold on
+plot(time,win)
+    title('Tukey window filter')
+    xlabel('time [us]')
+    ylabel('signal [mV]')
+%     axis([3,3.5,0,1])
+subplot(3,1,3)
+semilogy(frequency/1e6, f_series)
+hold on
+    title('frequency spectrum')
+    xlabel('frequency [MHz]')
+    ylabel('signal amplitude')
+    xlim([0,400])
+    ylim([1e-4 1])
 
 end

@@ -40,8 +40,15 @@ file_dir = '../data/coatingCharac/';
     
 % file_name = '181012/AuNPfilm_AHD1@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_49s21m18h_12-10-18_avg1_2D_raw.SGL';
 % file_name = '181012/AuNPfilm_flipped_AHD1@0nm_t0[60]_dx[100µm]_dy[100µm]_dt[4ns]_57s10m18h_12-10-18_avg1_2D_raw.SGL';
-file_name = '181023/OPO600_AuNP[unbacked]_AHD1_avg100@0nm_t0[0]_dx[0µm]_dy[100µm]_dt[4ns]_29s35m12h_23-10-18_avg100_1D_raw.SGL';
-file_name = '181023/OPO600_AuNP[unbacked]_flipped_AHD1_avg100@0nm_t0[0]_dx[0µm]_dy[100µm]_dt[4ns]_49s50m12h_23-10-18_avg100_1D_raw.SGL';
+% file_name = '181023/OPO600_AuNP[unbacked]_AHD1_avg100@0nm_t0[0]_dx[0µm]_dy[100µm]_dt[4ns]_29s35m12h_23-10-18_avg100_1D_raw.SGL';
+% file_name = '181023/OPO600_AuNP[unbacked]_flipped_AHD1_avg100@0nm_t0[0]_dx[0µm]_dy[100µm]_dt[4ns]_49s50m12h_23-10-18_avg100_1D_raw.SGL';
+%     t_0 = 0;
+
+file_name = '190411/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wholefield@0nm_t0[0]_dx[200µm]_dy[200µm]_dt[4ns]_16s59m18h_11-04-19_avg1_2D_raw.SGL';
+    t_0 = 0;
+file_name = '190411/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wavefront@0nm_t0[-250]_dx[100µm]_dy[100µm]_dt[4ns]_27s38m19h_11-04-19_avg1_2D_raw.SGL';
+    t_0 = 2e-6;
+file_name = '190411/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_31s46m19h_11-04-19_avg1_2D_raw.SGL';
     t_0 = 0;
 
 %% heatingEffects: pulse2pulse
@@ -52,17 +59,17 @@ file_name = '181023/OPO600_AuNP[unbacked]_flipped_AHD1_avg100@0nm_t0[0]_dx[0µm]_
 
 %% viewSGL: map laserGenUS in transmission  &  freqSpecSGL
 [dataSGL, params] = loadSGL( [file_dir file_name] );
-% slice_x = 50;
-% slice_y = 50;
-% viewSGL(dataSGL,params,t_0,slice_x,slice_y)
-for slice = 1:150
-    viewSGLline(dataSGL,params,t_0,slice)
-%     pause
-end
+slice_x = 4;
+slice_y = 4;
+viewSGL(dataSGL,params,t_0,slice_x,slice_y)
+% for slice = 1:150
+%     viewSGLline(dataSGL,params,t_0,slice)
+% %     pause
+% end
 % t_min = 100;
 % t_max = 300;
 % freqSpecSGL(dataSGL,1/dt,slice_x,slice_y,t_min,t_max)
-[frequency, f_series_avg] = freqSpecSGLavgLine(dataSGL(:,700:999),params);
+% [frequency, f_series_avg] = freqSpecSGLavgLine(dataSGL(:,700:999),params);
 
 %% get PMAX and TOA in 2d grid and vector
 [ PMAX_xy, TOA_xy ] = max(-dataSGL,[],3);

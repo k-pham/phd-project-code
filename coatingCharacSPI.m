@@ -229,10 +229,10 @@ file_name = 'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_d
 
 dt = 0.8e-9;
 t_min = 3900;
-t_max = 4150;
+t_max = 4100;
 t_0 = 0e-6;
 
-viewSGLsingle(file_dir,file_name,t_0,'Norm',false)
+% viewSGLsingle(file_dir,file_name,t_0,'Norm',false)
 freqSpecSGLsingle(file_dir,file_name,1/dt,t_min,t_max,'Norm',true)
 
 
