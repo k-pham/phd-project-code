@@ -213,5 +213,28 @@ freqSpecSGLsingle(file_dir,file_name,1/dt,t_min,t_max,'Norm',true)
 % legend('143 \mu s + ND1','143 \mu s + ND0.5','143 \mu s + ND0.3','143 \mu s')
 
 
+%% 180411 freqSpec with 350 MHz bandwidth scope
+
+file_dir = 'D:\PROJECT\data\coatingCharac\190411\';
+
+% with full power
+file_name = 'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_31s46m19h_11-04-19_avg1_savg144_raw.txt';
+% file_name = 'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint_alignpeaks@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_17s49m19h_11-04-19_avg1_savg144_raw_jitter-corrected.txt.';
+
+% with ND1
+% file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[0ns]_48s09m20h_11-04-19_avg1_savg1024_raw.txt';
+% file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[0ns]_48s09m20h_11-04-19_avg1_savg1024_raw_jitter-corrected.txt';
+% file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_22s12m20h_11-04-19_avg1_savg1024_raw.txt';
+% file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_22s12m20h_11-04-19_avg1_savg1024_raw_jitter-corrected.txt';
+
+dt = 0.8e-9;
+t_min = 3900;
+t_max = 4150;
+t_0 = 0e-6;
+
+viewSGLsingle(file_dir,file_name,t_0,'Norm',false)
+freqSpecSGLsingle(file_dir,file_name,1/dt,t_min,t_max,'Norm',true)
+
+
 
 
