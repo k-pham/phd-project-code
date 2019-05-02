@@ -4,6 +4,8 @@ function freqSpecSGLsingle(file_dir,file_name,freq_sampling,t_min,t_max,varargin
 % set usage defaults
 num_req_input_variables = 5;
 toNormalise = false;
+toRemoveDC = true;
+toApplyTukey = true;
 
 % replace with user defined values if provided
 if nargin < num_req_input_variables
@@ -13,6 +15,10 @@ elseif ~isempty(varargin)
         switch varargin{input_index}
             case 'Norm'
                 toNormalise = varargin{input_index + 1};
+            case 'removeDC'
+                toRemoveDC = varargin{input_index + 1};
+            case 'applyTukey'
+                toApplyTukey = varargin{input_index + 1};
             otherwise
                 error('Unknown optional input.');
         end
@@ -31,12 +37,17 @@ t_series = dataSGLsingle(2,t_min:t_max);
 time = dataSGLsingle(1,t_min:t_max) * 1e-3; % in us
 
 % remove DC base line (average of 10%-pre-peak signal)
-avg_DCoffset = mean(t_series(1:round(length(t_series)/10)));
-t_series = t_series - avg_DCoffset;
+if toRemoveDC == true
+    num_avg_samples = round(length(t_series)/10);
+    avg_DCoffset = mean(t_series(1:num_avg_samples));
+    t_series = t_series - avg_DCoffset;
+end
 
 % filter t_series with Tukey window
-win = getWin(length(t_series),'Tukey');
-t_series = bsxfun(@times, win', t_series);
+if toApplyTukey == true
+    win = getWin(length(t_series),'Tukey');
+    t_series = bsxfun(@times, win', t_series);
+end
 
 % FFT time series to get frequency spectrum using spect
 [frequency, f_series] = spect(t_series,freq_sampling);
