@@ -228,12 +228,14 @@ file_name = 'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_d
 % file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_22s12m20h_11-04-19_avg1_savg1024_raw_jitter-corrected.txt';
 
 dt = 0.8e-9;
-t_min = 3000;
-t_max = 5000;
+t_mins = [3000, 3500, 3750, 3900];
+t_maxs = [5000, 4500, 4250, 4100];
 t_0 = 0e-6;
 
-% viewSGLsingle(file_dir,file_name,t_0,'Norm',false)
-freqSpecSGLsingle(file_dir,file_name,1/dt,t_min,t_max,'Norm',false)
+for idx = 1:length(t_mins)
+    % viewSGLsingle(file_dir,file_name,t_0,'Norm',false)
+    freqSpecSGLsingle(file_dir,file_name,1/dt,t_mins(idx),t_maxs(idx),'Norm',false)
+end
 
 
 
