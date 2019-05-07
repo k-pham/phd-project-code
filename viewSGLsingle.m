@@ -4,6 +4,7 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
     % set usage defaults
     num_req_input_variables = 3;
     toNormalise = false;
+    toUseTimeAxis = true;
 
     % replace with user defined values if provided
     if nargin < num_req_input_variables
@@ -13,6 +14,8 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
             switch varargin{input_index}
                 case 'Norm'
                     toNormalise = varargin{input_index + 1};
+                case 'timeAxis'
+                    toUseTimeAxis = varargin{input_index + 1};
                 otherwise
                     error('Unknown optional input.');
             end
@@ -40,10 +43,14 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
     end
 
     % plot
-    figure(6)
+    figure
     set(gcf,'Position',[200 600 700 400])
-    plot(time,vAC)
-    %plot(vAC)
+    switch toUseTimeAxis
+        case true
+            plot(time,vAC)
+        case false
+            plot(vAC)
+    end
     hold on
         switch toNormalise
             case true
