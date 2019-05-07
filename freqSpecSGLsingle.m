@@ -71,7 +71,7 @@ if toNormalise == true
 end
 
 % plot
-figure(102)
+figure(104)
 set(gcf,'Position',[200 20 700 500])
 semilogy(frequency/1e6, f_series)
     %plot(frequency/1e6, 20*log(f_series))
@@ -92,7 +92,7 @@ hold on
     
 
 % plot with part of time series used, Tukey filter, freq spectra of series & filter
-figure(1002)
+figure(1004)
 set(gcf,'Position',[200 300 1000 600])
 subplot(2,2,1)
 hold on
@@ -122,5 +122,7 @@ hold on
     title('freq spec of tukey')
     xlabel('frequency [MHz]')
     ylabel('signal amplitude')
+    xlim([0,100])
+    ylim([1e-5,1])
 
 end
