@@ -45,12 +45,25 @@ end
 
 % filter t_series with Tukey window
 if toApplyTukey == true
-    win = getWin(length(t_series),'Tukey');
-    t_series = bsxfun(@times, win', t_series);
+    tukey_win = getWin(length(t_series),'Tukey');
+    t_series = bsxfun(@times, tukey_win', t_series);
+end
+
+% padding of t_series and tukey window (to ensure same size freq bins)
+min_length = 2001;
+if length(t_series) < min_length
+    num_pad_samples_front = round((min_length - length(t_series))/2);
+    num_pad_samples_back = min_length - length(t_series) - num_pad_samples_front;
+    
+    t_series  = [ zeros(1,num_pad_samples_front) t_series   zeros(1,num_pad_samples_back) ];
+	tukey_win = [ zeros(1,num_pad_samples_front) tukey_win' zeros(1,num_pad_samples_back) ];
+    time = dataSGLsingle(1, t_min-num_pad_samples_front : t_max+num_pad_samples_back ) * 1e-3;
 end
 
 % FFT time series to get frequency spectrum using spect
 [frequency, f_series] = spect(t_series,freq_sampling);
+f_tukey = spect(tukey_win,freq_sampling);
+
 
 % normalise frequency spectrum if requested
 if toNormalise == true
@@ -58,7 +71,7 @@ if toNormalise == true
 end
 
 % plot
-figure(101)
+figure(102)
 set(gcf,'Position',[200 20 700 500])
 semilogy(frequency/1e6, f_series)
     %plot(frequency/1e6, 20*log(f_series))
@@ -77,30 +90,37 @@ hold on
     ylabel('signal amplitude / V')
     %xlim([0 1])
     
-% plot with part of time series used, Tukey filter, freq spectrum
-figure(1)
-set(gcf,'Position',[200 300 700 700])
-subplot(3,1,1)
+
+% plot with part of time series used, Tukey filter, freq spectra of series & filter
+figure(1002)
+set(gcf,'Position',[200 300 1000 600])
+subplot(2,2,1)
 hold on
 plot(time,t_series)
-    title('time series used for spect')
+    title('windowed & filtered time series')
     xlabel('time [us]')
     ylabel('signal [mV]')
 %     axis([3,3.5,-100,1000])
-subplot(3,1,2)
+subplot(2,2,2)
 hold on
-plot(time,win)
+plot(time,tukey_win)
     title('Tukey window filter')
     xlabel('time [us]')
     ylabel('signal [mV]')
-%     axis([3,3.5,0,1])
-subplot(3,1,3)
+	ylim([-0.1,1.1])
+subplot(2,2,3)
 semilogy(frequency/1e6, f_series)
 hold on
     title('frequency spectrum')
     xlabel('frequency [MHz]')
     ylabel('signal amplitude')
     xlim([0,400])
-    ylim([1e-4 1])
+%     ylim([1e-4 1])
+subplot(2,2,4)
+semilogy(frequency/1e6, f_tukey)
+hold on
+    title('freq spec of tukey')
+    xlabel('frequency [MHz]')
+    ylabel('signal amplitude')
 
 end
