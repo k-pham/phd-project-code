@@ -44,12 +44,22 @@ file_dir = '../data/coatingCharac/';
 % file_name = '181023/OPO600_AuNP[unbacked]_flipped_AHD1_avg100@0nm_t0[0]_dx[0µm]_dy[100µm]_dt[4ns]_49s50m12h_23-10-18_avg100_1D_raw.SGL';
 %     t_0 = 0;
 
-file_name = '190411/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wholefield@0nm_t0[0]_dx[200µm]_dy[200µm]_dt[4ns]_16s59m18h_11-04-19_avg1_2D_raw.SGL';
-    t_0 = 0;
-file_name = '190411/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wavefront@0nm_t0[-250]_dx[100µm]_dy[100µm]_dt[4ns]_27s38m19h_11-04-19_avg1_2D_raw.SGL';
+% file_name = '190411/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wholefield@0nm_t0[0]_dx[200µm]_dy[200µm]_dt[4ns]_16s59m18h_11-04-19_avg1_2D_raw.SGL';
+%     t_0 = 0;
+% file_name = '190411/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wavefront@0nm_t0[-250]_dx[100µm]_dy[100µm]_dt[4ns]_27s38m19h_11-04-19_avg1_2D_raw.SGL';
+%     t_0 = 2e-6;
+% file_name = '190411/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_31s46m19h_11-04-19_avg1_2D_raw.SGL';
+%     t_0 = 0;
+    
+% file_name = '190507/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wholefield@0nm_t0[0]_dx[200µm]_dy[200µm]_dt[4ns]_11s03m18h_07-05-19_avg1_2D_raw.SGL';
+% file_name = '190507/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wholefield_2@0nm_t0[0]_dx[200µm]_dy[200µm]_dt[4ns]_23s28m18h_07-05-19_avg1_2D_raw.SGL';
+% file_name = '190507/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wholefield_2@0nm_t0[0]_dx[200µm]_dy[200µm]_dt[4ns]_38s44m18h_07-05-19_avg1_2D_raw.SGL';
+% file_name = '190507/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wholefield_2@0nm_t0[0]_dx[200µm]_dy[200µm]_dt[4ns]_56s58m18h_07-05-19_avg1_2D_raw.SGL';
+% file_name = '190507/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wholefield_2@0nm_t0[0]_dx[200µm]_dy[200µm]_dt[4ns]_41s08m19h_07-05-19_avg1_2D_raw.SGL';
+%     t_0 = 0;
+% file_name = '190507/ULTRA3[143us]_difuser05b_CNT[perspex]_AHD1_wavefront@0nm_t0[-250]_dx[100µm]_dy[100µm]_dt[4ns]_51s40m19h_07-05-19_avg1_2D_raw.SGL';
+file_name = '190507/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wavefront_2@0nm_t0[-250]_dx[100µm]_dy[100µm]_dt[4ns]_54s08m20h_07-05-19_avg1_2D_raw.SGL';
     t_0 = 2e-6;
-file_name = '190411/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_31s46m19h_11-04-19_avg1_2D_raw.SGL';
-    t_0 = 0;
 
 %% heatingEffects: pulse2pulse
 % heatingEffects_p2p(file_dir,file_name_p2p,dt_samples_p2p,num_samples_p2p)
@@ -59,8 +69,8 @@ file_name = '190411/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_
 
 %% viewSGL: map laserGenUS in transmission  &  freqSpecSGL
 [dataSGL, params] = loadSGL( [file_dir file_name] );
-slice_x = 4;
-slice_y = 4;
+slice_x = 75;
+slice_y = 75;
 viewSGL(dataSGL,params,t_0,slice_x,slice_y)
 % for slice = 1:150
 %     viewSGLline(dataSGL,params,t_0,slice)
@@ -233,4 +243,14 @@ mesh(X,Y,TOA_fit_xy)
     xlim([0,Nx])
     ylim([0,Ny])
     zlim([160,180])
+
+
+%% viewSGL for all-optical US paper
+
+figure
+
+
+
+
+
 
