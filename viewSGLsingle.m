@@ -43,7 +43,7 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
     end
 
     % plot
-    figure
+    figure(1)
     set(gcf,'Position',[200 600 700 400])
     switch toUseTimeAxis
         case true
