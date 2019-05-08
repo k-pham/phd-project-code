@@ -226,7 +226,7 @@ file_name = 'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_d
 % file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[0ns]_48s09m20h_11-04-19_avg1_savg1024_raw.txt';
 % file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[0ns]_48s09m20h_11-04-19_avg1_savg1024_raw_jitter-corrected.txt';
 % using dt = 0.8 ns
-% file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_22s12m20h_11-04-19_avg1_savg1024_raw.txt';
+file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_22s12m20h_11-04-19_avg1_savg1024_raw.txt';
 % file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_22s12m20h_11-04-19_avg1_savg1024_raw_jitter-corrected.txt';
 
 t_0 = 0e-6;
@@ -235,16 +235,45 @@ t_0 = 0e-6;
 % pause
 
 dt = 0.8e-9;
-t_mins = [3000, 3500, 3750, 3900];
-t_maxs = [5000, 4500, 4250, 4100];
+t_mins = 3000;%[3000, 3500, 3750, 3900];
+t_maxs = 5000;%[5000, 4500, 4250, 4100];
 
 % for ND1 TOA slightly later
-% t_mins = t_mins + 40; t_maxs = t_maxs + 40;
+t_mins = t_mins + 40; t_maxs = t_maxs + 40;
 
 for idx = 1:length(t_mins)
-    freqSpecSGLsingle(file_dir,file_name,1/dt,t_mins(idx),t_maxs(idx),'Norm',false)
+    freqSpecSGLsingle(file_dir,file_name,1/dt,t_mins(idx),t_maxs(idx),'Norm',true)
 end
 
 
+%% 180507 freqSpec with 350 MHz bandwidth scope
 
+file_dir = 'D:\PROJECT\data\coatingCharac\190507\';
 
+% full power
+file_name = 'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_15s41m20h_07-05-19_avg1_savg144_raw.txt';
+% file_name = 'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_15s41m20h_07-05-19_avg1_savg144_raw_jitter-corrected.txt';
+
+% ND1 filter
+file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_51s04m21h_07-05-19_avg1_savg1024_raw.txt';
+% file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_51s04m21h_07-05-19_avg1_savg1024_raw_jitter-corrected.txt';
+
+% ND1 filter & distance
+file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint_dist2@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_04s12m21h_07-05-19_avg1_savg1024_raw.txt';
+% file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint_dist2@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_04s12m21h_07-05-19_avg1_savg1024_raw_jitter-corrected.txt';
+
+t_0 = 0e-6;
+
+viewSGLsingle(file_dir,file_name,t_0,'Norm',true,'timeAxis',false)
+pause
+
+dt = 0.8e-9;
+t_mins = 5500;%[3000, 3500, 3750, 3900];
+t_maxs = 7500;%[5000, 4500, 4250, 4100];
+
+% for ND1 TOA slightly later
+t_mins = t_mins + 40; t_maxs = t_maxs + 40;
+
+for idx = 1:length(t_mins)
+    freqSpecSGLsingle(file_dir,file_name,1/dt,t_mins(idx),t_maxs(idx),'Norm',true)
+end
