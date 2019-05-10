@@ -264,15 +264,17 @@ file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint_dist2@0
 
 t_0 = 0e-6;
 
-viewSGLsingle(file_dir,file_name,t_0,'Norm',true,'timeAxis',false)
-pause
+% viewSGLsingle(file_dir,file_name,t_0,'Norm',true,'timeAxis',false)
+% pause
 
 dt = 0.8e-9;
-t_mins = 5500;%[3000, 3500, 3750, 3900];
-t_maxs = 7500;%[5000, 4500, 4250, 4100];
+t_mins = 3750;   %5500;%[3000, 3500, 3750, 3900];
+t_maxs = 4250;   %7500;%[5000, 4500, 4250, 4100];
 
 % for ND1 TOA slightly later
 t_mins = t_mins + 40; t_maxs = t_maxs + 40;
+% for ND1 + dist TOA much later
+t_mins = t_mins + 2500; t_maxs = t_maxs + 2500;
 
 for idx = 1:length(t_mins)
     freqSpecSGLsingle(file_dir,file_name,1/dt,t_mins(idx),t_maxs(idx),'Norm',true)
