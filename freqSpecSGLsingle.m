@@ -66,8 +66,13 @@ f_tukey = spect(tukey_win,freq_sampling);
 
 
 % normalise frequency spectrum if requested
-if toNormalise == true
-    f_series = f_series / max(f_series);
+switch toNormalise
+    case 'peak'
+        f_series = f_series / max(f_series);
+    case 'peak2noise'
+        % get peak
+        % get average level of noise
+        % HOW TO SCALE RANGE
 end
 
 % plot
