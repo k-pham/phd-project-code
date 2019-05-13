@@ -58,8 +58,13 @@ file_dir = '../data/coatingCharac/';
 % file_name = '190507/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wholefield_2@0nm_t0[0]_dx[200µm]_dy[200µm]_dt[4ns]_41s08m19h_07-05-19_avg1_2D_raw.SGL';
 %     t_0 = 0;
 % file_name = '190507/ULTRA3[143us]_difuser05b_CNT[perspex]_AHD1_wavefront@0nm_t0[-250]_dx[100µm]_dy[100µm]_dt[4ns]_51s40m19h_07-05-19_avg1_2D_raw.SGL';
-file_name = '190507/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wavefront_2@0nm_t0[-250]_dx[100µm]_dy[100µm]_dt[4ns]_54s08m20h_07-05-19_avg1_2D_raw.SGL';
-    t_0 = 2e-6;
+% file_name = '190507/ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_wavefront_2@0nm_t0[-250]_dx[100µm]_dy[100µm]_dt[4ns]_54s08m20h_07-05-19_avg1_2D_raw.SGL';
+%     t_0 = 2e-6;
+    
+%Copper NanoParticles CuNP for Mandy
+file_name = '190510/ULTRA3[143us]_diffuser05b_ND05_CuNP[coverslip]_AHD1@0nm_t0[-625]_dx[100µm]_dy[100µm]_dt[2ns]_22s40m18h_10-05-19_avg1_2D_raw.SGL';
+% file_name = '190510/ULTRA3[143us]_diffuser05b_ND05_CuNP[coverslip]_AHD1@0nm_t0[-625]_dx[200µm]_dy[200µm]_dt[2ns]_31s59m18h_10-05-19_avg1_2D_raw.SGL';
+    t_0 = 3e-6;
 
 %% heatingEffects: pulse2pulse
 % heatingEffects_p2p(file_dir,file_name_p2p,dt_samples_p2p,num_samples_p2p)
