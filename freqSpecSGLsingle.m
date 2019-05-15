@@ -60,24 +60,30 @@ if length(t_series) < min_length
     time = dataSGLsingle(1, t_min-num_pad_samples_front : t_max+num_pad_samples_back ) * 1e-3;
 end
 
+% divide time series to account for diff averaging
+t_series = t_series / sqrt(7.11);
+
 % FFT time series to get frequency spectrum using spect
 [frequency, f_series] = spect(t_series,freq_sampling);
 f_tukey = spect(tukey_win,freq_sampling);
 
-
 % normalise frequency spectrum if requested
+% if toNormalise == true
+%     f_series = f_series / max(f_series);
+% end
 switch toNormalise
     case 'peak'
         f_series = f_series / max(f_series);
     case 'peak2noise'
-        % get peak
-        % get average level of noise
+        peakFreq = max(f_series);
+        avgNoise = avg(f_series(:));
+        
         % HOW TO SCALE RANGE
 end
 
 % plot
-figure(104)
-set(gcf,'Position',[200 20 700 500])
+figure(105)
+set(gcf,'Position',[200 20 700 400])
 semilogy(frequency/1e6, f_series)
     %plot(frequency/1e6, 20*log(f_series))
     %plot(frequency/1e6, f_series)
@@ -97,7 +103,7 @@ hold on
     
 
 % plot with part of time series used, Tukey filter, freq spectra of series & filter
-figure(1004)
+figure(1005)
 set(gcf,'Position',[200 300 1000 600])
 subplot(2,2,1)
 hold on
