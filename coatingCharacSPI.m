@@ -251,31 +251,32 @@ end
 file_dir = 'D:\PROJECT\data\coatingCharac\190507\';
 
 % full power
-file_name = 'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_15s41m20h_07-05-19_avg1_savg144_raw.txt';
+% file_name = 'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_15s41m20h_07-05-19_avg1_savg144_raw.txt';
 % file_name = 'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_15s41m20h_07-05-19_avg1_savg144_raw_jitter-corrected.txt';
 
 % ND1 filter
-file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_51s04m21h_07-05-19_avg1_savg1024_raw.txt';
+% file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_51s04m21h_07-05-19_avg1_savg1024_raw.txt';
 % file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_51s04m21h_07-05-19_avg1_savg1024_raw_jitter-corrected.txt';
 
 % ND1 filter & distance
-file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint_dist2@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_04s12m21h_07-05-19_avg1_savg1024_raw.txt';
+% file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint_dist2@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_04s12m21h_07-05-19_avg1_savg1024_raw.txt';
 % file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint_dist2@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_04s12m21h_07-05-19_avg1_savg1024_raw_jitter-corrected.txt';
 
+file_names = {'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_15s41m20h_07-05-19_avg1_savg144_raw.txt',
+              'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_51s04m21h_07-05-19_avg1_savg1024_raw.txt'
+              'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint_dist2@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_04s12m21h_07-05-19_avg1_savg1024_raw.txt'};
+
 t_0 = 0e-6;
+dt = 0.8e-9;
+
+t_mins = [3750 3790 6290];
+t_maxs = [4250 4290 6790];
+% for ND1 TOA slightly later +40
+% for ND1 + dist TOA much later +2500
 
 % viewSGLsingle(file_dir,file_name,t_0,'Norm',true,'timeAxis',false)
 % pause
 
-dt = 0.8e-9;
-t_mins = 3750;   %5500;%[3000, 3500, 3750, 3900];
-t_maxs = 4250;   %7500;%[5000, 4500, 4250, 4100];
-
-% for ND1 TOA slightly later
-t_mins = t_mins + 40; t_maxs = t_maxs + 40;
-% for ND1 + dist TOA much later
-t_mins = t_mins + 2500; t_maxs = t_maxs + 2500;
-
-for idx = 1:length(t_mins)
-    freqSpecSGLsingle(file_dir,file_name,1/dt,t_mins(idx),t_maxs(idx),'Norm',true)
+for idx = 1
+    freqSpecSGLsingle(file_dir,file_names{idx},1/dt,t_mins(idx),t_maxs(idx),'Norm',true)
 end
