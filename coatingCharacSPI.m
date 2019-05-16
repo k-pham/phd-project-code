@@ -277,6 +277,9 @@ t_maxs = [4250 4290 6790];
 % viewSGLsingle(file_dir,file_name,t_0,'Norm',true,'timeAxis',false)
 % pause
 
-for idx = 1
-    freqSpecSGLsingle(file_dir,file_names{idx},1/dt,t_mins(idx),t_maxs(idx),'Norm',true)
+for idx = 2
+    freqSpecSGLsingle(file_dir,file_names{idx},1/dt,t_mins(idx),t_maxs(idx),'Norm','peak','correct4PD',false)
 end
+
+
+

@@ -6,6 +6,8 @@ num_req_input_variables = 5;
 toNormalise = false;
 toRemoveDC = true;
 toApplyTukey = true;
+min_length = 2001;
+toCorrect4PD = false;
 
 % replace with user defined values if provided
 if nargin < num_req_input_variables
@@ -19,38 +21,48 @@ elseif ~isempty(varargin)
                 toRemoveDC = varargin{input_index + 1};
             case 'applyTukey'
                 toApplyTukey = varargin{input_index + 1};
+            case 'correct4PD'
+                toCorrect4PD = varargin{input_index + 1};
             otherwise
                 error('Unknown optional input.');
         end
     end
 end
 
-% import data
+%% import data
+
 fileID = fopen([file_dir file_name],'r');
 formatSpec = '%f %f';
 sizeData = [2 Inf];
 dataSGLsingle = fscanf(fileID,formatSpec,sizeData);
 fclose(fileID);
 
-% extract time series from data
+
+%% extract time series from data
+
 t_series = dataSGLsingle(2,t_min:t_max);
 time = dataSGLsingle(1,t_min:t_max) * 1e-3; % in us
 
-% remove DC base line (average of 10%-pre-peak signal)
+
+%% remove DC base line (average of 10%-pre-peak signal)
+
 if toRemoveDC == true
     num_avg_samples = round(length(t_series)/10);
     avg_DCoffset = mean(t_series(1:num_avg_samples));
     t_series = t_series - avg_DCoffset;
 end
 
-% filter t_series with Tukey window
+
+%% filter t_series with Tukey window
+
 if toApplyTukey == true
     tukey_win = getWin(length(t_series),'Tukey');
     t_series = bsxfun(@times, tukey_win', t_series);
 end
 
-% padding of t_series and tukey window (to ensure same size freq bins)
-min_length = 2001;
+
+%% padding of t_series and tukey window (to ensure same size freq bins)
+
 if length(t_series) < min_length
     num_pad_samples_front = round((min_length - length(t_series))/2);
     num_pad_samples_back = min_length - length(t_series) - num_pad_samples_front;
@@ -60,14 +72,34 @@ if length(t_series) < min_length
     time = dataSGLsingle(1, t_min-num_pad_samples_front : t_max+num_pad_samples_back ) * 1e-3;
 end
 
-% divide time series to account for diff averaging
-t_series = t_series / sqrt(7.11);
 
-% FFT time series to get frequency spectrum using spect
+%% divide time series to account for diff averaging
+
+% t_series = t_series / sqrt(7.11);
+
+
+%% FFT time series to get frequency spectrum using spect
+
 [frequency, f_series] = spect(t_series,freq_sampling);
 f_tukey = spect(tukey_win,freq_sampling);
 
-% normalise frequency spectrum if requested
+
+%% correct for PD response
+
+if toCorrect4PD == true
+    % import transimpedance (V/A) gain from Edward's excel sheet
+    PDresponse = xlsread('../data/Log of Photodetectors.xlsx','PD230MHz-45kOhm#01','A1:B2402');
+    
+    PD_freq = PDresponse(:,1) * 1e6; % convert MHz to Hz
+    PD_gain = PDresponse(:,2);
+        
+    PD_gain_resample = interp1(PD_freq,PD_gain,frequency);
+    PD_gain_resample(isnan(PD_gain_resample)) = min(PD_gain_resample);
+    
+    f_series = f_series ./ PD_gain_resample;
+end
+
+%% normalise frequency spectrum if requested
 % if toNormalise == true
 %     f_series = f_series / max(f_series);
 % end
@@ -77,11 +109,10 @@ switch toNormalise
     case 'peak2noise'
         peakFreq = max(f_series);
         avgNoise = avg(f_series(:));
-        
         % HOW TO SCALE RANGE
 end
 
-% plot
+%% plot
 figure(105)
 set(gcf,'Position',[200 20 700 400])
 semilogy(frequency/1e6, f_series)
@@ -102,7 +133,7 @@ hold on
     %xlim([0 1])
     
 
-% plot with part of time series used, Tukey filter, freq spectra of series & filter
+%% plot with part of time series used, Tukey filter, freq spectra of series & filter
 figure(1005)
 set(gcf,'Position',[200 300 1000 600])
 subplot(2,2,1)
