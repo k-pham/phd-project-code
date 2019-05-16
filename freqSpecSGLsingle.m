@@ -99,6 +99,7 @@ if toCorrect4PD == true
     f_series = f_series ./ PD_gain_resample;
 end
 
+
 %% normalise frequency spectrum if requested
 % if toNormalise == true
 %     f_series = f_series / max(f_series);
@@ -109,8 +110,9 @@ switch toNormalise
     case 'peak2noise'
         peakFreq = max(f_series);
         avgNoise = avg(f_series(:));
-        % HOW TO SCALE RANGE
+        % HOW TO SCALE RANGE ?
 end
+
 
 %% plot
 figure(105)
