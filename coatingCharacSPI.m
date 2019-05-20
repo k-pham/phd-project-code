@@ -295,6 +295,12 @@ dt = 0.8e-9;
 t_mins = [3750 3790];
 t_maxs = [4250 4290];
 
-for idx = 1:2
-    freqSpecSGLsingle(file_dir,file_names{idx},1/dt,t_mins(idx),t_maxs(idx),'Norm',false,'correct4PD',true)
+for idx = 2
+    linecolour = 'b';
+    viewSGLsingle(file_dir,file_names{idx},t_0,'removeDC',true,'LineColour',linecolour)
+    freqSpecSGLsingle(file_dir,file_names{idx},1/dt,t_mins(idx),t_maxs(idx),'Norm',false,'correct4PD',true,'LineColour',linecolour)
 end
+
+% legend('NL - uncorrected','NL - corrected for PD')
+% legend('L - uncorrected','L - corrected for PD')
+% legend('NL - corrected for PD','L - corrected for PD')
