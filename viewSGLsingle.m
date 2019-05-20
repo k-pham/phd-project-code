@@ -4,6 +4,7 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
     % set usage defaults
     num_req_input_variables = 3;
     toNormalise = false;
+    toRemoveDC = false;
     toUseTimeAxis = true;
 
     % replace with user defined values if provided
@@ -14,6 +15,8 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
             switch varargin{input_index}
                 case 'Norm'
                     toNormalise = varargin{input_index + 1};
+                case 'removeDC'
+                    toRemoveDC = varargin{input_index + 1};
                 case 'timeAxis'
                     toUseTimeAxis = varargin{input_index + 1};
                 otherwise
@@ -37,6 +40,13 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
     time = (t_0 + time*1e-9) * 1e6;   % in us
     % vAC  = -vAC;
 
+    % remove DC base line (average of 10%-pre-peak signal)
+    if toRemoveDC == true
+        num_avg_samples = round(length(vAC)/10);
+        avg_DCoffset = mean(vAC(1:num_avg_samples));
+        vAC = vAC - avg_DCoffset;
+    end
+    
     % normalise signal if requested
     if toNormalise == true
         vAC = vAC / max(vAC);
