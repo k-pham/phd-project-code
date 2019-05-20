@@ -95,7 +95,7 @@ if toCorrect4PD == true
     
     PD_freq = PDresponse(:,1) * 1e6; % convert MHz to Hz
     PD_gain = PDresponse(:,2);
-        
+	
     PD_gain_resample = interp1(PD_freq,PD_gain,frequency);
     PD_gain_resample(isnan(PD_gain_resample)) = min(PD_gain_resample);
     
