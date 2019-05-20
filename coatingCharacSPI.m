@@ -213,7 +213,7 @@ freqSpecSGLsingle(file_dir,file_name,1/dt,t_min,t_max,'Norm',true)
 % legend('143 \mu s + ND1','143 \mu s + ND0.5','143 \mu s + ND0.3','143 \mu s')
 
 
-%% 180411 freqSpec with 350 MHz bandwidth scope
+%% 190411 freqSpec with 350 MHz bandwidth scope
 
 file_dir = 'D:\PROJECT\data\coatingCharac\190411\';
 
@@ -246,7 +246,7 @@ for idx = 1:length(t_mins)
 end
 
 
-%% 180507 freqSpec with 350 MHz bandwidth scope
+%% 190507 freqSpec with 350 MHz bandwidth scope
 
 file_dir = 'D:\PROJECT\data\coatingCharac\190507\';
 
@@ -262,7 +262,7 @@ file_dir = 'D:\PROJECT\data\coatingCharac\190507\';
 % file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint_dist2@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_04s12m21h_07-05-19_avg1_savg1024_raw.txt';
 % file_name = 'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint_dist2@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_04s12m21h_07-05-19_avg1_savg1024_raw_jitter-corrected.txt';
 
-file_names = {'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_15s41m20h_07-05-19_avg1_savg144_raw.txt',
+file_names = {'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_15s41m20h_07-05-19_avg1_savg144_raw.txt'
               'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_51s04m21h_07-05-19_avg1_savg1024_raw.txt'
               'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint_dist2@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_04s12m21h_07-05-19_avg1_savg1024_raw.txt'};
 
@@ -282,4 +282,19 @@ for idx = 2
 end
 
 
+%% 190517 repeat freqSpec with 350 MHz bandwidth scope with same number avg
 
+file_dir = 'D:\PROJECT\data\coatingCharac\190517\';
+
+file_names = {'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_00s33m17h_17-05-19_avg1_savg1024_raw.txt'
+             'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_44s38m17h_17-05-19_avg1_savg1024_raw.txt'};
+
+t_0 = 0e-6;
+dt = 0.8e-9;
+
+t_mins = [3750 3790];
+t_maxs = [4250 4290];
+
+for idx = 1:2
+    freqSpecSGLsingle(file_dir,file_names{idx},1/dt,t_mins(idx),t_maxs(idx),'Norm',false,'correct4PD',true)
+end
