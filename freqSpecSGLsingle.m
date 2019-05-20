@@ -8,6 +8,7 @@ toRemoveDC = true;
 toApplyTukey = true;
 min_length = 2001;
 toCorrect4PD = false;
+linecolour = 'b';
 
 % replace with user defined values if provided
 if nargin < num_req_input_variables
@@ -23,6 +24,8 @@ elseif ~isempty(varargin)
                 toApplyTukey = varargin{input_index + 1};
             case 'correct4PD'
                 toCorrect4PD = varargin{input_index + 1};
+            case 'LineColour'
+                linecolour = varargin{input_index + 1};
             otherwise
                 error('Unknown optional input.');
         end
@@ -115,9 +118,10 @@ end
 
 
 %% plot
+
 figure(105)
 set(gcf,'Position',[200 20 700 400])
-semilogy(frequency/1e6, f_series)
+semilogy(frequency/1e6, f_series,linecolour)
     %plot(frequency/1e6, 20*log(f_series))
     %plot(frequency/1e6, f_series)
 hold on
@@ -140,20 +144,20 @@ figure(1005)
 set(gcf,'Position',[200 300 1000 600])
 subplot(2,2,1)
 hold on
-plot(time,t_series)
+plot(time,t_series,linecolour)
     title('windowed & filtered time series')
     xlabel('time [us]')
     ylabel('signal [mV]')
 %     axis([3,3.5,-100,1000])
 subplot(2,2,2)
 hold on
-plot(time,tukey_win)
+plot(time,tukey_win,linecolour)
     title('Tukey window filter')
     xlabel('time [us]')
     ylabel('signal [mV]')
 	ylim([-0.1,1.1])
 subplot(2,2,3)
-semilogy(frequency/1e6, f_series)
+semilogy(frequency/1e6, f_series,linecolour)
 hold on
     title('frequency spectrum')
     xlabel('frequency [MHz]')
@@ -161,7 +165,7 @@ hold on
     xlim([0,400])
 %     ylim([1e-4 1])
 subplot(2,2,4)
-semilogy(frequency/1e6, f_tukey)
+semilogy(frequency/1e6, f_tukey,linecolour)
 hold on
     title('freq spec of tukey')
     xlabel('frequency [MHz]')
