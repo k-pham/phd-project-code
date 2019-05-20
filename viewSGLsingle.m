@@ -6,6 +6,7 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
     toNormalise = false;
     toRemoveDC = false;
     toUseTimeAxis = true;
+    linecolour = 'b';
 
     % replace with user defined values if provided
     if nargin < num_req_input_variables
@@ -19,6 +20,8 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
                     toRemoveDC = varargin{input_index + 1};
                 case 'timeAxis'
                     toUseTimeAxis = varargin{input_index + 1};
+                case 'LineColour'
+                    linecolour = varargin{input_index + 1};
                 otherwise
                     error('Unknown optional input.');
             end
@@ -57,9 +60,9 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
     set(gcf,'Position',[200 600 700 400])
     switch toUseTimeAxis
         case true
-            plot(time,vAC)
+            plot(time,vAC,linecolour)
         case false
-            plot(vAC)
+            plot(vAC,linecolour)
     end
     hold on
         switch toNormalise
