@@ -50,6 +50,9 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
         vAC = vAC - avg_DCoffset;
     end
     
+    % display peak signal
+    disp(['peak signal = ' num2str(max(vAC))])
+    
     % normalise signal if requested
     if toNormalise == true
         vAC = vAC / max(vAC);
