@@ -50,9 +50,7 @@ time = dataSGLsingle(1,t_min:t_max) * 1e-3; % in us
 %% remove DC base line (average of 10%-pre-peak signal)
 
 if toRemoveDC == true
-    num_avg_samples = round(length(t_series)/10);
-    avg_DCoffset = mean(t_series(1:num_avg_samples));
-    t_series = t_series - avg_DCoffset;
+    t_series = removeDCoffset(t_series,10);
 end
 
 

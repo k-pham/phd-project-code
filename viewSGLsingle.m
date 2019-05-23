@@ -45,9 +45,7 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
 
     % remove DC base line (average of 10%-pre-peak signal)
     if toRemoveDC == true
-        num_avg_samples = round(length(vAC)/10);
-        avg_DCoffset = mean(vAC(1:num_avg_samples));
-        vAC = vAC - avg_DCoffset;
+        vAC = removeDCoffset(vAC,10);
     end
     
     % display peak signal
