@@ -1,4 +1,4 @@
-function viewSGLsingle(file_dir,file_name,t_0,varargin)
+function time = viewSGLsingle(file_dir,file_name,t_0,varargin)
 % plot single time series from .txt file
 
     % set usage defaults
@@ -48,8 +48,12 @@ function viewSGLsingle(file_dir,file_name,t_0,varargin)
         vAC = removeDCoffset(vAC,10);
     end
     
-    % display peak signal
-    disp(['peak signal = ' num2str(max(vAC))])
+    % display peak signal & std of noise
+    peakSignal = max(vAC);
+    stdNoise   = std(vAC(1:round(length(vAC)/10)));
+    disp(['peak signal = ' num2str(peakSignal)])
+    disp(['std of noise = ' num2str(stdNoise)])
+    disp(['SNR = ' num2str(peakSignal/stdNoise)])
     
     % normalise signal if requested
     if toNormalise == true
