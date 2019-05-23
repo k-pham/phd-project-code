@@ -294,13 +294,37 @@ dt = 0.8e-9;
 
 t_mins = [3750 3790];
 t_maxs = [4250 4290];
+linecolours = {'r' 'b'};
 
-for idx = 2
-    linecolour = 'b';
-    viewSGLsingle(file_dir,file_names{idx},t_0,'removeDC',true,'LineColour',linecolour)
-    freqSpecSGLsingle(file_dir,file_names{idx},1/dt,t_mins(idx),t_maxs(idx),'Norm',false,'correct4PD',true,'LineColour',linecolour)
+for idx = 1:2
+    time = viewSGLsingle(file_dir,file_names{idx},t_0,'removeDC',true,'Norm',false,'timeAxis',false,'LineColour',linecolours{idx});
+    freqSpecSGLsingle(file_dir,file_names{idx},1/dt,t_mins(idx),t_maxs(idx),'Norm','peak','correct4PD',true,'LineColour',linecolours{idx})
 end
 
 % legend('NL - uncorrected','NL - corrected for PD')
 % legend('L - uncorrected','L - corrected for PD')
 % legend('NL - corrected for PD','L - corrected for PD')
+
+% average only ~200 time series from NL acquisition
+file_name = 'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_00s33m17h_17-05-19_avg1_2D_raw.SGL';
+[dataSGL_NL, params] = loadSGL( [file_dir file_name] );
+
+% meanSGL_all = squeeze(mean(mean(dataSGL_NL, 1),2));
+% meanSGL_all = removeDCoffset(meanSGL_all,10);
+
+num_avg_NL = 10;
+num_points_NL = size(dataSGL_NL,1)*size(dataSGL_NL,2);
+dataSGL_NL_reshape = reshape(dataSGL_NL,[num_points_NL size(dataSGL_NL,3)]);
+meanSGL_some = mean(dataSGL_NL_reshape(1:num_avg_NL,:),1);
+meanSGL_some = removeDCoffset(meanSGL_some,10);
+
+% meanSGL_all = meanSGL_all / max(meanSGL_all);
+% meanSGL_some = meanSGL_some / max(meanSGL_some);
+
+figure(1)
+hold on
+% plot(meanSGL_all,'k--')
+plot(meanSGL_some,'g--')
+legend('NL 1024','L 1024',['NL ' num2str(num_avg_NL)]) %'NL 1024 manual'
+
+
