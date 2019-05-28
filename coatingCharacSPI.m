@@ -305,18 +305,40 @@ end
 % legend('L - uncorrected','L - corrected for PD')
 % legend('NL - corrected for PD','L - corrected for PD')
 
-% average only ~200 time series from NL acquisition
+% average only ~## time series from NL acquisition
 file_name = 'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_00s33m17h_17-05-19_avg1_2D_raw.SGL';
 [dataSGL_NL, params] = loadSGL( [file_dir file_name] );
 
+% get average of all time series of the SGL
 % meanSGL_all = squeeze(mean(mean(dataSGL_NL, 1),2));
 % meanSGL_all = removeDCoffset(meanSGL_all,10);
 
-num_avg_NL = 10;
+% get average of some time series of the SGL
+num_avg_NL = 12;
 num_points_NL = size(dataSGL_NL,1)*size(dataSGL_NL,2);
 dataSGL_NL_reshape = reshape(dataSGL_NL,[num_points_NL size(dataSGL_NL,3)]);
 meanSGL_some = mean(dataSGL_NL_reshape(1:num_avg_NL,:),1);
-meanSGL_some = removeDCoffset(meanSGL_some,10);
+t_series = meanSGL_some(t_mins(1):t_maxs(1));
+
+% process
+t_series = removeDCoffset(t_series,10);
+tukey_win = getWin(length(t_series),'Tukey');
+t_series = bsxfun(@times, tukey_win', t_series);
+min_length = 2001;
+if length(t_series) < min_length
+    num_pad_samples_front = round((min_length - length(t_series))/2);
+    num_pad_samples_back = min_length - length(t_series) - num_pad_samples_front;
+    
+    t_series  = [ zeros(1,num_pad_samples_front) t_series   zeros(1,num_pad_samples_back) ];
+	tukey_win = [ zeros(1,num_pad_samples_front) tukey_win' zeros(1,num_pad_samples_back) ];
+    time = time(t_mins(1)-num_pad_samples_front : t_maxs(1)+num_pad_samples_back );
+end
+
+% get fft using spect
+[frequency, f_series] = spect(t_series,1/dt);
+f_tukey = spect(tukey_win,1/dt);
+
+f_series = f_series / max(f_series);
 
 % meanSGL_all = meanSGL_all / max(meanSGL_all);
 % meanSGL_some = meanSGL_some / max(meanSGL_some);
@@ -326,5 +348,15 @@ hold on
 % plot(meanSGL_all,'k--')
 plot(meanSGL_some,'g--')
 legend('NL 1024','L 1024',['NL ' num2str(num_avg_NL)]) %'NL 1024 manual'
+
+figure(1005)
+subplot(2,2,1)
+hold on
+plot(time, t_series, 'g--')
+legend('NL 1024','L 1024',['NL ' num2str(num_avg_NL)]) 
+
+subplot(2,2,3)
+hold on
+semilogy(frequency/1e6, f_series,'g--')
 
 
