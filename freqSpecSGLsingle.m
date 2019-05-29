@@ -1,13 +1,15 @@
 function freqSpecSGLsingle(file_dir,file_name,freq_sampling,t_min,t_max,varargin)
 % plot frequency spectrum of single time series using k-wave.spect
 
+num_avg = 12;
+min_length = 2001;
+
 % set usage defaults
 num_req_input_variables = 5;
-toNormalise = false;
 toRemoveDC = true;
 toApplyTukey = true;
-min_length = 2001;
-toCorrect4PD = false;
+toCorrect4PD = true;
+toNormalise = false;
 linecolour = 'b';
 
 % replace with user defined values if provided
@@ -16,14 +18,14 @@ if nargin < num_req_input_variables
 elseif ~isempty(varargin)
     for input_index = 1:2:length(varargin)
         switch varargin{input_index}
-            case 'Norm'
-                toNormalise = varargin{input_index + 1};
             case 'removeDC'
                 toRemoveDC = varargin{input_index + 1};
             case 'applyTukey'
                 toApplyTukey = varargin{input_index + 1};
             case 'correct4PD'
                 toCorrect4PD = varargin{input_index + 1};
+            case 'Norm'
+                toNormalise = varargin{input_index + 1};
             case 'LineColour'
                 linecolour = varargin{input_index + 1};
             otherwise
@@ -34,17 +36,32 @@ end
 
 %% import data
 
-fileID = fopen([file_dir file_name],'r');
-formatSpec = '%f %f';
-sizeData = [2 Inf];
-dataSGLsingle = fscanf(fileID,formatSpec,sizeData);
-fclose(fileID);
+file_type = file_name(end-2:end);
 
+switch file_type
+    
+    case 'txt'
+        fileID = fopen([file_dir file_name],'r');
+        formatSpec = '%f %f';
+        sizeData = [2 Inf];
+        dataSGLsingle = fscanf(fileID,formatSpec,sizeData);
+        fclose(fileID);
 
-%% extract time series from data
-
-t_series = dataSGLsingle(2,t_min:t_max);
-time = dataSGLsingle(1,t_min:t_max) * 1e-3; % in us
+        t_series = dataSGLsingle(2,t_min:t_max);
+        time = dataSGLsingle(1,t_min:t_max) * 1e-3; % from ns to us
+        
+    case 'SGL'
+        [dataSGL, params] = loadSGL([file_dir file_name]);
+        
+        dataSGL_reshaped = reshape(dataSGL, [ size(dataSGL,1)*size(dataSGL,2) size(dataSGL,3) ]);
+        dataSGLsingle = mean(dataSGL_reshaped(1:num_avg, :), 1);
+        assert(length(dataSGLsingle) == size(dataSGL,3));
+        
+        t_series = dataSGLsingle(t_min:t_max);
+        time = (params.t0 + (1:params.Nt) * params.dt) * 1e6; % from s to us
+        time = time(t_min:t_max);
+        
+end
 
 
 %% remove DC base line (average of 10%-pre-peak signal)
