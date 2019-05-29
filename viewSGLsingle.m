@@ -3,8 +3,8 @@ function time = viewSGLsingle(file_dir,file_name,t_0,varargin)
 
     % set usage defaults
     num_req_input_variables = 3;
-    toNormalise = false;
     toRemoveDC = false;
+    toNormalise = false;
     toUseTimeAxis = true;
     linecolour = 'b';
 
