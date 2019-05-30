@@ -9,7 +9,8 @@ num_req_input_variables = 5;
 toRemoveDC = true;
 toApplyTukey = true;
 toCorrect4PD = true;
-toNormalise = false;
+toNormaliseT = false;
+toNormaliseF = false;
 linecolour = 'b';
 
 % replace with user defined values if provided
@@ -24,8 +25,10 @@ elseif ~isempty(varargin)
                 toApplyTukey = varargin{input_index + 1};
             case 'correct4PD'
                 toCorrect4PD = varargin{input_index + 1};
-            case 'Norm'
-                toNormalise = varargin{input_index + 1};
+            case 'NormTime'
+                toNormaliseT = varargin{input_index + 1};
+            case 'NormFreq'
+                toNormaliseF = varargin{input_index + 1};
             case 'LineColour'
                 linecolour = varargin{input_index + 1};
             otherwise
@@ -112,17 +115,13 @@ if toCorrect4PD == true
 end
 
 
-%% normalise frequency spectrum if requested
-% if toNormalise == true
-%     f_series = f_series / max(f_series);
-% end
-switch toNormalise
-    case 'peak'
-        f_series = f_series / max(f_series);
-    case 'peak2noise'
-        peakFreq = max(f_series);
-        avgNoise = avg(f_series(:));
-        % HOW TO SCALE RANGE ?
+%% normalise time series and/or frequency spectrum if requested
+if toNormaliseT == true
+    t_series = t_series / max(t_series);
+end
+
+if toNormaliseF == true
+    f_series = f_series / max(f_series);
 end
 
 
@@ -134,7 +133,7 @@ plot(time,t_series,linecolour)
 hold on
     xlabel('time / /mu s')
     ylabel('signal amplitude / V')
-    
+
 
 %% plot frequency spectrum
 
@@ -144,7 +143,7 @@ semilogy(frequency/1e6, f_series,linecolour)
     %plot(frequency/1e6, 20*log(f_series))
     %plot(frequency/1e6, f_series)
 hold on
-    switch toNormalise
+    switch toNormaliseF
         case true
             title({'normalised freqSpec of SPI time series',file_name},'Interpreter','none')
             ylim([1e-4 1])
@@ -155,7 +154,7 @@ hold on
     end
     xlabel('frequency / MHz')
     ylabel('signal amplitude / V')
-    
+
 
 %% plot with part of time series used, Tukey filter, freq spectra of series & filter
 figure(103)
