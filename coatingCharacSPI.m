@@ -295,31 +295,18 @@ dt = 0.8e-9;
 
 t_mins = [3750 3750 3790];
 t_maxs = [4250 4250 4290];
-linecolours = {'y--' 'r' 'b'};
+linecolours = {'m--' 'r' 'b'};
 
 for idx = 1:3
-%     time = viewSGLsingle(file_dir,file_names{idx},t_0,'removeDC',true,'Norm',false,'timeAxis',false,'LineColour',linecolours{idx});
-    freqSpecSGLsingle(file_dir,file_names{idx},1/dt,t_mins(idx),t_maxs(idx),'Norm','peak','correct4PD',true,'LineColour',linecolours{idx})
+    freqSpecSGLsingle(file_dir,file_names{idx},1/dt,t_mins(idx),t_maxs(idx), ...
+        'NormTime', true, ...
+        'NormFreq', true, ...
+        'correct4PD', true, ...
+        'LineColour',linecolours{idx} )
 end
 
 % legend('NL - uncorrected','NL - corrected for PD')
 % legend('L - uncorrected','L - corrected for PD')
 % legend('NL - corrected for PD','L - corrected for PD')
 
-figure(1)
-hold on
-% plot(meanSGL_all,'k--')
-plot(meanSGL_some,'g--')
-legend('NL 1024','L 1024',['NL ' num2str(num_avg_NL)]) %'NL 1024 manual'
-
-figure(1005)
-subplot(2,2,1)
-hold on
-plot(time, t_series, 'g--')
-legend('NL 1024','L 1024',['NL ' num2str(num_avg_NL)]) 
-
-subplot(2,2,3)
-hold on
-semilogy(frequency/1e6, f_series,'g--')
-
-
+% legend('NL - 1024 avg','NL - 12 avg','L - 1024 avg')
