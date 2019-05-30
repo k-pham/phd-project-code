@@ -48,7 +48,7 @@ switch file_type
         fclose(fileID);
 
         t_series = dataSGLsingle(2,t_min:t_max);
-        time = dataSGLsingle(1,t_min:t_max) * 1e-3; % from ns to us
+        time = dataSGLsingle(1,:) * 1e-3; % from ns to us
         
     case 'SGL'
         [dataSGL, params] = loadSGL([file_dir file_name]);
@@ -59,7 +59,6 @@ switch file_type
         
         t_series = dataSGLsingle(t_min:t_max);
         time = (params.t0 + (1:params.Nt) * params.dt) * 1e6; % from s to us
-        time = time(t_min:t_max);
         
 end
 
@@ -87,7 +86,7 @@ if length(t_series) < min_length
     
     t_series  = [ zeros(1,num_pad_samples_front) t_series   zeros(1,num_pad_samples_back) ];
 	tukey_win = [ zeros(1,num_pad_samples_front) tukey_win' zeros(1,num_pad_samples_back) ];
-    time = dataSGLsingle(1, t_min-num_pad_samples_front : t_max+num_pad_samples_back ) * 1e-3;
+    time = time( t_min-num_pad_samples_front : t_max+num_pad_samples_back ) * 1e-3;
 end
 
 
