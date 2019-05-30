@@ -89,7 +89,7 @@ if length(t_series) < min_length
     
     t_series  = [ zeros(1,num_pad_samples_front) t_series   zeros(1,num_pad_samples_back) ];
 	tukey_win = [ zeros(1,num_pad_samples_front) tukey_win' zeros(1,num_pad_samples_back) ];
-    time = time( t_min-num_pad_samples_front : t_max+num_pad_samples_back ) * 1e-3;
+    time = time( t_min-num_pad_samples_front : t_max+num_pad_samples_back );
 end
 
 
@@ -131,7 +131,7 @@ figure(101)
 set(gcf,'Position',[100 500 700 400])
 plot(time,t_series,linecolour)
 hold on
-    xlabel('time / /mu s')
+    xlabel('time / \mu s')
     ylabel('signal amplitude / V')
 
 
@@ -171,7 +171,7 @@ hold on
 plot(time,tukey_win,linecolour)
     title('Tukey window filter')
     xlabel('time [us]')
-    ylabel('signal [mV]')
+    ylabel('signal [a.u.]')
 	ylim([-0.1,1.1])
 subplot(2,2,3)
 semilogy(frequency/1e6, f_series,linecolour)
