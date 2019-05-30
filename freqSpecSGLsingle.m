@@ -126,10 +126,20 @@ switch toNormalise
 end
 
 
-%% plot
+%% plot time series
 
-figure(105)
-set(gcf,'Position',[200 20 700 400])
+figure(101)
+set(gcf,'Position',[100 500 700 400])
+plot(time,t_series,linecolour)
+hold on
+    xlabel('time / /mu s')
+    ylabel('signal amplitude / V')
+    
+
+%% plot frequency spectrum
+
+figure(102)
+set(gcf,'Position',[100 20 700 400])
 semilogy(frequency/1e6, f_series,linecolour)
     %plot(frequency/1e6, 20*log(f_series))
     %plot(frequency/1e6, f_series)
@@ -145,11 +155,10 @@ hold on
     end
     xlabel('frequency / MHz')
     ylabel('signal amplitude / V')
-    %xlim([0 1])
     
 
 %% plot with part of time series used, Tukey filter, freq spectra of series & filter
-figure(1005)
+figure(103)
 set(gcf,'Position',[200 300 1000 600])
 subplot(2,2,1)
 hold on
