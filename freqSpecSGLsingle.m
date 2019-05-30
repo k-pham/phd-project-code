@@ -91,11 +91,6 @@ if length(t_series) < min_length
 end
 
 
-%% divide time series to account for diff averaging
-
-% t_series = t_series / sqrt(7.11);
-
-
 %% FFT time series to get frequency spectrum using spect
 
 [frequency, f_series] = spect(t_series,freq_sampling);
