@@ -287,61 +287,24 @@ end
 file_dir = 'D:\PROJECT\data\coatingCharac\190517\';
 
 file_names = {'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_00s33m17h_17-05-19_avg1_savg1024_raw.txt'
-             'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_44s38m17h_17-05-19_avg1_savg1024_raw.txt'};
+              'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_00s33m17h_17-05-19_avg1_2D_raw.SGL'
+              'ULTRA3[143us]_diffuser05b_ND1_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_44s38m17h_17-05-19_avg1_savg1024_raw.txt'};
 
 t_0 = 0e-6;
 dt = 0.8e-9;
 
-t_mins = [3750 3790];
-t_maxs = [4250 4290];
-linecolours = {'r' 'b'};
+t_mins = [3750 3750 3790];
+t_maxs = [4250 4250 4290];
+linecolours = {'y--' 'r' 'b'};
 
-for idx = 1:2
-    time = viewSGLsingle(file_dir,file_names{idx},t_0,'removeDC',true,'Norm',false,'timeAxis',false,'LineColour',linecolours{idx});
+for idx = 1:3
+%     time = viewSGLsingle(file_dir,file_names{idx},t_0,'removeDC',true,'Norm',false,'timeAxis',false,'LineColour',linecolours{idx});
     freqSpecSGLsingle(file_dir,file_names{idx},1/dt,t_mins(idx),t_maxs(idx),'Norm','peak','correct4PD',true,'LineColour',linecolours{idx})
 end
 
 % legend('NL - uncorrected','NL - corrected for PD')
 % legend('L - uncorrected','L - corrected for PD')
 % legend('NL - corrected for PD','L - corrected for PD')
-
-% average only ~## time series from NL acquisition
-file_name = 'ULTRA3[143us]_diffuser05b_CNT[perspex]_AHD1_singlepoint@0nm_t0[0]_dx[1µm]_dy[1µm]_dt[1ns]_00s33m17h_17-05-19_avg1_2D_raw.SGL';
-[dataSGL_NL, params] = loadSGL( [file_dir file_name] );
-
-% get average of all time series of the SGL
-% meanSGL_all = squeeze(mean(mean(dataSGL_NL, 1),2));
-% meanSGL_all = removeDCoffset(meanSGL_all,10);
-
-% get average of some time series of the SGL
-num_avg_NL = 12;
-num_points_NL = size(dataSGL_NL,1)*size(dataSGL_NL,2);
-dataSGL_NL_reshape = reshape(dataSGL_NL,[num_points_NL size(dataSGL_NL,3)]);
-meanSGL_some = mean(dataSGL_NL_reshape(1:num_avg_NL,:),1);
-t_series = meanSGL_some(t_mins(1):t_maxs(1));
-
-% process
-t_series = removeDCoffset(t_series,10);
-tukey_win = getWin(length(t_series),'Tukey');
-t_series = bsxfun(@times, tukey_win', t_series);
-min_length = 2001;
-if length(t_series) < min_length
-    num_pad_samples_front = round((min_length - length(t_series))/2);
-    num_pad_samples_back = min_length - length(t_series) - num_pad_samples_front;
-    
-    t_series  = [ zeros(1,num_pad_samples_front) t_series   zeros(1,num_pad_samples_back) ];
-	tukey_win = [ zeros(1,num_pad_samples_front) tukey_win' zeros(1,num_pad_samples_back) ];
-    time = time(t_mins(1)-num_pad_samples_front : t_maxs(1)+num_pad_samples_back );
-end
-
-% get fft using spect
-[frequency, f_series] = spect(t_series,1/dt);
-f_tukey = spect(tukey_win,1/dt);
-
-f_series = f_series / max(f_series);
-
-% meanSGL_all = meanSGL_all / max(meanSGL_all);
-% meanSGL_some = meanSGL_some / max(meanSGL_some);
 
 figure(1)
 hold on
