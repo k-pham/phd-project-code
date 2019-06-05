@@ -62,8 +62,12 @@ file_dir = '../data/coatingCharac/';
 %     t_0 = 2e-6;
     
 %Copper NanoParticles CuNP for Mandy
-file_name = '190510/ULTRA3[143us]_diffuser05b_ND05_CuNP[coverslip]_AHD1@0nm_t0[-625]_dx[100µm]_dy[100µm]_dt[2ns]_22s40m18h_10-05-19_avg1_2D_raw.SGL';
+% file_name = '190510/ULTRA3[143us]_diffuser05b_ND05_CuNP[coverslip]_AHD1@0nm_t0[-625]_dx[100µm]_dy[100µm]_dt[2ns]_22s40m18h_10-05-19_avg1_2D_raw.SGL';
 % file_name = '190510/ULTRA3[143us]_diffuser05b_ND05_CuNP[coverslip]_AHD1@0nm_t0[-625]_dx[200µm]_dy[200µm]_dt[2ns]_31s59m18h_10-05-19_avg1_2D_raw.SGL';
+%     t_0 = 3e-6;
+    
+%QuantumDots for Semyon
+file_name = '190531/OPO532nm_QD[glassslide]_AHD1@0nm_t0[-625]_dx[200µm]_dy[200µm]_dt[2ns]_15s57m13h_31-05-19_avg1_2D_raw.SGL';
     t_0 = 3e-6;
 
 %% heatingEffects: pulse2pulse
@@ -74,8 +78,8 @@ file_name = '190510/ULTRA3[143us]_diffuser05b_ND05_CuNP[coverslip]_AHD1@0nm_t0[-
 
 %% viewSGL: map laserGenUS in transmission  &  freqSpecSGL
 [dataSGL, params] = loadSGL( [file_dir file_name] );
-slice_x = 75;
-slice_y = 75;
+slice_x = 37;
+slice_y = 37;
 viewSGL(dataSGL,params,t_0,slice_x,slice_y)
 % for slice = 1:150
 %     viewSGLline(dataSGL,params,t_0,slice)
