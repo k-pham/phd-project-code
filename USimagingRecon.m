@@ -89,12 +89,12 @@ switch dim
     case 2
         % imagesc(reflection_image(900:1020,160:280)')
 %         imagesc(reflection_image(:,1:samples_total/2)')
-        imagesc(kgrid.x_vec*1e3, t_array*c0/2*1e3, reflection_image(:,1:Nt)')
+        imagesc(kgrid.x_vec*1e3, t_array*c0*1e3, reflection_image(:,1:Nt)') % omit factor 1/2 in dz because of doubled depth bug
             % 1st index (x) = row index = y axis -- transposed -> x axis
             xlabel('x [mm]')
             ylabel('z [mm]')
     case 3
-        imagesc(kgrid.x_vec*1e3, t_array*c0/2*1e3, squeeze(reflection_image(:,75,1:Nt))')
+        imagesc(kgrid.x_vec*1e3, t_array*c0*1e3, squeeze(reflection_image(:,75,1:Nt))') % omit factor 1/2 in dz because of doubled depth bug
             xlabel('x [mm]')
             ylabel('z [mm]')
 end
@@ -118,8 +118,14 @@ end
 %% find image peaks and FWHM for resolution measurements
 
 threshold = 1000;
-imagePeakFinder(reflection_image, c0, threshold)
+peaksInfo = imagePeakFinder(reflection_image, c0, threshold);
 
+% concatenate peaksInfo array for all line scans
+if(~exist('peaksInfoAll','var'))
+    peaksInfoAll = peaksInfo;
+else
+    peaksInfoAll = cat(2,peaksInfoAll,peaksInfo);
+end
 
 %% run multiple reconstructions in loop (end)
 
