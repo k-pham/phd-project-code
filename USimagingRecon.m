@@ -115,9 +115,18 @@ end
 %     xlim([0.5,2.5])
 
 
+%% plot line horizontal MIP profile
+
+reflection_image_MIP = squeeze(max(reflection_image(:,:),[],2));      % p_xz to p.max(z)_x
+
+figure
+plot(reflection_image_MIP)
+    title('MIP of reconstructed image')
+
+
 %% find image peaks and FWHM for resolution measurements
 
-threshold = 1000;
+threshold = 400;
 peaksInfo = imagePeakFinder(reflection_image, c0, threshold);
 
 % concatenate peaksInfo array for all line scans
