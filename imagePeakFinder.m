@@ -1,6 +1,8 @@
-function imagePeakFinder(reflection_image, kgrid, t_array, c0, threshold)
+function imagePeakFinder(reflection_image, c0, threshold)
 % find peak positions and amplitude above given threshold, and FWHM at peak
 % used for resolution measurements
+
+    global kgrid t_array
 
     % threshold image and find clusters
     imageThresholdMask = reflection_image > threshold;
@@ -66,8 +68,8 @@ function imagePeakFinder(reflection_image, kgrid, t_array, c0, threshold)
         peakAmpl = peaksSort(1,peakIndex);
         peakPosX = peaksSort(2,peakIndex);
         peakPosZ = peaksSort(3,peakIndex);
-%         peakFWHM = fwhm(reflection_image(peakPosX-30:peakPosX+30,peakPosZ),kgrid.dx,0); % lateral resolution
-        peakFWHM = fwhm(reflection_image(peakPosX,peakPosZ-30:peakPosZ+30),kgrid.dx,0); % axial resolution
+        peakFWHM = fwhm(reflection_image(peakPosX-30:peakPosX+30,peakPosZ),kgrid.dx,0); % lateral resolution
+%         peakFWHM = fwhm(reflection_image(peakPosX,peakPosZ-30:peakPosZ+30),kgrid.dx,0); % axial resolution
         
         figure(gcf)
         hold on
