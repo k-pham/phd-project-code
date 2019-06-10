@@ -67,6 +67,7 @@ reflection_image = permute(reflection_image,[2 1]);                         % re
 
 
 %% trim image in z by half
+
 reflection_image = reflection_image(:,1:round(Nt/2));
 Nt = size(reflection_image,2);
 
@@ -94,12 +95,13 @@ reflection_image = envelopeDetection(squeeze(reflection_image));            % p_
 
 
 %% saving image data to .mat
-[Nz] = size(reflection_image,2);
-volume_data = reshape(reflection_image,Nx,1,Nz);
-volume_spacing = [kgrid.dx, kgrid.dx, params.dt*c0];
 
-phantom_id = strtok(params.file_data,'@'); % parse string up to specified delimiter
-phantom_id = phantom_id(8:end);     % remove date folder from string
+[Nz] = size(reflection_image,2);
+volume_data = reshape(reflection_image,Nx,1,Nz);        %#ok<NASGU>
+volume_spacing = [kgrid.dx, kgrid.dx, dt*c0];    %#ok<NASGU>
+
+phantom_id = strtok(params.file_data,'@');  % parse string up to specified delimiter
+phantom_id = phantom_id(8:end);             % remove date folder from string
 save(['recon_data\' phantom_id '.mat'],'volume_data','volume_spacing','-v7.3')
 
 
