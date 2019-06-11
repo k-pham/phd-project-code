@@ -79,6 +79,15 @@ end
 % sliceViewer
 
 
+%% plot line horizontal MIP profile
+
+reflection_image_MIP = squeeze(max(reflection_image(:,:),[],2));      % p_xz to p.max(z)_x
+
+figure
+plot(reflection_image_MIP)
+    title('MIP of reconstructed image')
+
+
 %% plot reconstructed image
 
 global kgrid t_array Nt %#ok<TLEV>
@@ -105,6 +114,7 @@ end
     cmap = flipud(cmap);    % flip colormap to make black = signal
     colormap(cmap);
     colorbar
+    drawnow
     %hold on
     %plot([0,0],[-10,10],'b--')
     %legend('sensor')
@@ -113,15 +123,6 @@ end
 %     xlim([1250,1450])
 %     ylim([0.1,0.8])
 %     xlim([0.5,2.5])
-
-
-%% plot line horizontal MIP profile
-
-reflection_image_MIP = squeeze(max(reflection_image(:,:),[],2));      % p_xz to p.max(z)_x
-
-figure
-plot(reflection_image_MIP)
-    title('MIP of reconstructed image')
 
 
 %% find image peaks and FWHM for resolution measurements
