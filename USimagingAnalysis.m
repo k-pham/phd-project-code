@@ -108,11 +108,61 @@ imagePeakFinder(reflection_image, kgrid, t_array, c0, threshold)
 % end
 
 
+%% resolution27umPlanar contour plot
+% use peaksInfo array
 
+data = load('../data/imagingUS/190606/peaksInfoAll.mat');
+peaksInfoAll = data.peaksInfoAll;
 
+peaksAmpl    = peaksInfoAll(1,:);
+peaksPosX    = peaksInfoAll(2,:);
+peaksPosZ    = peaksInfoAll(3,:);
+peaksResoLat = peaksInfoAll(4,:)*1e6; % in um
+peaksResoAxi = peaksInfoAll(5,:)*1e6; % in um
 
+[gridX,gridZ] = meshgrid(-10.5:0.1:10.5, 0:0.1:12);
 
+resoLat = griddata(peaksPosX,peaksPosZ,peaksResoLat,gridX,gridZ,'cubic');
+resoAxi = griddata(peaksPosX,peaksPosZ,peaksResoAxi,gridX,gridZ,'cubic');
+amplitude = griddata(peaksPosX,peaksPosZ,peaksAmpl,gridX,gridZ,'cubic');
 
+resoLat = fillmissing(resoLat,'nearest');
+resoAxi = fillmissing(resoAxi,'nearest');
 
+resoLat(isnan(resoLat)) = 100;
+resoAxi(isnan(resoAxi)) = 40;
+amplitude(isnan(amplitude)) = 0;
 
+resoLatBlur = imgaussfilt(resoLat,15);
+resoAxiBlur = imgaussfilt(resoAxi,15);
 
+figure
+set(gcf,'Position',[100,100,800,450])
+imagesc(resoLat)
+
+figure
+set(gcf,'Position',[100,100,800,450])
+imagesc(resoAxi)
+
+xreal = -10.5:0.1:10.5;
+zreal = 0:0.1:12;
+
+contoursLat = [50:2:70,75:5:120];
+figure
+set(gcf,'Position',[100,100,800,450])
+[C, h]= contour(xreal, zreal, resoLatBlur, contoursLat, 'LineWidth', 2);
+    clabel(C,h, 'labelspacing', 700);
+%     clabel(C,'manual')
+    colormap(gray)
+    colorbar
+%     xlim([4,15])
+%     ylim([1.1,3.2])
+
+contoursAxi = [36:2:44];figure
+set(gcf,'Position',[100,100,800,450])
+[C, h]= contour(xreal, zreal, resoAxiBlur, contoursAxi, 'LineWidth', 2);
+    clabel(C,h, 'labelspacing', 700);
+    colormap(gray)
+    colorbar
+    caxis([30,50])
+    
