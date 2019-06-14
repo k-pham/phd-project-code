@@ -42,7 +42,7 @@ switch dim
     case 2
         imagesc(sensor_data')
     case 3
-        imagesc(squeeze(sensor_data(:,50,:))')
+        imagesc(squeeze(sensor_data(40,:,:))')
 end
     colormap(gray)
     colorbar
@@ -50,6 +50,10 @@ end
     xlabel('x axis [dx]')
     ylabel('time [dt]')
     % ylim([1,50])
+    drawnow
+
+savefig(gcf,['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots\scan' num2str(scanID) '_sensor_data'], 'compact')
+saveas(gcf, ['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots\scan' num2str(scanID) '_sensor_data.jpg'])
 
 % pause
 
@@ -86,6 +90,10 @@ reflection_image_MIP = squeeze(max(reflection_image(:,:),[],2));      % p_xz to 
 figure
 plot(reflection_image_MIP)
     title('MIP of reconstructed image')
+    drawnow
+
+savefig(gcf,['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots\scan' num2str(scanID) '_profile'], 'compact')
+saveas(gcf, ['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots\scan' num2str(scanID) '_profile.jpg'])
 
 
 %% plot reconstructed image
@@ -127,7 +135,7 @@ end
 
 %% find image peaks and FWHM for resolution measurements
 
-threshold = 400;
+threshold = 300;
 peaksInfo = imagePeakFinder(reflection_image, c0, threshold);
 
 % concatenate peaksInfo array for all line scans
@@ -137,7 +145,10 @@ else
     peaksInfoAll = cat(2,peaksInfoAll,peaksInfo);
 end
 
-% save('../data/imagingUS/190606/peaksInfoAll.mat','peaksInfoAll')
+save('../data/imagingUS/190613/peaksInfoAll.mat','peaksInfoAll')
+
+savefig(gcf,['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots\scan' num2str(scanID) '_image_marked'], 'compact')
+saveas(gcf, ['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots\scan' num2str(scanID) '_image_marked.jpg'])
 
 
 %% run multiple reconstructions in loop (end)
