@@ -3,6 +3,10 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold)
 % used for resolution measurements
 
     global kgrid t_array dt
+    
+    sizeX = size(reflection_image,1);
+    sizeZ = size(reflection_image,2);
+    hw = 10;
 
     % threshold image and find clusters
     imageThresholdMask = reflection_image > threshold;
@@ -73,25 +77,29 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold)
         peakAmpl = peaksSort(1,peakIndex);
         peakPosX = peaksSort(2,peakIndex);
         peakPosZ = peaksSort(3,peakIndex);
-        peakFWHMlateral = fwhm(reflection_image(peakPosX-20:peakPosX+20,peakPosZ),kgrid.dx,0);    % lateral resolution
-        peakFWHMaxial   = fwhm(reflection_image(peakPosX,peakPosZ-20:peakPosZ+20),dt*c0,0);       % axial resolution
-                                                                                                  % omit factor 1/2 bc of depth bug
-        peaksInfo(4,peakIndex) = peakFWHMlateral;
-        peaksInfo(5,peakIndex) = peakFWHMaxial;
-                                                                                                  
-        figure(gcf)
-        hold on
-        %plot(peakPosX,peakPosZ,'r.')
-        plot(xaxis(peakPosX),zaxis(peakPosZ)*2,'r+')    % *2 factor from bug
-        text(xaxis(peakPosX),zaxis(peakPosZ)*2,num2str(peakFWHMlateral*1e6,3),'HorizontalAlignment','left'  ,'VerticalAlignment','middle','Color','r')
-        text(xaxis(peakPosX),zaxis(peakPosZ)*2,num2str(peakFWHMaxial*1e6,3)  ,'HorizontalAlignment','center','VerticalAlignment','top'   ,'Color','b')
-        drawnow
+        
+        if (peakPosX - hw > 0) && (peakPosX + hw <= sizeX) && (peakPosZ - hw > 0) && (peakPosZ + hw <= sizeZ)
+        
+            peakFWHMlateral = fwhm(reflection_image(peakPosX-hw:peakPosX+hw,peakPosZ),kgrid.dx,0);    % lateral resolution
+            peakFWHMaxial   = fwhm(reflection_image(peakPosX,peakPosZ-hw:peakPosZ+hw),dt*c0,0);       % axial resolution
+                                                                                                      % omit factor 1/2 bc of depth bug
+            peaksInfo(4,peakIndex) = peakFWHMlateral;
+            peaksInfo(5,peakIndex) = peakFWHMaxial;
 
-        if peakIndex == 1 disp('cluster ##: peakAmpl [peakPosX,peakPosZ] fwhm: lateral / axial '), end %#ok<SEPEX>
-        disp(['cluster #',num2str(peakIndex),': ',num2str(peakAmpl),...
-            ' [',num2str(xaxis(peakPosX)),', ',num2str(zaxis(peakPosZ)*2),'], ',...
-            num2str(peakFWHMlateral*1e6,3),' um',num2str(peakFWHMaxial*1e6,3),' um'])
+            figure(gcf)
+            hold on
+            %plot(peakPosX,peakPosZ,'r.')
+            plot(xaxis(peakPosX),zaxis(peakPosZ)*2,'r+')    % *2 factor from bug
+            text(xaxis(peakPosX),zaxis(peakPosZ)*2,num2str(peakFWHMlateral*1e6,3),'HorizontalAlignment','left'  ,'VerticalAlignment','middle','Color','r')
+            text(xaxis(peakPosX),zaxis(peakPosZ)*2,num2str(peakFWHMaxial*1e6,3)  ,'HorizontalAlignment','center','VerticalAlignment','top'   ,'Color','b')
+            drawnow
 
+            if peakIndex == 1 disp('cluster ##: peakAmpl [peakPosX,peakPosZ] fwhm: lateral / axial '), end %#ok<SEPEX>
+            disp(['cluster #',num2str(peakIndex),': ',num2str(peakAmpl),...
+                ' [',num2str(xaxis(peakPosX)),', ',num2str(zaxis(peakPosZ)*2),'], ',...
+                num2str(peakFWHMlateral*1e6,3),' um, ',num2str(peakFWHMaxial*1e6,3),' um'])
+        
+        end
 %         pause
     end
 
