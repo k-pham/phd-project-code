@@ -23,6 +23,7 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold)
 %     imageThresholdMask(:,1850:end) = 0;      % exclude high ampl rest noise
 %     imageThresholdMask(1:100,:) = 0;        % exclude high ampl reflections off frame
 
+    imageThresholdMask(2000:end,:) = 0;     % exclude frame
     
 %     ROI = roipoly;
 %     imageThresholdMask(ROI) = 0;
