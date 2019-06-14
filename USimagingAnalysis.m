@@ -111,7 +111,7 @@ imagePeakFinder(reflection_image, kgrid, t_array, c0, threshold)
 %% resolution27umPlanar contour plot
 % use peaksInfo array
 
-data = load('../data/imagingUS/190606/peaksInfoAll.mat');
+data = load('../data/imagingUS/190613/peaksInfoAll.mat');
 peaksInfoAll = data.peaksInfoAll;
 
 peaksAmpl    = peaksInfoAll(1,:);
@@ -120,7 +120,7 @@ peaksPosZ    = peaksInfoAll(3,:);
 peaksResoLat = peaksInfoAll(4,:)*1e6; % in um
 peaksResoAxi = peaksInfoAll(5,:)*1e6; % in um
 
-[gridX,gridZ] = meshgrid(-10.5:0.1:10.5, 0:0.1:12);
+[gridX,gridZ] = meshgrid(-10:0.1:11, 0:0.1:12);
 
 resoLat = griddata(peaksPosX,peaksPosZ,peaksResoLat,gridX,gridZ,'cubic');
 resoAxi = griddata(peaksPosX,peaksPosZ,peaksResoAxi,gridX,gridZ,'cubic');
@@ -129,7 +129,7 @@ amplitude = griddata(peaksPosX,peaksPosZ,peaksAmpl,gridX,gridZ,'cubic');
 resoLat = fillmissing(resoLat,'nearest');
 resoAxi = fillmissing(resoAxi,'nearest');
 
-resoLat(isnan(resoLat)) = 100;
+resoLat(isnan(resoLat)) = 80;
 resoAxi(isnan(resoAxi)) = 40;
 amplitude(isnan(amplitude)) = 0;
 
@@ -144,7 +144,7 @@ figure
 set(gcf,'Position',[100,100,800,450])
 imagesc(resoAxi)
 
-xreal = -10.5:0.1:10.5;
+xreal = -10:0.1:11;
 zreal = 0:0.1:12;
 
 contoursLat = [50:2:70,75:5:120];
