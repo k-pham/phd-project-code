@@ -33,6 +33,8 @@ params.Nt_zero_pad_source   = samples_cut_off;
 params.Nt_t0_correct        = samples_t0_correct;
 params.file_data            = file_name;
 
+% sensor_data(636,:) = 0.5 * ( sensor_data(635,:) + sensor_data(637,:) );
+
 % dim = 2;
 % sensor_data = squeeze(sensor_data(:,47,:));
 
@@ -52,8 +54,8 @@ end
     % ylim([1,50])
     drawnow
 
-savefig(gcf,['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots\scan' num2str(scanID) '_sensor_data'], 'compact')
-saveas(gcf, ['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots\scan' num2str(scanID) '_sensor_data.jpg'])
+% savefig(gcf,['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots_rm636\scan' num2str(scanID) '_sensor_data'], 'compact')
+% saveas(gcf, ['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots_rm636\scan' num2str(scanID) '_sensor_data.jpg'])
 
 % pause
 
@@ -92,8 +94,8 @@ plot(reflection_image_MIP)
     title('MIP of reconstructed image')
     drawnow
 
-savefig(gcf,['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots\scan' num2str(scanID) '_profile'], 'compact')
-saveas(gcf, ['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots\scan' num2str(scanID) '_profile.jpg'])
+% savefig(gcf,['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots_rm636\scan' num2str(scanID) '_profile'], 'compact')
+% saveas(gcf, ['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots_rm636\scan' num2str(scanID) '_profile.jpg'])
 
 
 %% plot reconstructed image
@@ -147,8 +149,8 @@ end
 
 save('../data/imagingUS/190613/peaksInfoAll.mat','peaksInfoAll')
 
-savefig(gcf,['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots\scan' num2str(scanID) '_image_marked'], 'compact')
-saveas(gcf, ['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots\scan' num2str(scanID) '_image_marked.jpg'])
+% savefig(gcf,['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots_rm636\scan' num2str(scanID) '_image_marked'], 'compact')
+% saveas(gcf, ['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots_rm636\scan' num2str(scanID) '_image_marked.jpg'])
 
 
 %% run multiple reconstructions in loop (end)
