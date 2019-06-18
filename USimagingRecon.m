@@ -38,7 +38,7 @@ params.file_data            = file_name;
 % dim = 2;
 % sensor_data = squeeze(sensor_data(:,47,:));
 
-figure
+fig_data = figure;
 set(gcf,'Position',[100,50,600,800])
 switch dim
     case 2
@@ -53,9 +53,6 @@ end
     ylabel('time [dt]')
     % ylim([1,50])
     drawnow
-
-% savefig(gcf,['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots_rm636\scan' num2str(scanID) '_sensor_data'], 'compact')
-% saveas(gcf, ['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots_rm636\scan' num2str(scanID) '_sensor_data.jpg'])
 
 % pause
 
@@ -89,20 +86,17 @@ end
 
 reflection_image_MIP = squeeze(max(reflection_image(:,:),[],2));      % p_xz to p.max(z)_x
 
-figure
+fig_profile = figure;
 plot(reflection_image_MIP)
     title('MIP of reconstructed image')
     drawnow
-
-% savefig(gcf,['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots_rm636\scan' num2str(scanID) '_profile'], 'compact')
-% saveas(gcf, ['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots_rm636\scan' num2str(scanID) '_profile.jpg'])
 
 
 %% plot reconstructed image
 
 global kgrid t_array Nt %#ok<TLEV>
 
-figure%(1); clf(1)
+fig_image = figure;
 set(gcf,'Position',[100,100,800,450])
 switch dim
     case 2
@@ -149,8 +143,19 @@ end
 
 save('../data/imagingUS/190613/peaksInfoAll.mat','peaksInfoAll')
 
-% savefig(gcf,['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots_rm636\scan' num2str(scanID) '_image_marked'], 'compact')
-% saveas(gcf, ['D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots_rm636\scan' num2str(scanID) '_image_marked.jpg'])
+
+%% save figures
+
+dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots_rm636\';
+
+savefig(fig_data,[dir_figures 'scan' num2str(scanID) '_sensor_data'], 'compact')
+saveas(fig_data, [dir_figures 'scan' num2str(scanID) '_sensor_data.jpg'])
+
+savefig(fig_profile,[dir_figures 'scan' num2str(scanID) '_profile'], 'compact')
+saveas(fig_profile, [dir_figures 'scan' num2str(scanID) '_profile.jpg'])
+
+savefig(fig_image,[dir_figures 'scan' num2str(scanID) '_image_marked'], 'compact')
+saveas(fig_image, [dir_figures 'scan' num2str(scanID) '_image_marked.jpg'])
 
 
 %% run multiple reconstructions in loop (end)
