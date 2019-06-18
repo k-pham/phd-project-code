@@ -120,7 +120,7 @@ peaksPosZ    = peaksInfoAll(3,:);
 peaksResoLat = peaksInfoAll(4,:)*1e6; % in um
 peaksResoAxi = peaksInfoAll(5,:)*1e6; % in um
 
-[gridX,gridZ] = meshgrid(-10:0.1:11, 0:0.1:12);
+[gridX,gridZ] = meshgrid(-10:0.1:11, 0:0.1:12.5);
 
 resoLat = griddata(peaksPosX,peaksPosZ,peaksResoLat,gridX,gridZ,'cubic');
 resoAxi = griddata(peaksPosX,peaksPosZ,peaksResoAxi,gridX,gridZ,'cubic');
@@ -145,7 +145,7 @@ set(gcf,'Position',[100,100,800,450])
 imagesc(resoAxi)
 
 xreal = -10:0.1:11;
-zreal = 0:0.1:12;
+zreal = 0:0.1:12.5;
 
 contoursLat = [50:2:70,75:5:120];
 figure
