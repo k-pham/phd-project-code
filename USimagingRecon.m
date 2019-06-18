@@ -22,7 +22,7 @@ for scanID = scanIDs(1:end)
     file_name = file_names{scanID};
     trigger_delay = trigger_delays{scanID};
 
-%% load & view SGL data
+%% load SGL data
 
 display(['Viewing: ' file_name])
 
@@ -35,8 +35,15 @@ params.file_data            = file_name;
 
 % sensor_data(636,:) = 0.5 * ( sensor_data(635,:) + sensor_data(637,:) );
 
+if scanID >= 16
+    sensor_data = sensor_data(:,1:end-400);
+end
+
 % dim = 2;
 % sensor_data = squeeze(sensor_data(:,47,:));
+
+
+%% view SGL data
 
 fig_data = figure;
 set(gcf,'Position',[100,50,600,800])
@@ -141,12 +148,12 @@ else
     peaksInfoAll = cat(2,peaksInfoAll,peaksInfo);
 end
 
-save('../data/imagingUS/190613/peaksInfoAll.mat','peaksInfoAll')
+save( [file_dir file_name(1:7) 'peaksInfoAll_4.mat'] , 'peaksInfoAll')
 
 
 %% save figures
 
-dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\190613 resolution27umPlanar2 BK31[CNT]\autoplots_rm636\';
+dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\190618 resolution27umPlanar4 BK31[CNT]\autoplots\';
 
 savefig(fig_data,[dir_figures 'scan' num2str(scanID) '_sensor_data'], 'compact')
 saveas(fig_data, [dir_figures 'scan' num2str(scanID) '_sensor_data.jpg'])
