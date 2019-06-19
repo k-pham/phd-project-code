@@ -148,21 +148,19 @@ else
     peaksInfoAll = cat(2,peaksInfoAll,peaksInfo);
 end
 
-save( [file_dir file_name(1:7) 'peaksInfoAll_4.mat'] , 'peaksInfoAll')
-
 
 %% save figures
 
-dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\190618 resolution27umPlanar4 BK31[CNT]\autoplots\';
+dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\190618 resolution27umPlanar4 BK31[CNT]\';
 
-savefig(fig_data,[dir_figures 'scan' num2str(scanID) '_sensor_data'], 'compact')
-saveas(fig_data, [dir_figures 'scan' num2str(scanID) '_sensor_data.jpg'])
+savefig(fig_data,[dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data'], 'compact')
+saveas(fig_data, [dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data.jpg'])
 
-savefig(fig_profile,[dir_figures 'scan' num2str(scanID) '_profile'], 'compact')
-saveas(fig_profile, [dir_figures 'scan' num2str(scanID) '_profile.jpg'])
+savefig(fig_profile,[dir_figures 'autoplots\scan' num2str(scanID) '_profile'], 'compact')
+saveas(fig_profile, [dir_figures 'autoplots\scan' num2str(scanID) '_profile.jpg'])
 
-savefig(fig_image,[dir_figures 'scan' num2str(scanID) '_image_marked'], 'compact')
-saveas(fig_image, [dir_figures 'scan' num2str(scanID) '_image_marked.jpg'])
+savefig(fig_image,[dir_figures 'autoplots\scan' num2str(scanID) '_image_marked'], 'compact')
+saveas(fig_image, [dir_figures 'autoplots\scan' num2str(scanID) '_image_marked.jpg'])
 
 
 %% run multiple reconstructions in loop (end)
@@ -174,6 +172,7 @@ end     % of scanID / file_name loop
 % end     % of c0 loop
 % end     % of samples_t0_correct loop
 
+save( [dir_figures 'peaksInfoAll_4.mat'] , 'peaksInfoAll')
 
 
 %% plot reconstructed image
