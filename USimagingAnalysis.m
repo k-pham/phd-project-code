@@ -111,7 +111,7 @@ imagePeakFinder(reflection_image, kgrid, t_array, c0, threshold)
 %% resolution27umPlanar contour plot
 % use peaksInfo array
 
-data = load('../data/imagingUS/190613/peaksInfoAll.mat');
+data = load('..\figures\_Matlab figs\USimaging\190618 resolution27umPlanar4 BK31[CNT]/peaksInfoAll_4.mat');
 peaksInfoAll = data.peaksInfoAll;
 
 peaksAmpl    = peaksInfoAll(1,:);
@@ -129,7 +129,7 @@ amplitude = griddata(peaksPosX,peaksPosZ,peaksAmpl,gridX,gridZ,'cubic');
 resoLat = fillmissing(resoLat,'nearest');
 resoAxi = fillmissing(resoAxi,'nearest');
 
-resoLat(isnan(resoLat)) = 80;
+resoLat(isnan(resoLat)) = 100;
 resoAxi(isnan(resoAxi)) = 40;
 amplitude(isnan(amplitude)) = 0;
 
