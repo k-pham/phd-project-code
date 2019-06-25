@@ -51,8 +51,8 @@ medium.density(scatterer1==1) = temp(scatterer1==1) .* scatterer1_rho;
 % create the time array
 cfl = 0.2;              % CFL number
 t_end = 2*Ny*dy/c0;     % end time of the simulation [s]
-%kgrid.makeTime(medium.sound_speed,cfl,t_end);
-kgrid.t_array = makeTime(kgrid,medium.sound_speed,cfl,t_end);
+kgrid.makeTime(medium.sound_speed,cfl,t_end);
+%kgrid.t_array = makeTime(kgrid,medium.sound_speed,cfl,t_end);
 
 % define an apodised planar source 
 source.p0 = zeros(Nx, Ny);
