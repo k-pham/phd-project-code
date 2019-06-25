@@ -1,5 +1,5 @@
 
-
+clearvars
 
 dx = 5e-6;
 sp = 1500;
