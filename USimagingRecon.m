@@ -35,9 +35,9 @@ params.file_data            = file_name;
 
 % sensor_data(636,:) = 0.5 * ( sensor_data(635,:) + sensor_data(637,:) );
 
-if scanID >= 16
-    sensor_data = sensor_data(:,1:end-400);
-end
+% if scanID >= 16
+%     sensor_data = sensor_data(:,1:end-400);
+% end
 
 % dim = 2;
 % sensor_data = squeeze(sensor_data(:,47,:));
@@ -148,10 +148,30 @@ else
     peaksInfoAll = cat(2,peaksInfoAll,peaksInfo);
 end
 
+%% plot resolution along #10 position
+
+peaksAmpl    = peaksInfo(1,:);
+peaksPosX    = peaksInfo(2,:);
+peaksPosZ    = peaksInfo(3,:);
+peaksResoLat = peaksInfo(4,:)*1e6; % in um
+peaksResoAxi = peaksInfo(5,:)*1e6; % in um
+
+% [peaksPosXsort, sortIDX] = sort(peaksPosX);
+% peaksResoLatSort = peaksResoLat(sortIDX);
+% 
+% peaksResoLatSort(peaksResoLatSort==0) = NaN;
+% peaksPosXsort(peaksResoLatSort==0) = NaN;
+
+figure(888)
+set(gcf,'Position',[100,100,800,450])
+plot(peaksPosX,peaksResoLat,'+')
+% plot(peaksPosXsort,peaksResoLatSort,'+')
+hold on
+
 
 %% save figures
 
-dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\190618 resolution27umPlanar4 BK31[CNT]\';
+dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\190709 resolution27umPlanar BK31[CNT] tip-tilted excitation\';
 
 savefig(fig_data,[dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data'], 'compact')
 saveas(fig_data, [dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data.jpg'])
@@ -172,7 +192,7 @@ end     % of scanID / file_name loop
 % end     % of c0 loop
 % end     % of samples_t0_correct loop
 
-save( [dir_figures 'peaksInfoAll_4.mat'] , 'peaksInfoAll')
+save( [dir_figures 'peaksInfoAll.mat'] , 'peaksInfoAll')
 
 
 %% plot reconstructed image
