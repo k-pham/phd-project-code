@@ -97,9 +97,8 @@ reflection_image = envelopeDetection(squeeze(reflection_image));            % p_
 %% saving image data to .mat
 
 [Nz] = size(reflection_image,2);
-volume_data = reshape(reflection_image,Nx,1,Nz);        %#ok<NASGU>
-volume_spacing = [kgrid.dx, kgrid.dx, dt*c0];           %#ok<NASGU>
-                                                        % omit factor 1/2 in dz because of doubled depth bug
+volume_data = reshape(reflection_image,Nx,1,Nz);
+volume_spacing = [kgrid.dx, kgrid.dx, dt*c0];           % omit factor 1/2 in dz because of doubled depth bug
 
 phantom_id = strtok(params.file_data,'@');  % parse string up to specified delimiter
 phantom_id = phantom_id(8:end);             % remove date folder from string
