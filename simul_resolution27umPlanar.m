@@ -117,16 +117,18 @@ params.Nt_t0_correct        = -262;
 params.file_data            = ['111111\resolution27umPlanar_simul_' beam_pos];
 
 reflection_image = reconstruct2dUSimage(sensor_data, params, c0);
+% WARNING: kgrid UPDATED
 
 save([file_dir 'layer_' num2str(idx_layer) '_' beam_pos '_reflection_image'], 'reflection_image')
 
 figure
-imagesc(kgrid.y_vec*1e3,kgrid.x_vec*1e3,reflection_image)
+imagesc(kgrid.x_vec*1e3,kgrid.t_array*c0*1e3/2,reflection_image')
 axis image
 
 
 %% peak size analysis
 
+kgrid.makeTime(medium.sound_speed,cfl,t_end);
 t_array = kgrid.t_array;
 dt = kgrid.dt;
 
