@@ -4,9 +4,17 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold)
 
     global kgrid t_array dt
     
+    clear peaksSort peaksInfo
+    
     sizeX = size(reflection_image,1);
     sizeZ = size(reflection_image,2);
-    hw = 15;
+    
+    % determine necessary half-width in pixels to get FWHM of 100 um
+%     hwX = 15;
+%     hwZ = 50;
+    halfwidth = 100e-6;
+    hwX = round(halfwidth/kgrid.dx);
+    hwZ = round(halfwidth/(kgrid.dt*c0));
 
     % threshold image and find clusters
     imageThresholdMask = reflection_image > threshold;
@@ -24,6 +32,8 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold)
 %     imageThresholdMask(1:100,:) = 0;        % exclude high ampl reflections off frame
 
 %     imageThresholdMask(2000:end,:) = 0;     % exclude frame
+    imageThresholdMask(:,1:3500) = 0;
+    imageThresholdMask(:,4500:end) = 0;
     
 %     ROI = roipoly;
 %     imageThresholdMask(ROI) = 0;
@@ -55,7 +65,7 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold)
     
     % remove nearby side peaks
     index = 1;
-    peakRmRadius = 0.5;    % in mm
+    peakRmRadius = 0.4;    % in mm
     while index <= size(peaksSort,2)
         xpos = xaxis(peaksSort(2,:));
         zpos = zaxis(peaksSort(3,:))'*2;
@@ -79,11 +89,11 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold)
         peakPosX = peaksSort(2,peakIndex);
         peakPosZ = peaksSort(3,peakIndex);
         
-        if (peakPosX - hw > 0) && (peakPosX + hw <= sizeX) && (peakPosZ - hw > 0) && (peakPosZ + hw <= sizeZ)
+        if (peakPosX - hwX > 0) && (peakPosX + hwX <= sizeX) && (peakPosZ - hwZ > 0) && (peakPosZ + hwZ <= sizeZ)
         
             try
-                peakFWHMlateral = fwhm(reflection_image(peakPosX-hw:peakPosX+hw,peakPosZ),kgrid.dx,0);    % lateral resolution
-                peakFWHMaxial   = fwhm(reflection_image(peakPosX,peakPosZ-hw:peakPosZ+hw),dt*c0,0);       % axial resolution
+                peakFWHMlateral = fwhm(reflection_image(peakPosX-hwX:peakPosX+hwX,peakPosZ),kgrid.dx,0);    % lateral resolution
+                peakFWHMaxial   = fwhm(reflection_image(peakPosX,peakPosZ-hwZ:peakPosZ+hwZ),dt*c0,0);       % axial resolution
                                                                                                       % omit factor 1/2 bc of depth bug
                 peaksInfo(4,peakIndex) = peakFWHMlateral;
                 peaksInfo(5,peakIndex) = peakFWHMaxial;
