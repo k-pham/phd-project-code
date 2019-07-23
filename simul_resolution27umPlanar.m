@@ -95,9 +95,9 @@ sensor_data = kspaceFirstOrder2D(kgrid, medium, source, sensor, inputs{:});
 save([file_dir 'layer_' num2str(idx_layer) '_' beam_pos '_sensor_data'], 'sensor_data')
 
 figure
-imagesc(kgrid.t_array*1e6,kgrid.x_vec*1e3,sensor_data)
-    xlabel('time / \mus')
-    ylabel('x position / mm')
+imagesc(kgrid.x_vec*1e3,kgrid.t_array*1e6,sensor_data')
+    xlabel('x position / mm')
+    ylabel('time / \mus')
     
 % end of loop over diff layers of wires
 % end
@@ -123,11 +123,14 @@ save([file_dir 'layer_' num2str(idx_layer) '_' beam_pos '_reflection_image'], 'r
 
 figure
 imagesc(kgrid.x_vec*1e3,kgrid.t_array*c0*1e3/2,reflection_image')
-axis image
+    axis image
+	xlabel('x position / mm')
+    ylabel('z position / mm')
 
 
 %% peak size analysis
 
+% remake kgrid time and assign to global variables used in imagePeakFinder
 kgrid.makeTime(medium.sound_speed,cfl,t_end);
 t_array = kgrid.t_array;
 dt = kgrid.dt;
