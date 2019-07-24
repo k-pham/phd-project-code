@@ -119,6 +119,11 @@ params.file_data            = ['111111\resolution27umPlanar_simul_' beam_pos];
 reflection_image = reconstruct2dUSimage(sensor_data, params, c0);
 % WARNING: kgrid UPDATED
 
+% remake kgrid time and assign to global variables used in imagePeakFinder
+kgrid.makeTime(medium.sound_speed,cfl,t_end);
+t_array = kgrid.t_array;
+dt = kgrid.dt;
+
 save([file_dir 'layer_' num2str(idx_layer) '_' beam_pos '_reflection_image'], 'reflection_image')
 
 figure
@@ -129,11 +134,6 @@ imagesc(kgrid.x_vec*1e3,kgrid.t_array*c0*1e3/2,reflection_image')
 
 
 %% peak size analysis
-
-% remake kgrid time and assign to global variables used in imagePeakFinder
-kgrid.makeTime(medium.sound_speed,cfl,t_end);
-t_array = kgrid.t_array;
-dt = kgrid.dt;
 
 threshold = 70;
 peaksInfo = imagePeakFinder(reflection_image, c0, threshold);
