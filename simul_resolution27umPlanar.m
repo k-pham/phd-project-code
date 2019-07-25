@@ -7,7 +7,7 @@ global kgrid t_array dt
 file_dir = 'D:\PROJECT\data\simulations\resolution27um\';
 beam_positions = {'central', 'offcentre'};
 
-for beam_pos = beam_positions
+for beam_pos = beam_positions(2)
 
     beam_pos = beam_pos{1}; %#ok<FXSET>
 
@@ -19,7 +19,7 @@ for beam_pos = beam_positions
 dx = 2e-6;                  % grid point spacing in the x direction [m]
 dy = dx;                    % grid point spacing in the y direction [m]
 Nx = 2048;    % number of grid points in the x (row) direction
-Ny = 768;     % number of grid points in the y (column) direction
+Ny = 1024;     % number of grid points in the y (column) direction
 kgrid = kWaveGrid(Nx, dx, Ny, dy);
 
 % define the thickness of the PML [grid points]
@@ -31,7 +31,7 @@ rho0 = 1000;    % density [kg/m^3]
 
 % define resolution targets (TUNGSTEN)
 num_wires = 7;
-num_layers = 1;
+num_layers = 2;
 wire_radius = 6;                                % [grid points]
 wire_xs  = round((1:1:num_wires)*0.5e-3/dx);      % [grid points]
 wire_ys  = round((1:1:num_layers)*0.5e-3/dy);     % [grid points]
@@ -41,7 +41,7 @@ wires_layer = zeros(Nx, Ny);
 
 % loop over diff layers of wires
 % for idx_layer = 1:num_layers
-idx_layer = 1;
+idx_layer = 2;
     
 % make a layer of num_wires wires
 for idx_wire = 1:num_wires
