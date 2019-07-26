@@ -5,42 +5,43 @@ clearvars;
 global kgrid t_array dt
 
 file_dir = 'D:\PROJECT\data\simulations\resolution27um\';
+num_layers = 3;
+Nys = {768,1024,1296};
 beam_positions = {'central', 'offcentre'};
 
-for beam_pos = beam_positions
+% loop over diff layers of wires
+for idx_layer = 1:num_layers
 
-    beam_pos = beam_pos{1}; %#ok<FXSET>
+    for beam_pos = beam_positions
 
-    %% SET UP EXPERIMENT
+        beam_pos = beam_pos{1}; %#ok<FXSET>
 
-    % create the computational grid
-    % x_length = 6e-3;            % length of line scan [m]
-    % y_length = 3e-3;            % depth of field [m]
-    dx = 2e-6;                  % grid point spacing in the x direction [m]
-    dy = dx;                    % grid point spacing in the y direction [m]
-    Nx = 2048;    % number of grid points in the x (row) direction
-    Ny = 1024;    % number of grid points in the y (column) direction
-    kgrid = kWaveGrid(Nx, dx, Ny, dy);
+        %% SET UP EXPERIMENT
 
-    % define the thickness of the PML [grid points]
-    pml_size = 20;
+        % create the computational grid
+        % x_length = 6e-3;            % length of line scan [m]
+        % y_length = 3e-3;            % depth of field [m]
+        dx = 2e-6;                  % grid point spacing in the x direction [m]
+        dy = dx;                    % grid point spacing in the y direction [m]
+        Nx = 2048;                  % number of grid points in the x (row) direction
+        Ny = Nys{idx_layer};        % number of grid points in the y (column) direction
+        kgrid = kWaveGrid(Nx, dx, Ny, dy);
 
-    % background material properties (WATER)
-    c0 = 1500;      % sound speed [m/s]
-    rho0 = 1000;    % density [kg/m^3]
+        % define the thickness of the PML [grid points]
+        pml_size = 20;
 
-    % define resolution targets (TUNGSTEN)
-    num_wires = 7;
-    num_layers = 2;
-    wire_radius = 6;                                                % [grid points]
-    wire_xs  = round((1:1:num_wires)*Nx/(num_wires+1));                 % [grid points]
-    wire_ys  = pml_size + round((1:1:num_layers)*0.5e-3/dy);        % [grid points]
-    wire_c   = 5220;                                % sound speed [m/s]
-    wire_rho = 19300;                               % density [kg/m^3]
-    wires_layer = zeros(Nx, Ny);
+        % background material properties (WATER)
+        c0 = 1500;      % sound speed [m/s]
+        rho0 = 1000;    % density [kg/m^3]
 
-    % loop over diff layers of wires
-    for idx_layer = 1:num_layers
+        % define resolution targets (TUNGSTEN)
+        num_wires = 7;
+        wire_radius = 6;                                                % [grid points]
+        wire_xs  = round((1:1:num_wires)*Nx/(num_wires+1));                 % [grid points]
+        wire_ys  = pml_size + round((1:1:num_layers)*0.5e-3/dy);        % [grid points]
+        wire_c   = 5220;                                % sound speed [m/s]
+        wire_rho = 19300;                               % density [kg/m^3]
+        wires_layer = zeros(Nx, Ny);
 
         % make a layer of num_wires wires
         for idx_wire = 1:num_wires
