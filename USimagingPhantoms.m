@@ -990,27 +990,44 @@ file_dir = '..\data\imagingUS\';
 
 %% 190709 resolution27umPlanar with tip-tilted excitation beam at 5 angles
 
-dim = 2;
+% dim = 2;
+% 
+% diff_line_scans = {
+%     '190709/resolution27umPlanar_BK31[CNT]_10_rad1@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_25s19m21h_09-07-19_avg1_1D_raw.SGL' 7e-6
+%     '190709/resolution27umPlanar_BK31[CNT]_10_rad2@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_06s25m21h_09-07-19_avg1_1D_raw.SGL' 7e-6
+%     '190709/resolution27umPlanar_BK31[CNT]_10_rad3@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_08s29m21h_09-07-19_avg1_1D_raw.SGL' 7e-6
+%     '190709/resolution27umPlanar_BK31[CNT]_10_rad4@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_56s31m21h_09-07-19_avg1_1D_raw.SGL' 7e-6
+%     '190709/resolution27umPlanar_BK31[CNT]_10_rad5@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_40s35m21h_09-07-19_avg1_1D_raw.SGL' 7e-6
+%     };
+% 
+% file_names      = diff_line_scans(:,1);
+% trigger_delays  = diff_line_scans(:,2);
+% 
+% % need to reshape to be able to loop through
+% file_names     = reshape(file_names,[1 length(file_names)]);
+% trigger_delays = reshape(trigger_delays,[1 length(trigger_delays)]);
+% 
+% c0 = 1484;
+% 
+% samples_cut_off = 50;
+% samples_t0_correct = -12;
 
-diff_line_scans = {
-    '190709/resolution27umPlanar_BK31[CNT]_10_rad1@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_25s19m21h_09-07-19_avg1_1D_raw.SGL' 7e-6
-    '190709/resolution27umPlanar_BK31[CNT]_10_rad2@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_06s25m21h_09-07-19_avg1_1D_raw.SGL' 7e-6
-    '190709/resolution27umPlanar_BK31[CNT]_10_rad3@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_08s29m21h_09-07-19_avg1_1D_raw.SGL' 7e-6
-    '190709/resolution27umPlanar_BK31[CNT]_10_rad4@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_56s31m21h_09-07-19_avg1_1D_raw.SGL' 7e-6
-    '190709/resolution27umPlanar_BK31[CNT]_10_rad5@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_40s35m21h_09-07-19_avg1_1D_raw.SGL' 7e-6
-    };
 
-file_names      = diff_line_scans(:,1);
-trigger_delays  = diff_line_scans(:,2);
+%% 190830 cause for resolution asymmetry (phantom at 6 mm with central/off-centre excitation beam)
 
-% need to reshape to be able to loop through
-file_names     = reshape(file_names,[1 length(file_names)]);
-trigger_delays = reshape(trigger_delays,[1 length(trigger_delays)]);
+file_name = '190830\resolution27umPlanar_ND1_BK31[CNT]_1D_central@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_11s05m16h_30-08-19_avg1_1D_raw.SGL';
+file_name = '190830\resolution27umPlanar_ND1_BK31[CNT]_1D_offcentre1@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_58s58m16h_30-08-19_avg1_1D_raw.SGL';
 
 c0 = 1484;
 
+trigger_delay = 7e-6;
+
+dim = 2;
+
 samples_cut_off = 50;
-samples_t0_correct = -12;
+samples_t0_correct = -5;
+
+
 
 
 
