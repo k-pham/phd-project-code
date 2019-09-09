@@ -16,11 +16,11 @@ run('USimagingPhantoms.m')
 % for c0 = 1477:1:1481
 
 % multiple file names:
-scanIDs = 1:length(file_names);
-for scanID = scanIDs(1:end)
-    
-    file_name = file_names{scanID};
-    trigger_delay = trigger_delays{scanID};
+% scanIDs = 1:length(file_names);
+% for scanID = scanIDs(1:end)
+%     
+%     file_name = file_names{scanID};
+%     trigger_delay = trigger_delays{scanID};
 
 %% load SGL data
 
@@ -79,7 +79,7 @@ elseif dim == 3
                                 'TimeGainCompensate', {}, ...
                                 'EnvelopeDetect', true, ...
                                 'LogCompress', 0, ...
-                                'SaveImageToFile', true ...
+                                'SaveImageToFile', false ...
                             );
 end
 
@@ -101,7 +101,7 @@ plot(reflection_image_MIP)
 
 %% plot reconstructed image
 
-global kgrid t_array Nt %#ok<TLEV>
+global kgrid t_array Nt
 
 fig_image = figure;
 set(gcf,'Position',[100,100,800,450])
@@ -138,7 +138,9 @@ end
 
 %% find image peaks and FWHM for resolution measurements
 
-threshold = 300;
+kgrid.dt = params.dt;
+
+threshold = 60;
 peaksInfo = imagePeakFinder(reflection_image, c0, threshold);
 
 % concatenate peaksInfo array for all line scans
@@ -150,49 +152,49 @@ end
 
 %% plot resolution along #10 position
 
-peaksAmpl    = peaksInfo(1,:);
-peaksPosX    = peaksInfo(2,:);
-peaksPosZ    = peaksInfo(3,:);
-peaksResoLat = peaksInfo(4,:)*1e6; % in um
-peaksResoAxi = peaksInfo(5,:)*1e6; % in um
-
-% [peaksPosXsort, sortIDX] = sort(peaksPosX);
-% peaksResoLatSort = peaksResoLat(sortIDX);
+% peaksAmpl    = peaksInfo(1,:);
+% peaksPosX    = peaksInfo(2,:);
+% peaksPosZ    = peaksInfo(3,:);
+% peaksResoLat = peaksInfo(4,:)*1e6; % in um
+% peaksResoAxi = peaksInfo(5,:)*1e6; % in um
 % 
-% peaksResoLatSort(peaksResoLatSort==0) = NaN;
-% peaksPosXsort(peaksResoLatSort==0) = NaN;
-
-figure(888)
-set(gcf,'Position',[100,100,800,450])
-plot(peaksPosX,peaksResoLat,'+')
-% plot(peaksPosXsort,peaksResoLatSort,'+')
-hold on
+% % [peaksPosXsort, sortIDX] = sort(peaksPosX);
+% % peaksResoLatSort = peaksResoLat(sortIDX);
+% % 
+% % peaksResoLatSort(peaksResoLatSort==0) = NaN;
+% % peaksPosXsort(peaksResoLatSort==0) = NaN;
+% 
+% figure(888)
+% set(gcf,'Position',[100,100,800,450])
+% plot(peaksPosX,peaksResoLat,'+')
+% % plot(peaksPosXsort,peaksResoLatSort,'+')
+% hold on
 
 
 %% save figures
 
-dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\190709 resolution27umPlanar BK31[CNT] tip-tilted excitation\';
-
-savefig(fig_data,[dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data'], 'compact')
-saveas(fig_data, [dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data.jpg'])
-
-savefig(fig_profile,[dir_figures 'autoplots\scan' num2str(scanID) '_profile'], 'compact')
-saveas(fig_profile, [dir_figures 'autoplots\scan' num2str(scanID) '_profile.jpg'])
-
-savefig(fig_image,[dir_figures 'autoplots\scan' num2str(scanID) '_image_marked'], 'compact')
-saveas(fig_image, [dir_figures 'autoplots\scan' num2str(scanID) '_image_marked.jpg'])
+% dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\190709 resolution27umPlanar BK31[CNT] tip-tilted excitation\';
+% 
+% savefig(fig_data,[dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data'], 'compact')
+% saveas(fig_data, [dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data.jpg'])
+% 
+% savefig(fig_profile,[dir_figures 'autoplots\scan' num2str(scanID) '_profile'], 'compact')
+% saveas(fig_profile, [dir_figures 'autoplots\scan' num2str(scanID) '_profile.jpg'])
+% 
+% savefig(fig_image,[dir_figures 'autoplots\scan' num2str(scanID) '_image_marked'], 'compact')
+% saveas(fig_image, [dir_figures 'autoplots\scan' num2str(scanID) '_image_marked.jpg'])
 
 
 %% run multiple reconstructions in loop (end)
 
 % pause
 
-end     % of scanID / file_name loop
+% end     % of scanID / file_name loop
 
 % end     % of c0 loop
 % end     % of samples_t0_correct loop
 
-save( [dir_figures 'peaksInfoAll.mat'] , 'peaksInfoAll')
+% save( [dir_figures 'peaksInfoAll.mat'] , 'peaksInfoAll')
 
 
 %% plot reconstructed image
