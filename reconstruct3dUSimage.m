@@ -331,8 +331,8 @@ function savingImageToMat(reflection_image, file_data, dz, freqfilter_params)
     tic
 
     Nz = size(reflection_image,3);
-    volume_data = reshape(reflection_image,Nx,Ny,Nz);       %#ok<NASGU>
-    volume_spacing = [kgrid.dx, kgrid.dy, dz];              %#ok<NASGU>
+    volume_data = reshape(reflection_image,Nx,Ny,Nz);
+    volume_spacing = [kgrid.dx, kgrid.dy, dz];
 
     phantom_id = strtok(file_data,'@'); % parse string up to specified delimiter
     phantom_id = phantom_id(8:end);     % remove date folder from string
