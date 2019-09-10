@@ -1016,7 +1016,7 @@ file_dir = '..\data\imagingUS\';
 %% 190830 cause for resolution asymmetry (phantom at 6 mm with central/off-centre excitation beam)
 
 file_name = '190830\resolution27umPlanar_ND1_BK31[CNT]_1D_central@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_11s05m16h_30-08-19_avg1_1D_raw.SGL';
-file_name = '190830\resolution27umPlanar_ND1_BK31[CNT]_1D_offcentre1@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_58s58m16h_30-08-19_avg1_1D_raw.SGL';
+% file_name = '190830\resolution27umPlanar_ND1_BK31[CNT]_1D_offcentre1@0nm_t0[-1750]_dx[0µm]_dy[20µm]_dt[4ns]_58s58m16h_30-08-19_avg1_1D_raw.SGL';
 
 c0 = 1484;
 
@@ -1025,7 +1025,7 @@ trigger_delay = 7e-6;
 dim = 2;
 
 samples_cut_off = 50;
-samples_t0_correct = -5;
+samples_t0_correct = -9;
 
 
 
