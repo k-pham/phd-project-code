@@ -16,18 +16,20 @@ run('USimagingPhantoms.m')
 % for c0 = 1477:1:1481
 
 % multiple file names:
-% scanIDs = 1:length(file_names);
-% for scanID = scanIDs(1:end)
-%     
-%     file_name = file_names{scanID};
-%     trigger_delay = trigger_delays{scanID};
+scanIDs = 1:length(file_names);
+for scanID = scanIDs(1:end)
+    
+    file_name = file_names{scanID};
+    trigger_delay = trigger_delays{scanID};
 
 %% load SGL data
 
 display(['Viewing: ' file_name])
 
 [sensor_data, params] = loadSGL([file_dir file_name]);
-sensor_data = sensor_data(:,:,1:1000);
+sensor_data = - sensor_data;            % flip for trolley scanner
+sensor_data = sensor_data(:,1:2500);  % cut-off zero-padding from trolley scanner
+
 params.trigger_delay        = trigger_delay;
 params.Nt_zero_pad_source   = samples_cut_off;
 params.Nt_t0_correct        = samples_t0_correct;
@@ -79,7 +81,7 @@ elseif dim == 3
                                 'TimeGainCompensate', {}, ...
                                 'EnvelopeDetect', true, ...
                                 'LogCompress', 0, ...
-                                'SaveImageToFile', false ...
+                                'SaveImageToFile', true ...
                             );
 end
 
@@ -140,7 +142,7 @@ end
 
 kgrid.dt = params.dt;
 
-threshold = 60;
+threshold = 30;
 peaksInfo = imagePeakFinder(reflection_image, c0, threshold);
 
 % concatenate peaksInfo array for all line scans
@@ -173,28 +175,28 @@ end
 
 %% save figures
 
-% dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\190709 resolution27umPlanar BK31[CNT] tip-tilted excitation\';
-% 
-% savefig(fig_data,[dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data'], 'compact')
-% saveas(fig_data, [dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data.jpg'])
-% 
-% savefig(fig_profile,[dir_figures 'autoplots\scan' num2str(scanID) '_profile'], 'compact')
-% saveas(fig_profile, [dir_figures 'autoplots\scan' num2str(scanID) '_profile.jpg'])
-% 
-% savefig(fig_image,[dir_figures 'autoplots\scan' num2str(scanID) '_image_marked'], 'compact')
-% saveas(fig_image, [dir_figures 'autoplots\scan' num2str(scanID) '_image_marked.jpg'])
+dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\190927 resolution27umPlanar BK31[CNT] trolley straight fibre\';
+
+savefig(fig_data,[dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data'], 'compact')
+saveas(fig_data, [dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data.jpg'])
+
+savefig(fig_profile,[dir_figures 'autoplots\scan' num2str(scanID) '_profile'], 'compact')
+saveas(fig_profile, [dir_figures 'autoplots\scan' num2str(scanID) '_profile.jpg'])
+
+savefig(fig_image,[dir_figures 'autoplots\scan' num2str(scanID) '_image_marked'], 'compact')
+saveas(fig_image, [dir_figures 'autoplots\scan' num2str(scanID) '_image_marked.jpg'])
 
 
 %% run multiple reconstructions in loop (end)
 
 % pause
 
-% end     % of scanID / file_name loop
+end     % of scanID / file_name loop
 
 % end     % of c0 loop
 % end     % of samples_t0_correct loop
 
-% save( [dir_figures 'peaksInfoAll.mat'] , 'peaksInfoAll')
+save( [dir_figures 'peaksInfoAll.mat'] , 'peaksInfoAll')
 
 
 %% plot reconstructed image
