@@ -142,7 +142,7 @@ end
 
 kgrid.dt = params.dt;
 
-threshold = 30;
+threshold = 100;
 peaksInfo = imagePeakFinder(reflection_image, c0, threshold);
 
 % concatenate peaksInfo array for all line scans
@@ -175,7 +175,7 @@ end
 
 %% save figures
 
-dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\190927 resolution27umPlanar BK31[CNT] trolley straight fibre\';
+dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\191029 resolution27umPlanar BK31[CNT] trolley scrambled fibre\';
 
 savefig(fig_data,[dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data'], 'compact')
 saveas(fig_data, [dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data.jpg'])
