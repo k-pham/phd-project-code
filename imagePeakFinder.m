@@ -27,16 +27,16 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold)
 %     imageThresholdMask(:,900:end) = 0;      % exclude high ampl rest noise
 %     imageThresholdMask(1:120,:) = 0;        % exclude high ampl reflections off frame
     
-% 	imageThresholdMask(:,1:950) = 0;        % exclude high ampl noise near source
-%     imageThresholdMask(:,1850:end) = 0;      % exclude high ampl rest noise
-%     imageThresholdMask(1:100,:) = 0;        % exclude high ampl reflections off frame
+%     imageThresholdMask(:,1:950) = 0;        % exclude high ampl noise near source
+%     imageThresholdMask(:,1850:end) = 0;     % exclude high ampl rest noise
+%     imageThresholdMask(1:50,:) = 0;         % exclude high ampl reflections off frame
 
 %     imageThresholdMask(2000:end,:) = 0;     % exclude frame
 %     imageThresholdMask(:,1:3500) = 0;
 %     imageThresholdMask(:,4500:end) = 0;
     
-%     ROI = roipoly;
-%     imageThresholdMask(ROI) = 0;
+    ROI = roipoly;
+    imageThresholdMask(ROI' == 0) = 0;
     imageThresholdClusters = bwconncomp(imageThresholdMask);
 
     % make spatial axes in mm
