@@ -30,6 +30,7 @@ num_segments = length(bounds)-1;
 
 peakPosition = zeros(1,num_segments);
 spotSizeEsti = zeros(1,num_segments);
+spotSizeEsti2 = zeros(1,num_segments);
 
 
 %% loop through segments and fit
@@ -56,10 +57,16 @@ segment_fit =  f.a1*exp(-((segment_yvec-f.b1)/f.c1).^2);
 
 plot(segment_yvec, segment_fit,'r--')
 
+% alternative/direct estimate using fwhm - need to flip negative segments
+if f.a1 < 0
+    segment_fit = - segment_fit;
+end
+spotSizeEsti2(idx) = fwhm(segment_fit,segment_yvec);
+
 end
 
 
-%%
+%% plot spot size along profile
 
 figure
 plot(peakPosition*1e3,spotSizeEsti*1e6)
@@ -70,6 +77,24 @@ hold on
     ylim([0,70])
 
 
+%% spot analysis from beam profiler
+
+file_dir = 'D:\PROJECT\data\scannerCharac\';
+
+% bench-top scanner
+file_name = '191017\ProfileData_galvoOFF_10_17_2019_16_45_3.xls';
+% file_name = '191017\ProfileData_galvoON_10_17_2019_17_8_12.xls';
+
+% trolley scanner
+% file_name = '191018\ProfileData_galvoOFF_10_18_2019_11_17_45';
+% file_name = '191018\ProfileData_galvoON_10_18_2019_11_22_37_unspecifiedlocation';
+% file_name = '191018\ProfileData_galvoON_10_18_2019_12_2_31';
+
+data = xlsread([file_dir file_name]);
+uvec = data(:,2);
+uprofile = data(:,3);
+vvec = data(:,4);
+vprofile = data(:,5);
 
 
 
