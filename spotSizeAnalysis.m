@@ -44,7 +44,7 @@ segment_centre = segment_yvec(round(length(segment_yvec)/2));
 
 if mean(segment_data) < 0
     startPoint = [-0.06 segment_centre 2e-5];
-elseif mean(segment_data) >0
+elseif mean(segment_data) > 0
     startPoint = [0.06 segment_centre 2e-5];
 end
 
