@@ -17,7 +17,7 @@ run('USimagingPhantoms.m')
 
 % multiple file names:
 scanIDs = 1:length(file_names);
-for scanID = scanIDs(1:end)
+for scanID = scanIDs(14)
     
     file_name = file_names{scanID};
     trigger_delay = trigger_delays{scanID};
@@ -142,8 +142,8 @@ end
 
 kgrid.dt = params.dt;
 
-threshold = 100;
-peaksInfo = imagePeakFinder(reflection_image, c0, threshold);
+threshold = 70;
+peaksInfo = imagePeakFinder(reflection_image, c0, threshold, 'FitGaussian', true);
 
 % concatenate peaksInfo array for all line scans
 if(~exist('peaksInfoAll','var'))
