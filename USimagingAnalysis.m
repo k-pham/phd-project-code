@@ -111,7 +111,8 @@ imagePeakFinder(reflection_image, kgrid, t_array, c0, threshold)
 %% resolution27umPlanar contour plot
 % use peaksInfo array
 
-data = load('D:\PROJECT\figures\_Matlab figs\USimaging\190927 resolution27umPlanar BK31[CNT] trolley straight fibre/peaksInfoAll.mat');
+% data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191029 resolution27umPlanar BK31[CNT] trolley scrambled fibre\peaksInfoAll.mat');
+data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPlanar BK31[CNT] trolley scrambled fibre central phantom\peaksInfoAll.mat');
 peaksInfoAll = data.peaksInfoAll;
 
 peaksAmpl    = peaksInfoAll(1,:);
@@ -133,7 +134,7 @@ resoLat(isnan(resoLat)) = 70;
 resoAxi(isnan(resoAxi)) = 40;
 amplitude(isnan(amplitude)) = 0;
 
-resoLatBlur = imgaussfilt(resoLat,15);
+resoLatBlur = imgaussfilt(resoLat,35);
 resoAxiBlur = imgaussfilt(resoAxi,15);
 
 figure
@@ -146,6 +147,13 @@ imagesc(resoAxi)
 
 xreal = -11:0.1:11;
 zreal = 0:0.1:12.5;
+
+xbounds = 7:185;
+% zbounds = [];
+
+xreal = xreal(xbounds);
+% zreal = zreal(zbounds);
+resoLat = resoLat(:,xbounds);
 
 contoursLat = [50:2:60,60:5:120];
 figure
@@ -166,3 +174,4 @@ set(gcf,'Position',[100,100,800,450])
     colorbar
     caxis([30,45])
     
+
