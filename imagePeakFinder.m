@@ -90,36 +90,43 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
         peakPosX = peaksSort(2,peakIndex);
         peakPosZ = peaksSort(3,peakIndex);
         
+        % check peak not too close to edge
         if (peakPosX - hwX > 0) && (peakPosX + hwX <= sizeX) && (peakPosZ - hwZ > 0) && (peakPosZ + hwZ <= sizeZ)
         
             try
-                %% get resolution using fwhm around peak
-                if ~(toFitGaussian)
-                    peakFWHMlateral = fwhm(reflection_image(peakPosX-hwX:peakPosX+hwX,peakPosZ),kgrid.dx,0);    % lateral resolution
-                    peakFWHMaxial   = fwhm(reflection_image(peakPosX,peakPosZ-hwZ:peakPosZ+hwZ),dt*c0,0);       % axial resolution
-                end                                                                                      % omit factor 1/2 bc of depth bug
-                
-                %% get resolution using 2d gaussian fit
-                if toFitGaussian
-                    target_rangeX = peakPosX-hwX : peakPosX+hwX;
-                    target_rangeZ = peakPosZ-hwZ : peakPosZ+hwZ;
+                switch toFitGaussian
+                    % get resolution using fwhm around peak
+                    case false
+                        peakFWHMlateral = fwhm(reflection_image(peakPosX-hwX:peakPosX+hwX,peakPosZ),kgrid.dx,0);    % lateral resolution
+                        peakFWHMaxial   = fwhm(reflection_image(peakPosX,peakPosZ-hwZ:peakPosZ+hwZ),dt*c0,0);       % axial resolution
+                                                                                                           % omit factor 1/2 bc of depth bug
+                    % get resolution using 1d gaussian fit around peak
+                    case '1D'
+                        continue
 
-                    target_xaxis = xaxis(target_rangeX);
-                    target_zaxis = zaxis(target_rangeZ)*2;
-                    [target_xmesh, target_zmesh] = meshgrid(target_xaxis,target_zaxis);
-                    target_mesh(:,:,1) = target_xmesh;
-                    target_mesh(:,:,2) = target_zmesh;
-                    target_data  = reflection_image(target_rangeX,target_rangeZ)';
-                    
-                    init_ampl = peakAmpl;
-                    init_x    = xaxis(peakPosX);
-                    init_lat  = 70e-6/(2*sqrt(2*log(2)));
-                    init_z    = zaxis(peakPosZ)*2;
-                    init_axi  = 40e-6/(2*sqrt(2*log(2)));
-                    coeffs_init = [init_ampl, init_x, init_lat, init_z, init_axi];
-                    [coeffs] = lsqcurvefit(@fun2DGaussian,coeffs_init,target_mesh,target_data);
-                    peakFWHMlateral = coeffs(3)*2*sqrt(2*log(2));
-                    peakFWHMaxial   = coeffs(5)*2*sqrt(2*log(2));
+                    % get resolution using 2d gaussian fit
+                    case '2D'
+                        target_rangeX = peakPosX-hwX : peakPosX+hwX;
+                        target_rangeZ = peakPosZ-hwZ : peakPosZ+hwZ;
+
+                        target_xaxis = xaxis(target_rangeX);
+                        target_zaxis = zaxis(target_rangeZ)*2;
+                        [target_xmesh, target_zmesh] = meshgrid(target_xaxis,target_zaxis);
+                        target_mesh(:,:,1) = target_xmesh;
+                        target_mesh(:,:,2) = target_zmesh;
+                        target_data  = reflection_image(target_rangeX,target_rangeZ)';
+
+                        init_ampl = peakAmpl;
+                        init_x    = xaxis(peakPosX);
+                        init_lat  = 70e-6/(2*sqrt(2*log(2)));
+                        init_z    = zaxis(peakPosZ)*2;
+                        init_axi  = 40e-6/(2*sqrt(2*log(2)));
+                        coeffs_init = [init_ampl, init_x, init_lat, init_z, init_axi];
+                        [coeffs] = lsqcurvefit(@fun2DGaussian,coeffs_init,target_mesh,target_data);
+                        peakFWHMlateral = coeffs(3)*2*sqrt(2*log(2));
+                        peakFWHMaxial   = coeffs(5)*2*sqrt(2*log(2));
+                    otherwise
+                        error('Unknown optional input.');
                 end
 
                 %% save resolution in peaksInfo and label plot in gcf              
