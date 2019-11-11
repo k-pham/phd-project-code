@@ -93,38 +93,50 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
         % check peak not too close to edge
         if (peakPosX - hwX > 0) && (peakPosX + hwX <= sizeX) && (peakPosZ - hwZ > 0) && (peakPosZ + hwZ <= sizeZ)
         
+            target_rangeX = peakPosX-hwX : peakPosX+hwX;
+            target_rangeZ = peakPosZ-hwZ : peakPosZ+hwZ;
+            
+            target_xaxis = xaxis(target_rangeX);
+            target_zaxis = zaxis(target_rangeZ)*2; % factor of 2 from bug
+            
+            target_xprofile = reflection_image(target_rangeX,peakPosZ);
+            target_zprofile = reflection_image(peakPosX,target_rangeZ);
+            target_xydata   = reflection_image(target_rangeX,target_rangeZ)';
+            
+            init_ampl = peakAmpl;
+            init_x    = xaxis(peakPosX);
+            init_lat  = 60e-6/(2*sqrt(2*log(2)));
+            init_z    = zaxis(peakPosZ)*2;
+            init_axi  = 40e-6/(2*sqrt(2*log(2)));
+            
             try
                 switch toFitGaussian
                     % get resolution using fwhm around peak
                     case false
-                        peakFWHMlateral = fwhm(reflection_image(peakPosX-hwX:peakPosX+hwX,peakPosZ),kgrid.dx,0);    % lateral resolution
-                        peakFWHMaxial   = fwhm(reflection_image(peakPosX,peakPosZ-hwZ:peakPosZ+hwZ),dt*c0,0);       % axial resolution
-                                                                                                           % omit factor 1/2 bc of depth bug
+                        peakFWHMlateral = fwhm(target_xprofile,kgrid.dx,0);    % lateral resolution
+                        peakFWHMaxial   = fwhm(target_zprofile,dt*c0,0);       % axial resolution
+                                                                                                        % omit factor 1/2 bc of depth bug
                     % get resolution using 1d gaussian fit around peak
                     case '1D'
-                        continue
-
+                        init_xprofile = [init_ampl, init_x, init_lat];
+                        fit_xprofile = fit(target_xaxis, target_xprofile, 'gauss1', 'Start', init_xprofile);
+                        peakFWHMlateral = fit_xprofile.c1*2*sqrt(log(2));
+                        
+                        init_zprofile = [init_ampl, init_z, init_axi];
+                        fit_zprofile = fit(target_zaxis, target_zprofile, 'gauss1', 'Start', init_zprofile);
+                        peakFWHMaxial   = fit_zprofile.c1*2*sqrt(log(2));
+                                                         
                     % get resolution using 2d gaussian fit
                     case '2D'
-                        target_rangeX = peakPosX-hwX : peakPosX+hwX;
-                        target_rangeZ = peakPosZ-hwZ : peakPosZ+hwZ;
-
-                        target_xaxis = xaxis(target_rangeX);
-                        target_zaxis = zaxis(target_rangeZ)*2;
                         [target_xmesh, target_zmesh] = meshgrid(target_xaxis,target_zaxis);
                         target_mesh(:,:,1) = target_xmesh;
                         target_mesh(:,:,2) = target_zmesh;
-                        target_data  = reflection_image(target_rangeX,target_rangeZ)';
 
-                        init_ampl = peakAmpl;
-                        init_x    = xaxis(peakPosX);
-                        init_lat  = 70e-6/(2*sqrt(2*log(2)));
-                        init_z    = zaxis(peakPosZ)*2;
-                        init_axi  = 40e-6/(2*sqrt(2*log(2)));
                         coeffs_init = [init_ampl, init_x, init_lat, init_z, init_axi];
-                        [coeffs] = lsqcurvefit(@fun2DGaussian,coeffs_init,target_mesh,target_data);
+                        [coeffs] = lsqcurvefit(@fun2DGaussian,coeffs_init,target_mesh,target_xydata);
                         peakFWHMlateral = coeffs(3)*2*sqrt(2*log(2));
                         peakFWHMaxial   = coeffs(5)*2*sqrt(2*log(2));
+                        
                     otherwise
                         error('Unknown optional input.');
                 end
