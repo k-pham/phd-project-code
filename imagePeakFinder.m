@@ -24,16 +24,16 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
         end
     end
 
-    %% make spatial axes in mm
-    xaxis = kgrid.x_vec*1e3;
-    zaxis = t_array*c0/2*1e3;
+    %% make spatial axes in m
+    xaxis = kgrid.x_vec;
+    zaxis = t_array*c0/2;
 
     %% determine image size in pixels to limit boundaries of search
     sizeX = size(reflection_image,1);
     sizeZ = size(reflection_image,2);
 
-    %% determine necessary half-width in pixels to get HWHM of 100 um
-    halfwidth = 100e-6;
+    %% determine necessary half-width in pixels to get HWHM of 200 um
+    halfwidth = 200e-6;
     hwX = round(halfwidth/kgrid.dx);
     hwZ = round(halfwidth/(kgrid.dt*c0));
     
@@ -104,12 +104,12 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
             target_xydata   = reflection_image(target_rangeX,target_rangeZ)';
             
             init_ampl = peakAmpl;
-            init_x    = xaxis(peakPosX);
-            init_lat  = 60e-6/(2*sqrt(2*log(2)));
-            init_z    = zaxis(peakPosZ)*2;
-            init_axi  = 40e-6/(2*sqrt(2*log(2)));
+            init_xmu  = xaxis(peakPosX);
+            init_lat  = 60e-6/(2*sqrt(log(2)));
+            init_zmu  = zaxis(peakPosZ)*2;
+            init_axi  = 40e-6/(2*sqrt(log(2)));
             
-            try
+%             try
                 switch toFitGaussian
                     % get resolution using fwhm around peak
                     case false
@@ -118,13 +118,19 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
                                                                                                         % omit factor 1/2 bc of depth bug
                     % get resolution using 1d gaussian fit around peak
                     case '1D'
-                        init_xprofile = [init_ampl, init_x, init_lat];
-                        fit_xprofile = fit(target_xaxis, target_xprofile, 'gauss1', 'Start', init_xprofile);
-                        peakFWHMlateral = fit_xprofile.c1*2*sqrt(log(2));
+                        init_x = [init_ampl, init_xmu, init_lat];
+                        fit_x = fit(target_xaxis, target_xprofile, 'gauss1', 'Start', init_x);
+                        peakFWHMlateral = fit_x.c1*2*sqrt(log(2));
+                        %target_xaxisUPS = target_xaxis(1):1e-6:target_xaxis(end);
+                        %target_xfitUPS  = fit_x.a1*exp(-((target_xaxisUPS-fit_x.b1)/fit_x.c1).^2);
+                        %figure; plot(target_xaxis,target_xprofile,'b+', target_xaxisUPS,target_xfitUPS,'r--')
                         
-                        init_zprofile = [init_ampl, init_z, init_axi];
-                        fit_zprofile = fit(target_zaxis, target_zprofile, 'gauss1', 'Start', init_zprofile);
-                        peakFWHMaxial   = fit_zprofile.c1*2*sqrt(log(2));
+                        init_z = [init_ampl, init_zmu, init_axi];
+                        fit_z = fit(target_zaxis', target_zprofile', 'gauss1', 'Start', init_z);
+                        peakFWHMaxial   = fit_z.c1*2*sqrt(log(2));
+                        %target_zaxisUPS = target_zaxis(1):1e-6:target_zaxis(end);
+                        %target_zfitUPS  = fit_z.a1*exp(-((target_zaxisUPS-fit_z.b1)/fit_z.c1).^2);
+                        %figure; plot(target_zaxis,target_zprofile,'b+', target_zaxisUPS,target_zfitUPS,'r--')
                                                          
                     % get resolution using 2d gaussian fit
                     case '2D'
@@ -132,7 +138,7 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
                         target_mesh(:,:,1) = target_xmesh;
                         target_mesh(:,:,2) = target_zmesh;
 
-                        coeffs_init = [init_ampl, init_x, init_lat, init_z, init_axi];
+                        coeffs_init = [init_ampl, init_xmu, init_lat, init_zmu, init_axi];
                         [coeffs] = lsqcurvefit(@fun2DGaussian,coeffs_init,target_mesh,target_xydata);
                         peakFWHMlateral = coeffs(3)*2*sqrt(2*log(2));
                         peakFWHMaxial   = coeffs(5)*2*sqrt(2*log(2));
@@ -157,9 +163,9 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
                 disp(['cluster #',num2str(peakIndex),': ',num2str(peakAmpl),...
                     ' [',num2str(xaxis(peakPosX)),', ',num2str(zaxis(peakPosZ)*2),'], ',...
                     num2str(peakFWHMlateral*1e6,3),' um, ',num2str(peakFWHMaxial*1e6,3),' um'])
-            catch
-                warning('some peaks did not work')
-            end % of try
+%             catch
+%                 warning('some peaks did not work')
+%             end % of try
         
         end % of if peak not too close to edge
 
