@@ -111,14 +111,14 @@ switch dim
     case 2
         % imagesc(reflection_image(900:1020,160:280)')
 %         imagesc(reflection_image(:,1:samples_total/2)')
-        imagesc(kgrid.x_vec*1e3, t_array*c0*1e3, reflection_image(:,1:Nt)') % omit factor 1/2 in dz because of doubled depth bug
+        imagesc(kgrid.x_vec, t_array*c0, reflection_image(:,1:Nt)') % omit factor 1/2 in dz because of doubled depth bug
             % 1st index (x) = row index = y axis -- transposed -> x axis
-            xlabel('x [mm]')
-            ylabel('z [mm]')
+            xlabel('x [m]')
+            ylabel('z [m]')
     case 3
-        imagesc(kgrid.x_vec*1e3, t_array*c0*1e3, squeeze(reflection_image(:,75,1:Nt))') % omit factor 1/2 in dz because of doubled depth bug
-            xlabel('x [mm]')
-            ylabel('z [mm]')
+        imagesc(kgrid.x_vec, t_array*c0, squeeze(reflection_image(:,75,1:Nt))') % omit factor 1/2 in dz because of doubled depth bug
+            xlabel('x [m]')
+            ylabel('z [m]')
 end
     title(['reconstructed image with c0 = ' num2str(c0) ', t0 correction = ' num2str(params.Nt_t0_correct)])
     %axis image

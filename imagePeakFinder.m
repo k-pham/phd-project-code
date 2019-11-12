@@ -66,7 +66,7 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
     
     %% remove nearby side peaks starting from high ampl peaks
     index = 1;
-    peakRmRadius = 0.4;    % in mm
+    peakRmRadius = 0.4e-3;    % in m
     while index <= size(peaksSort,2)
         xpos = xaxis(peaksSort(2,:));
         zpos = zaxis(peaksSort(3,:))'*2;
