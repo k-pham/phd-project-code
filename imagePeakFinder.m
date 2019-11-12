@@ -9,6 +9,7 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
 	%% set usage defaults
     num_req_input_variables = 3;
     methFWHM = 'peak';
+    reduceSens = false;
 
     % replace with user defined values if provided
     if nargin < num_req_input_variables
@@ -18,6 +19,8 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
             switch varargin{input_index}
                 case 'methodFWHM'
                     methFWHM = varargin{input_index + 1};
+                case 'reduceSensitivity'
+                    reduceSens = varargin{input_index + 1};
                 otherwise
                     error('Unknown optional input.');
             end
@@ -99,8 +102,13 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
             target_xaxis = xaxis(target_rangeX);
             target_zaxis = zaxis(target_rangeZ)*2; % factor of 2 from bug
             
-            target_xprofile = reflection_image(target_rangeX,peakPosZ);
-            target_zprofile = reflection_image(peakPosX,target_rangeZ);
+            if ~reduceSens
+                target_xprofile = reflection_image(target_rangeX,peakPosZ);
+                target_zprofile = reflection_image(peakPosX,target_rangeZ);
+            else
+                target_xprofile = mean(reflection_image(target_rangeX,peakPosZ-1:peakPosZ+1));
+                target_zprofile = mean(reflection_image(peakPosX-1:peakPosX+1,target_rangeZ));
+            end
             target_xydata   = reflection_image(target_rangeX,target_rangeZ)';
             
             init_ampl = peakAmpl;
