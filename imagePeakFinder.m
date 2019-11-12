@@ -8,7 +8,7 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
     
 	%% set usage defaults
     num_req_input_variables = 3;
-    toFitGaussian = false;
+    methFWHM = 'peak';
 
     % replace with user defined values if provided
     if nargin < num_req_input_variables
@@ -16,8 +16,8 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
     elseif ~isempty(varargin)
         for input_index = 1:2:length(varargin)
             switch varargin{input_index}
-                case 'FitGaussian'
-                    toFitGaussian = varargin{input_index + 1};
+                case 'methodFWHM'
+                    methFWHM = varargin{input_index + 1};
                 otherwise
                     error('Unknown optional input.');
             end
@@ -110,14 +110,14 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
             init_axi  = 40e-6/(2*sqrt(log(2)));
             
 %             try
-                switch toFitGaussian
+                switch methFWHM
                     % get resolution using fwhm around peak
-                    case false
+                    case 'peak'
                         peakFWHMlateral = fwhm(target_xprofile,kgrid.dx,0);    % lateral resolution
                         peakFWHMaxial   = fwhm(target_zprofile,dt*c0,0);       % axial resolution
                                                                                                         % omit factor 1/2 bc of depth bug
                     % get resolution using 1d gaussian fit around peak
-                    case '1D'
+                    case '1DgaussianFit'
                         init_x = [init_ampl, init_xmu, init_lat];
                         fit_x = fit(target_xaxis, target_xprofile, 'gauss1', 'Start', init_x);
                         peakFWHMlateral = fit_x.c1*2*sqrt(log(2));
@@ -131,9 +131,16 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
                         %target_zaxisUPS = target_zaxis(1):1e-6:target_zaxis(end);
                         %target_zfitUPS  = fit_z.a1*exp(-((target_zaxisUPS-fit_z.b1)/fit_z.c1).^2);
                         %figure; plot(target_zaxis,target_zprofile,'b+', target_zaxisUPS,target_zfitUPS,'r--')
+                    
+                    % get lateral resolution using 1d gaussian fit around peak and axial resolution using fwhm around peak
+                    case '1DgaussianFitLat'
+                        init_x = [init_ampl, init_xmu, init_lat];
+                        fit_x = fit(target_xaxis, target_xprofile, 'gauss1', 'Start', init_x);
+                        peakFWHMlateral = fit_x.c1*2*sqrt(log(2));
+                        peakFWHMaxial   = fwhm(target_zprofile,dt*c0,0);        % omit factor 1/2 bc of depth bug                     
                                                          
                     % get resolution using 2d gaussian fit
-                    case '2D'
+                    case '2DgaussianFit'
                         [target_xmesh, target_zmesh] = meshgrid(target_xaxis,target_zaxis);
                         target_mesh(:,:,1) = target_xmesh;
                         target_mesh(:,:,2) = target_zmesh;
@@ -144,7 +151,7 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
                         peakFWHMaxial   = coeffs(5)*2*sqrt(2*log(2));
                         
                     otherwise
-                        error('Unknown optional input.');
+                        error('Unknown FWHM method input.');
                 end
 
                 %% save resolution in peaksInfo and label plot in gcf              

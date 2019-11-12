@@ -143,7 +143,7 @@ end
 kgrid.dt = params.dt;
 
 threshold = 70;
-peaksInfo = imagePeakFinder(reflection_image, c0, threshold, 'FitGaussian', '1D');
+peaksInfo = imagePeakFinder(reflection_image, c0, threshold, 'methodFWHM', '1DgaussianFitLat');
 
 % concatenate peaksInfo array for all line scans
 if(~exist('peaksInfoAll','var'))
