@@ -116,8 +116,8 @@ data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPlan
 peaksInfoAll = data.peaksInfoAll;
 
 peaksAmpl    = peaksInfoAll(1,:);
-peaksPosX    = peaksInfoAll(2,:);
-peaksPosZ    = peaksInfoAll(3,:);
+peaksPosX    = peaksInfoAll(2,:)*1e3; % in mm
+peaksPosZ    = peaksInfoAll(3,:)*1e3; % in mm
 peaksResoLat = peaksInfoAll(4,:)*1e6; % in um
 peaksResoAxi = peaksInfoAll(5,:)*1e6; % in um
 
