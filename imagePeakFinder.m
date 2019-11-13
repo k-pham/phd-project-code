@@ -106,8 +106,8 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
                 target_xprofile = reflection_image(target_rangeX,peakPosZ);
                 target_zprofile = reflection_image(peakPosX,target_rangeZ);
             else
-                target_xprofile = mean(reflection_image(target_rangeX,peakPosZ-1:peakPosZ+1));
-                target_zprofile = mean(reflection_image(peakPosX-1:peakPosX+1,target_rangeZ));
+                target_xprofile = mean(reflection_image(target_rangeX,peakPosZ-1:peakPosZ+1),2);
+                target_zprofile = mean(reflection_image(peakPosX-1:peakPosX+1,target_rangeZ),1);
             end
             target_xydata   = reflection_image(target_rangeX,target_rangeZ)';
             
