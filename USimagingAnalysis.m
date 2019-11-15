@@ -112,7 +112,8 @@ imagePeakFinder(reflection_image, kgrid, t_array, c0, threshold)
 % use peaksInfo array
 
 % data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191029 resolution27umPlanar BK31[CNT] trolley scrambled fibre\peaksInfoAll.mat');
-data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPlanar BK31[CNT] trolley scrambled fibre central phantom\peaksInfoAll.mat');
+% data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPlanar BK31[CNT] trolley scrambled fibre central phantom\peaksInfoAll.mat');
+data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPlanar BK31[CNT] trolley scrambled fibre central phantom\meth = 1DgaussianFitLat\peaksInfoAll.mat');
 peaksInfoAll = data.peaksInfoAll;
 
 peaksAmpl    = peaksInfoAll(1,:);
@@ -134,7 +135,7 @@ resoLat(isnan(resoLat)) = 70;
 resoAxi(isnan(resoAxi)) = 40;
 amplitude(isnan(amplitude)) = 0;
 
-resoLatBlur = imgaussfilt(resoLat,35);
+resoLatBlur = imgaussfilt(resoLat,15);
 resoAxiBlur = imgaussfilt(resoAxi,15);
 
 figure
@@ -148,12 +149,13 @@ imagesc(resoAxi)
 xreal = -11:0.1:11;
 zreal = 0:0.1:12.5;
 
-xbounds = 7:185;
-% zbounds = [];
+% xbounds = 7:185;
+xbounds = 9:184;
+zbounds = 15:121;
 
 xreal = xreal(xbounds);
-% zreal = zreal(zbounds);
-resoLat = resoLat(:,xbounds);
+zreal = zreal(zbounds);
+resoLat = resoLat(zbounds,xbounds);
 
 contoursLat = [50:2:60,60:5:120];
 figure
@@ -166,7 +168,8 @@ set(gcf,'Position',[100,100,800,450])
 %     xlim([4,15])
 %     ylim([1.1,3.2])
 
-contoursAxi = [30:5:45];figure
+contoursAxi = 30:5:45;
+figure
 set(gcf,'Position',[100,100,800,450])
 [C, h]= contour(xreal, zreal, resoAxiBlur, contoursAxi, 'LineWidth', 2);
     clabel(C,h, 'labelspacing', 700);
@@ -174,4 +177,30 @@ set(gcf,'Position',[100,100,800,450])
     colorbar
     caxis([30,45])
     
+
+%% plot depth profiles at diff latitudes
+
+vidObj = VideoWriter('depthprofiles_latitude_blur25.avi');
+open(vidObj);
+
+figure
+hold on
+set(gca,'FontSize',13)
+xlabel('depth z / mm')
+ylabel('lateral resolution / \mum')
+axis([0,12.5,50,180])
+for latitude = 1:length(xreal)
+    plot(zreal,resoLatBlur(:,latitude))
+    title(['x position: '  sprintf('%0.1f',xreal(latitude)) ' mm'])
+    currFrame = getframe(gcf);
+    writeVideo(vidObj,currFrame);
+    drawnow
+    pause(0.05)
+end
+
+close(vidObj);
+
+
+
+
 
