@@ -1,4 +1,4 @@
-function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
+function [peaksInfo, ROI] = imagePeakFinder(reflection_image, c0, threshold, dir_figures, scanID, varargin)
 % find peak positions and amplitude above given threshold, and FWHM at peak
 % used for resolution measurements
 
@@ -10,7 +10,7 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
     num_req_input_variables = 3;
     methFWHM = 'peak';
     reduceSens = false;
-
+    
     % replace with user defined values if provided
     if nargin < num_req_input_variables
         error('Incorrect number of inputs.');
@@ -43,7 +43,13 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
     %% threshold image and find clusters
     imageThresholdMask = reflection_image > threshold;
     
-    ROI = roipoly;
+    if exist([dir_figures 'ROIstack.mat'],'file')
+        data = load([dir_figures 'ROIstack.mat']);
+        ROIstack = data.ROIstack;
+        ROI = ROIstack(:,:,scanID);
+    else
+        ROI = roipoly;
+    end
     imageThresholdMask(ROI' == 0) = 0;
     imageThresholdClusters = bwconncomp(imageThresholdMask);
 
@@ -69,7 +75,7 @@ function peaksInfo = imagePeakFinder(reflection_image, c0, threshold, varargin)
     
     %% remove nearby side peaks starting from high ampl peaks
     index = 1;
-    peakRmRadius = 0.4e-3;    % in m
+    peakRmRadius = 0.7e-3;    % in m
     while index <= size(peaksSort,2)
         xpos = xaxis(peaksSort(2,:));
         zpos = zaxis(peaksSort(3,:))'*2;

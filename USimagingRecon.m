@@ -8,16 +8,19 @@
 clear all %#ok<CLALL>
 run('USimagingPhantoms.m')
 
+% save figures to directory path
+dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPlanar BK31[CNT] trolley scrambled fibre central phantom\';
+
 
 %% run multiple reconstructions in loop (start)
 
 % play with c0 & t0 correction:
 % for samples_t0_correct = -9
-% for c0 = 1477:1:1481
+for c0 = 1460:5:1490
 
 % multiple file names:
 scanIDs = 1:length(file_names);
-for scanID = scanIDs(1:end)
+for scanID = scanIDs(1:5)
     
     file_name = file_names{scanID};
     trigger_delay = trigger_delays{scanID};
@@ -143,7 +146,7 @@ end
 kgrid.dt = params.dt;
 
 threshold = 70;
-peaksInfo = imagePeakFinder(reflection_image, c0, threshold, 'methodFWHM', 'peak', 'reduceSensitivity', true);
+[peaksInfo, ROI] = imagePeakFinder(reflection_image, c0, threshold, dir_figures, scanID, 'methodFWHM', 'peak', 'reduceSensitivity', true);
 
 % concatenate peaksInfo array for all line scans
 if(~exist('peaksInfoAll','var'))
@@ -151,6 +154,15 @@ if(~exist('peaksInfoAll','var'))
 else
     peaksInfoAll = cat(2,peaksInfoAll,peaksInfo);
 end
+
+% stack ROI masks for all line scans
+if(~exist([dir_figures 'ROIstack.mat'],'file'))
+    if(~exist('ROIstack','var'))
+        ROIstack = zeros([size(ROI),length(scanIDs)]);
+    end
+    ROIstack(:,:,scanID) = ROI;
+end
+
 
 %% plot resolution along #10 position
 
@@ -175,8 +187,6 @@ end
 
 %% save figures
 
-dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPlanar BK31[CNT] trolley scrambled fibre central phantom\';
-
 savefig(fig_data,[dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data'], 'compact')
 saveas(fig_data, [dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data.jpg'])
 
@@ -193,10 +203,14 @@ saveas(fig_image, [dir_figures 'autoplots\scan' num2str(scanID) '_image_marked.j
 
 end     % of scanID / file_name loop
 
-% end     % of c0 loop
-% end     % of samples_t0_correct loop
+if(~exist([dir_figures 'ROIstack.mat'],'file'))
+    save( [dir_figures 'ROIstack.mat'] , 'ROIstack')
+end
 
 save( [dir_figures 'peaksInfoAll.mat'] , 'peaksInfoAll')
+
+end     % of c0 loop
+% end     % of samples_t0_correct loop
 
 
 %% plot reconstructed image
