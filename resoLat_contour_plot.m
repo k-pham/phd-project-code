@@ -1,4 +1,4 @@
-function resoLat_contour_plot(peaksInfoAll, c0)
+function resoLat_contour_plot(peaksInfoAll, c0, dir_figures)
 
 % peaksAmpl    = peaksInfoAll(1,:);
 peaksPosX    = peaksInfoAll(2,:)*1e3; % in mm
@@ -12,9 +12,10 @@ resoLat = griddata(peaksPosX,peaksPosZ,peaksResoLat,gridX,gridZ,'linear');
 % resoAxi = griddata(peaksPosX,peaksPosZ,peaksResoAxi,gridX,gridZ,'linear');
 % amplitude = griddata(peaksPosX,peaksPosZ,peaksAmpl,gridX,gridZ,'linear');
 
-figure
+fig_resoLat = figure;
 set(gcf,'Position',[700,400,800,450])
 imagesc(resoLat)
+colorbar
 
 % figure
 % set(gcf,'Position',[100,100,800,450])
@@ -31,7 +32,7 @@ xreal = xreal(xbounds);
 zreal = zreal(zbounds);
 resoLat = resoLat(zbounds,xbounds);
 
-% resoLat = fillmissing(resoLat,'nearest');
+resoLat = fillmissing(resoLat,'nearest');
 % resoAxi = fillmissing(resoAxi,'nearest');
 
 % resoLat(isnan(resoLat)) = 70;
@@ -41,8 +42,8 @@ resoLat = resoLat(zbounds,xbounds);
 resoLatBlur = imgaussfilt(resoLat,15);
 % resoAxiBlur = imgaussfilt(resoAxi,15);
 
-contoursLat = [50:2:60,60:5:120];
-figure
+contoursLat = [50:2:60,60:5:120,120:10:200,200:20:500];
+fig_contour = figure;
 set(gcf,'Position',[100,100,800,450])
 [C, h]= contour(xreal, zreal, resoLatBlur, contoursLat, 'LineWidth', 2);
     clabel(C,h, 'labelspacing', 700);
@@ -52,6 +53,12 @@ set(gcf,'Position',[100,100,800,450])
     title(['sound speed c0 = ' num2str(c0)])
 %     xlim([4,15])
 %     ylim([1.1,3.2])
+drawnow
 
+savefig(fig_contour,[dir_figures 'resoLat_contour_blur15_c' num2str(c0)], 'compact')
+saveas(fig_contour, [dir_figures 'resoLat_contour_blur15_c' num2str(c0) '.jpg'])
+
+savefig(fig_resoLat,[dir_figures 'resoLat_c' num2str(c0)], 'compact')
+saveas(fig_resoLat, [dir_figures 'resoLat_c' num2str(c0) '.jpg'])
 
 end
