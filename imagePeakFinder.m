@@ -123,7 +123,7 @@ function [peaksInfo, ROI] = imagePeakFinder(reflection_image, c0, threshold, dir
             init_zmu  = zaxis(peakPosZ)*2;
             init_axi  = 40e-6/(2*sqrt(log(2)));
             
-%             try
+            try
                 switch methFWHM
                     % get resolution using fwhm around peak
                     case 'peak'
@@ -172,21 +172,21 @@ function [peaksInfo, ROI] = imagePeakFinder(reflection_image, c0, threshold, dir
                 peaksInfo(4,peakIndex) = peakFWHMlateral;
                 peaksInfo(5,peakIndex) = peakFWHMaxial;
 
-                figure(gcf)
-                hold on
-                %plot(peakPosX,peakPosZ,'r.')
-                plot(xaxis(peakPosX),zaxis(peakPosZ)*2,'r+')    % *2 factor from bug
-                text(xaxis(peakPosX),zaxis(peakPosZ)*2,[' ',num2str(peakFWHMlateral*1e6,3)],'HorizontalAlignment','left'  ,'VerticalAlignment','middle','Color','r')
-                text(xaxis(peakPosX),zaxis(peakPosZ)*2,num2str(peakFWHMaxial*1e6,3)  ,'HorizontalAlignment','center','VerticalAlignment','top'   ,'Color','b')
-                drawnow
+%                 figure(gcf)
+%                 hold on
+%                 %plot(peakPosX,peakPosZ,'r.')
+%                 plot(xaxis(peakPosX),zaxis(peakPosZ)*2,'r+')    % *2 factor from bug
+%                 text(xaxis(peakPosX),zaxis(peakPosZ)*2,[' ',num2str(peakFWHMlateral*1e6,3)],'HorizontalAlignment','left'  ,'VerticalAlignment','middle','Color','r')
+%                 text(xaxis(peakPosX),zaxis(peakPosZ)*2,num2str(peakFWHMaxial*1e6,3)  ,'HorizontalAlignment','center','VerticalAlignment','top'   ,'Color','b')
+%                 drawnow
 
                 if peakIndex == 1 disp('cluster ##: peakAmpl [peakPosX,peakPosZ] fwhm: lateral / axial '), end %#ok<SEPEX>
                 disp(['cluster #',num2str(peakIndex),': ',num2str(peakAmpl),...
                     ' [',num2str(xaxis(peakPosX)),', ',num2str(zaxis(peakPosZ)*2),'], ',...
                     num2str(peakFWHMlateral*1e6,3),' um, ',num2str(peakFWHMaxial*1e6,3),' um'])
-%             catch
-%                 warning('some peaks did not work')
-%             end % of try
+            catch
+                warning('some peaks did not work')
+            end % of try
         
         end % of if peak not too close to edge
 

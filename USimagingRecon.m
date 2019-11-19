@@ -16,11 +16,11 @@ dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPl
 
 % play with c0 & t0 correction:
 % for samples_t0_correct = -9
-for c0 = 1460:5:1490
+for c0 = 1460:1:1500
 
 % multiple file names:
 scanIDs = 1:length(file_names);
-for scanID = scanIDs(1:5)
+for scanID = scanIDs(1:end)
     
     file_name = file_names{scanID};
     trigger_delay = trigger_delays{scanID};
@@ -50,21 +50,21 @@ params.file_data            = file_name;
 
 %% view SGL data
 
-fig_data = figure;
-set(gcf,'Position',[100,50,600,800])
-switch dim
-    case 2
-        imagesc(sensor_data')
-    case 3
-        imagesc(squeeze(sensor_data(40,:,:))')
-end
-    colormap(gray)
-    colorbar
-    title(strtok(file_name,'@'),'Interpreter','None')
-    xlabel('x axis [dx]')
-    ylabel('time [dt]')
-    % ylim([1,50])
-    drawnow
+% fig_data = figure;
+% set(gcf,'Position',[100,50,600,800])
+% switch dim
+%     case 2
+%         imagesc(sensor_data')
+%     case 3
+%         imagesc(squeeze(sensor_data(40,:,:))')
+% end
+%     colormap(gray)
+%     colorbar
+%     title(strtok(file_name,'@'),'Interpreter','None')
+%     xlabel('x axis [dx]')
+%     ylabel('time [dt]')
+%     % ylim([1,50])
+%     drawnow
 
 % pause
 
@@ -96,49 +96,49 @@ end
 
 %% plot line horizontal MIP profile
 
-reflection_image_MIP = squeeze(max(reflection_image(:,:),[],2));      % p_xz to p.max(z)_x
-
-fig_profile = figure;
-plot(reflection_image_MIP)
-    title('MIP of reconstructed image')
-    drawnow
+% reflection_image_MIP = squeeze(max(reflection_image(:,:),[],2));      % p_xz to p.max(z)_x
+% 
+% fig_profile = figure;
+% plot(reflection_image_MIP)
+%     title('MIP of reconstructed image')
+%     drawnow
 
 
 %% plot reconstructed image
 
 global kgrid t_array Nt
 
-fig_image = figure;
-set(gcf,'Position',[100,100,800,450])
-switch dim
-    case 2
-        % imagesc(reflection_image(900:1020,160:280)')
-%         imagesc(reflection_image(:,1:samples_total/2)')
-        imagesc(kgrid.x_vec, t_array*c0, reflection_image(:,1:Nt)') % omit factor 1/2 in dz because of doubled depth bug
-            % 1st index (x) = row index = y axis -- transposed -> x axis
-            xlabel('x [m]')
-            ylabel('z [m]')
-    case 3
-        imagesc(kgrid.x_vec, t_array*c0, squeeze(reflection_image(:,75,1:Nt))') % omit factor 1/2 in dz because of doubled depth bug
-            xlabel('x [m]')
-            ylabel('z [m]')
-end
-    title(['reconstructed image with c0 = ' num2str(c0) ', t0 correction = ' num2str(params.Nt_t0_correct)])
-    %axis image
-    %caxis([0,200])
-    cmap = colormap(gray);
-    cmap = flipud(cmap);    % flip colormap to make black = signal
-    colormap(cmap);
-    colorbar
-    drawnow
-    %hold on
-    %plot([0,0],[-10,10],'b--')
-    %legend('sensor')
-    %hold off
-%     ylim([40,140])
-%     xlim([1250,1450])
-%     ylim([0.1,0.8])
-%     xlim([0.5,2.5])
+% fig_image = figure;
+% set(gcf,'Position',[100,100,800,450])
+% switch dim
+%     case 2
+%         % imagesc(reflection_image(900:1020,160:280)')
+% %         imagesc(reflection_image(:,1:samples_total/2)')
+%         imagesc(kgrid.x_vec, t_array*c0, reflection_image(:,1:Nt)') % omit factor 1/2 in dz because of doubled depth bug
+%             % 1st index (x) = row index = y axis -- transposed -> x axis
+%             xlabel('x [m]')
+%             ylabel('z [m]')
+%     case 3
+%         imagesc(kgrid.x_vec, t_array*c0, squeeze(reflection_image(:,75,1:Nt))') % omit factor 1/2 in dz because of doubled depth bug
+%             xlabel('x [m]')
+%             ylabel('z [m]')
+% end
+%     title(['reconstructed image with c0 = ' num2str(c0) ', t0 correction = ' num2str(params.Nt_t0_correct)])
+%     %axis image
+%     %caxis([0,200])
+%     cmap = colormap(gray);
+%     cmap = flipud(cmap);    % flip colormap to make black = signal
+%     colormap(cmap);
+%     colorbar
+%     drawnow
+%     %hold on
+%     %plot([0,0],[-10,10],'b--')
+%     %legend('sensor')
+%     %hold off
+% %     ylim([40,140])
+% %     xlim([1250,1450])
+% %     ylim([0.1,0.8])
+% %     xlim([0.5,2.5])
 
 
 %% find image peaks and FWHM for resolution measurements
@@ -146,7 +146,7 @@ end
 kgrid.dt = params.dt;
 
 threshold = 70;
-[peaksInfo, ROI] = imagePeakFinder(reflection_image, c0, threshold, dir_figures, scanID, 'methodFWHM', 'peak', 'reduceSensitivity', true);
+[peaksInfo, ROI] = imagePeakFinder(reflection_image, c0, threshold, dir_figures, scanID, 'methodFWHM', '1DgaussianFitLat', 'reduceSensitivity', false);
 
 % concatenate peaksInfo array for all line scans
 if(~exist('peaksInfoAll','var'))
@@ -154,8 +154,6 @@ if(~exist('peaksInfoAll','var'))
 else
     peaksInfoAll = cat(2,peaksInfoAll,peaksInfo);
 end
-
-resoLat_contour_plot(peaksInfoAll, c0)
 
 % stack ROI masks for all line scans
 if(~exist([dir_figures 'ROIstack.mat'],'file'))
@@ -189,14 +187,14 @@ end
 
 %% save figures
 
-savefig(fig_data,[dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data'], 'compact')
-saveas(fig_data, [dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data.jpg'])
-
-savefig(fig_profile,[dir_figures 'autoplots\scan' num2str(scanID) '_profile'], 'compact')
-saveas(fig_profile, [dir_figures 'autoplots\scan' num2str(scanID) '_profile.jpg'])
-
-savefig(fig_image,[dir_figures 'autoplots\scan' num2str(scanID) '_image_marked'], 'compact')
-saveas(fig_image, [dir_figures 'autoplots\scan' num2str(scanID) '_image_marked.jpg'])
+% savefig(fig_data,[dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data'], 'compact')
+% saveas(fig_data, [dir_figures 'autoplots\scan' num2str(scanID) '_sensor_data.jpg'])
+% 
+% savefig(fig_profile,[dir_figures 'autoplots\scan' num2str(scanID) '_profile'], 'compact')
+% saveas(fig_profile, [dir_figures 'autoplots\scan' num2str(scanID) '_profile.jpg'])
+% 
+% savefig(fig_image,[dir_figures 'autoplots\scan' num2str(scanID) '_image_marked'], 'compact')
+% saveas(fig_image, [dir_figures 'autoplots\scan' num2str(scanID) '_image_marked.jpg'])
 
 
 %% run multiple reconstructions in loop (end)
@@ -210,6 +208,7 @@ if(~exist([dir_figures 'ROIstack.mat'],'file'))
 end
 
 save( [dir_figures 'peaksInfoAll_c' num2str(c0) '.mat'] , 'peaksInfoAll')
+resoLat_contour_plot(peaksInfoAll, c0, dir_figures)
 clear peaksInfoAll
 
 end     % of c0 loop
