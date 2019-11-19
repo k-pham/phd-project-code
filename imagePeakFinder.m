@@ -46,7 +46,7 @@ function [peaksInfo, ROI] = imagePeakFinder(reflection_image, c0, threshold, dir
     if exist([dir_figures 'ROIstack.mat'],'file')
         data = load([dir_figures 'ROIstack.mat']);
         ROIstack = data.ROIstack;
-        ROI = ROIstack(:,:,scanID);
+        ROI = ROIstack{scanID};
     else
         ROI = roipoly;
     end

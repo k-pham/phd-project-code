@@ -155,12 +155,14 @@ else
     peaksInfoAll = cat(2,peaksInfoAll,peaksInfo);
 end
 
+resoLat_contour_plot(peaksInfoAll, c0)
+
 % stack ROI masks for all line scans
 if(~exist([dir_figures 'ROIstack.mat'],'file'))
     if(~exist('ROIstack','var'))
-        ROIstack = zeros([size(ROI),length(scanIDs)]);
+        ROIstack = cell(length(scanIDs));
     end
-    ROIstack(:,:,scanID) = ROI;
+    ROIstack{scanID} = ROI;
 end
 
 
@@ -207,7 +209,8 @@ if(~exist([dir_figures 'ROIstack.mat'],'file'))
     save( [dir_figures 'ROIstack.mat'] , 'ROIstack')
 end
 
-save( [dir_figures 'peaksInfoAll.mat'] , 'peaksInfoAll')
+save( [dir_figures 'peaksInfoAll_c' num2str(c0) '.mat'] , 'peaksInfoAll')
+clear peaksInfoAll
 
 end     % of c0 loop
 % end     % of samples_t0_correct loop
