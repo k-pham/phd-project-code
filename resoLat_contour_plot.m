@@ -17,6 +17,12 @@ set(gcf,'Position',[700,400,800,450])
 imagesc(resoLat)
 colorbar
 
+    set(gca,'FontSize',13)
+    title(['c0 = ' sprintf('%0.1f',c0) ])
+    caxis([0,400])
+    xlabel('x axis / 0.1 mm')
+    ylabel('depth z / 0.1 mm')
+
 % figure
 % set(gcf,'Position',[100,100,800,450])
 % imagesc(resoAxi)
@@ -47,18 +53,20 @@ fig_contour = figure;
 set(gcf,'Position',[100,100,800,450])
 [C, h]= contour(xreal, zreal, resoLatBlur, contoursLat, 'LineWidth', 2);
     clabel(C,h, 'labelspacing', 700);
-%     clabel(C,'manual')
+    %clabel(C,'manual')
     colormap(gray)
     colorbar
-    title(['sound speed c0 = ' num2str(c0)])
-%     xlim([4,15])
-%     ylim([1.1,3.2])
+    set(gca,'FontSize',13)
+    title(['c0 = ' sprintf('%0.1f',c0) ])
+    caxis([0,400])
+    xlabel('x axis / mm')
+    ylabel('depth z / mm')
 drawnow
 
-savefig(fig_contour,[dir_figures 'resoLat_contour_blur15_c' num2str(c0)], 'compact')
-saveas(fig_contour, [dir_figures 'resoLat_contour_blur15_c' num2str(c0) '.jpg'])
+savefig(fig_contour,[dir_figures 'resoLat_contour_blur15_c' num2str(10*c0) '.fig'], 'compact')
+saveas(fig_contour, [dir_figures 'resoLat_contour_blur15_c' num2str(10*c0) '.jpg'])
 
-savefig(fig_resoLat,[dir_figures 'resoLat_c' num2str(c0)], 'compact')
-saveas(fig_resoLat, [dir_figures 'resoLat_c' num2str(c0) '.jpg'])
+savefig(fig_resoLat,[dir_figures 'resoLat_c' num2str(10*c0)], 'compact')
+saveas(fig_resoLat, [dir_figures 'resoLat_c' num2str(10*c0) '.jpg'])
 
 end
