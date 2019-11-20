@@ -16,7 +16,7 @@ dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPl
 
 % play with c0 & t0 correction:
 % for samples_t0_correct = -9
-for c0 = 1460:1:1500
+for c0 = 1482:0.2:1490
 
 % multiple file names:
 scanIDs = 1:length(file_names);
@@ -207,7 +207,7 @@ if(~exist([dir_figures 'ROIstack.mat'],'file'))
     save( [dir_figures 'ROIstack.mat'] , 'ROIstack')
 end
 
-save( [dir_figures 'peaksInfoAll_c' num2str(c0) '.mat'] , 'peaksInfoAll')
+save( [dir_figures 'peaksInfoAll_c' sprintf('%0.1f',c0) '.mat'] , 'peaksInfoAll')
 resoLat_contour_plot(peaksInfoAll, c0, dir_figures)
 clear peaksInfoAll
 
