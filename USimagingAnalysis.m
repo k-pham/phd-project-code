@@ -178,7 +178,7 @@ set(gcf,'Position',[100,100,800,450])
     caxis([30,45])
     
 
-%% plot depth profiles at diff latitudes
+%% movie of plots of depth profiles at diff latitudes
 
 vidObj = VideoWriter('depthprofiles_latitude_blur25.avi');
 open(vidObj);
@@ -199,6 +199,33 @@ for latitude = 1:length(xreal)
 end
 
 close(vidObj);
+
+
+%% movie of resoLat/countour plots at diff sound speeds
+
+vidObj = VideoWriter([dir_figures '\vid_resoLat_blur15_contour_c0.avi']);
+vidObj.FrameRate = 5;
+open(vidObj);
+
+% c0_sample = 1460:1:1500;
+c0_sample = 1482:0.2:1490;
+
+for idx_c = 1:length(c0_sample)
+    
+    c0 = c0_sample(idx_c);
+    
+%     figure(2*idx_c-1)
+    figure(2*idx_c)
+    
+    currFrame = getframe(gcf);
+    writeVideo(vidObj,currFrame);
+    
+    pause(0.05)
+    
+end
+
+close(vidObj);
+
 
 
 
