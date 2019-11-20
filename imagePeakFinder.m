@@ -180,10 +180,10 @@ function [peaksInfo, ROI] = imagePeakFinder(reflection_image, c0, threshold, dir
 %                 text(xaxis(peakPosX),zaxis(peakPosZ)*2,num2str(peakFWHMaxial*1e6,3)  ,'HorizontalAlignment','center','VerticalAlignment','top'   ,'Color','b')
 %                 drawnow
 
-                if peakIndex == 1 disp('cluster ##: peakAmpl [peakPosX,peakPosZ] fwhm: lateral / axial '), end %#ok<SEPEX>
-                disp(['cluster #',num2str(peakIndex),': ',num2str(peakAmpl),...
-                    ' [',num2str(xaxis(peakPosX)),', ',num2str(zaxis(peakPosZ)*2),'], ',...
-                    num2str(peakFWHMlateral*1e6,3),' um, ',num2str(peakFWHMaxial*1e6,3),' um'])
+%                 if peakIndex == 1 disp('cluster ##: peakAmpl [peakPosX,peakPosZ] fwhm: lateral / axial '), end %#ok<SEPEX>
+%                 disp(['cluster #',num2str(peakIndex),': ',num2str(peakAmpl),...
+%                     ' [',num2str(xaxis(peakPosX)),', ',num2str(zaxis(peakPosZ)*2),'], ',...
+%                     num2str(peakFWHMlateral*1e6,3),' um, ',num2str(peakFWHMaxial*1e6,3),' um'])
             catch
                 warning('some peaks did not work')
             end % of try
