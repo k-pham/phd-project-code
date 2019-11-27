@@ -16,7 +16,7 @@ dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPl
 
 % play with c0 & t0 correction:
 % for samples_t0_correct = -9
-for c0 = 1482:0.2:1490
+for c0 = 1484:0.1:1487
 
 % multiple file names:
 scanIDs = 1:length(file_names);

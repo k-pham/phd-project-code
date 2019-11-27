@@ -203,12 +203,14 @@ close(vidObj);
 
 %% movie of resoLat/countour plots at diff sound speeds
 
-vidObj = VideoWriter([dir_figures '\vid_resoLat_blur15_contour_c0.avi']);
+vidObj = VideoWriter([dir_figures '\vid_resoLat_c0_fine2.avi']);
+vidObj = VideoWriter([dir_figures '\vid_resoLat_blur15_contour_c0_fine2.avi']);
 vidObj.FrameRate = 5;
 open(vidObj);
 
 % c0_sample = 1460:1:1500;
-c0_sample = 1482:0.2:1490;
+% c0_sample = 1482:0.2:1490;
+c0_sample = 1484:0.1:1487;
 
 for idx_c = 1:length(c0_sample)
     
