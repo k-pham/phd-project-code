@@ -19,7 +19,7 @@ colorbar
 
     set(gca,'FontSize',13)
     title(['c0 = ' sprintf('%0.1f',c0) ])
-    caxis([0,400])
+    caxis([0,200])
     xlabel('x axis / 0.1 mm')
     ylabel('depth z / 0.1 mm')
 
@@ -31,8 +31,8 @@ xreal = -11:0.1:11;
 zreal = 0:0.1:12.5;
 
 % xbounds = 7:185;
-xbounds = 9:184;
-zbounds = 15:121;
+xbounds = 9:194;
+zbounds = 9:124;
 
 xreal = xreal(xbounds);
 zreal = zreal(zbounds);
