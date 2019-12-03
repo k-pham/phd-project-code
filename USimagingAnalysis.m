@@ -113,7 +113,9 @@ imagePeakFinder(reflection_image, kgrid, t_array, c0, threshold)
 
 % data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191029 resolution27umPlanar BK31[CNT] trolley scrambled fibre\peaksInfoAll.mat');
 % data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPlanar BK31[CNT] trolley scrambled fibre central phantom\peaksInfoAll.mat');
-data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPlanar BK31[CNT] trolley scrambled fibre central phantom\meth = 1DgaussianFitLat\peaksInfoAll.mat');
+% data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPlanar BK31[CNT] trolley scrambled fibre central phantom\meth = 1DgaussianFitLat\peaksInfoAll.mat');
+data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\x-1\peaksInfoAll_x-1_c1488.0.mat');
+% data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\x-05\peaksInfoAll_x-05_c1488.0.mat');
 peaksInfoAll = data.peaksInfoAll;
 
 peaksAmpl    = peaksInfoAll(1,:);
@@ -150,29 +152,35 @@ xreal = -11:0.1:11;
 zreal = 0:0.1:12.5;
 
 % xbounds = 7:185;
-xbounds = 9:184;
-zbounds = 15:121;
+% xbounds = 9:184;
+xbounds = 9:194;
+% zbounds = 15:121;
+zbounds = 9:124;
 
 xreal = xreal(xbounds);
 zreal = zreal(zbounds);
 resoLat = resoLat(zbounds,xbounds);
 
-contoursLat = [50:2:60,60:5:120];
 figure
 set(gcf,'Position',[100,100,800,450])
-[C, h]= contour(xreal, zreal, resoLatBlur, contoursLat, 'LineWidth', 2);
-    clabel(C,h, 'labelspacing', 700);
+    contoursLatMajor = [50:5:60,60:10:120];
+    contoursLatMinor = [50:1:60,60:2:120];
+    hold on
+    [Cmajor, hmajor]= contour(xreal, zreal, resoLatBlur, contoursLatMajor, 'LineWidth', 2);
+    [Cminor, hminor] = contour(xreal,zreal,resoLatBlur, contoursLatMinor, 'LineWidth', 2, 'LineStyle', ':');
+    hold off
+    clabel(Cmajor,hmajor, 'labelspacing', 700);
 %     clabel(C,'manual')
     colormap(gray)
-    colorbar
-%     xlim([4,15])
-%     ylim([1.1,3.2])
+    xlim([-8.3,8.3])
+    ylim([0.8,12.3])
 
+    
 contoursAxi = 30:5:45;
 figure
 set(gcf,'Position',[100,100,800,450])
-[C, h]= contour(xreal, zreal, resoAxiBlur, contoursAxi, 'LineWidth', 2);
-    clabel(C,h, 'labelspacing', 700);
+[Cmajor, hmajor]= contour(xreal, zreal, resoAxiBlur, contoursAxi, 'LineWidth', 2);
+    clabel(Cmajor,hmajor, 'labelspacing', 700);
     colormap(gray)
     colorbar
     caxis([30,45])
