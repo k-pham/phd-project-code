@@ -1116,45 +1116,124 @@ file_dir = '..\data\imagingUS\';
 % samples_t0_correct = -14;
 
 
-%% 191031 resolution27umPlanar up to 10 mm on trolley scanner with scrambled fibre & (more) centralised phantom
+%% 191031 resolution27umPlanar up to 12 mm on trolley scanner with scrambled fibre & (more) centralised phantom
+
+% % dim = 3;
+% % 
+% % file_name = '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_2D@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_27s34m15h_31-10-19_avg1_2D_raw.SGL';
+% % 
+% % trigger_delay = 0;
+% 
+% dim = 2;
+% 
+% diff_line_scans = {
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos1@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_37s42m15h_31-10-19_avg1_1D_raw.SGL' 0
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos2@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_29s44m15h_31-10-19_avg1_1D_raw.SGL' 0
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos3@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_38s46m15h_31-10-19_avg1_1D_raw.SGL' 1e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos4@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_15s48m15h_31-10-19_avg1_1D_raw.SGL' 1e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos5@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_48s50m15h_31-10-19_avg1_1D_raw.SGL' 2e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos6@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_37s52m15h_31-10-19_avg1_1D_raw.SGL' 3e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos7@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_36s54m15h_31-10-19_avg1_1D_raw.SGL' 3e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos8@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_26s56m15h_31-10-19_avg1_1D_raw.SGL' 4e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos9@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_13s58m15h_31-10-19_avg1_1D_raw.SGL' 5e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos10@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_00s00m16h_31-10-19_avg1_1D_raw.SGL' 6e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos11@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_43s02m16h_31-10-19_avg1_1D_raw.SGL' 8e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos12@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_40s04m16h_31-10-19_avg1_1D_raw.SGL' 9e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos13@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_31s06m16h_31-10-19_avg1_1D_raw.SGL' 10e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos14@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_55s08m16h_31-10-19_avg1_1D_raw.SGL' 12e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos15@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_38s10m16h_31-10-19_avg1_1D_raw.SGL' 13e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos16@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_34s12m16h_31-10-19_avg1_1D_raw.SGL' 14e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos17@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_36s14m16h_31-10-19_avg1_1D_raw.SGL' 16e-6
+%     };
+% 
+% file_names      = diff_line_scans(:,1);
+% trigger_delays  = diff_line_scans(:,2);
+% 
+% % need to reshape to be able to loop through
+% file_names     = reshape(file_names,[1 length(file_names)]);
+% trigger_delays = reshape(trigger_delays,[1 length(trigger_delays)]);
+% 
+% c0 = 1484;
+% 
+% samples_cut_off = 50;
+% samples_t0_correct = -14;
+
+
+%% 191126 resolution27umPlanar up to 12 mm on trolley scanner with scrambled fibre & centralised phantom parallel to sensor
 
 % dim = 3;
 % 
-% file_name = '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_2D@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_27s34m15h_31-10-19_avg1_2D_raw.SGL';
+% file_name = '191126\resolution27umPlanar_BK31[CNT]_trolley_scrambled_2D@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_13s20m12h_26-11-19_avg1_2D_raw.SGL';
 % 
 % trigger_delay = 0;
 
 dim = 2;
 
-diff_line_scans = {
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos1@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_37s42m15h_31-10-19_avg1_1D_raw.SGL' 0
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos2@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_29s44m15h_31-10-19_avg1_1D_raw.SGL' 0
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos3@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_38s46m15h_31-10-19_avg1_1D_raw.SGL' 1e-6
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos4@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_15s48m15h_31-10-19_avg1_1D_raw.SGL' 1e-6
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos5@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_48s50m15h_31-10-19_avg1_1D_raw.SGL' 2e-6
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos6@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_37s52m15h_31-10-19_avg1_1D_raw.SGL' 3e-6
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos7@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_36s54m15h_31-10-19_avg1_1D_raw.SGL' 3e-6
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos8@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_26s56m15h_31-10-19_avg1_1D_raw.SGL' 4e-6
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos9@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_13s58m15h_31-10-19_avg1_1D_raw.SGL' 5e-6
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos10@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_00s00m16h_31-10-19_avg1_1D_raw.SGL' 6e-6
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos11@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_43s02m16h_31-10-19_avg1_1D_raw.SGL' 8e-6
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos12@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_40s04m16h_31-10-19_avg1_1D_raw.SGL' 9e-6
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos13@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_31s06m16h_31-10-19_avg1_1D_raw.SGL' 10e-6
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos14@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_55s08m16h_31-10-19_avg1_1D_raw.SGL' 12e-6
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos15@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_38s10m16h_31-10-19_avg1_1D_raw.SGL' 13e-6
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos16@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_34s12m16h_31-10-19_avg1_1D_raw.SGL' 14e-6
-    '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos17@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_36s14m16h_31-10-19_avg1_1D_raw.SGL' 16e-6
-    };
+file_dir = '..\data\imagingUS\191126\';
+files = dir(file_dir);
+num_files = length(files);
 
-file_names      = diff_line_scans(:,1);
-trigger_delays  = diff_line_scans(:,2);
+file_name_stem = 'resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D';
+file_name_xendings = {'-1','-05','0','05','1'};
+file_name_filter_x = [file_name_stem, '_x', file_name_xendings{5}];
 
-% need to reshape to be able to loop through
-file_names     = reshape(file_names,[1 length(file_names)]);
-trigger_delays = reshape(trigger_delays,[1 length(trigger_delays)]);
+num_files_inline = 13;
+file_names_inline = cell(num_files_inline,1);
+
+for idx_inline = 1:num_files_inline
+    file_name_filter_z = [file_name_filter_x, '_z', num2str(idx_inline-1) '@'];
+    %look through all files
+    for idx = 1:num_files
+        file = files(idx);
+        %with long enough file names
+        if(length(file.name) > 7)
+            %ending in raw.SGL
+            if strcmp(file.name(end-6:end),'raw.SGL')
+                %add to inline if match filter
+                if strcmp(file.name(1:length(file_name_filter_z)),file_name_filter_z)
+                    file_names_inline{idx_inline} = file.name;
+                end
+            end
+        end
+    end
+end
+
+
+% diff_line_scans = {
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos1@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_37s42m15h_31-10-19_avg1_1D_raw.SGL' 0
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos2@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_29s44m15h_31-10-19_avg1_1D_raw.SGL' 0
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos3@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_38s46m15h_31-10-19_avg1_1D_raw.SGL' 1e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos4@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_15s48m15h_31-10-19_avg1_1D_raw.SGL' 1e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos5@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_48s50m15h_31-10-19_avg1_1D_raw.SGL' 2e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos6@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_37s52m15h_31-10-19_avg1_1D_raw.SGL' 3e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos7@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_36s54m15h_31-10-19_avg1_1D_raw.SGL' 3e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos8@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_26s56m15h_31-10-19_avg1_1D_raw.SGL' 4e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos9@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_13s58m15h_31-10-19_avg1_1D_raw.SGL' 5e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos10@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_00s00m16h_31-10-19_avg1_1D_raw.SGL' 6e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos11@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_43s02m16h_31-10-19_avg1_1D_raw.SGL' 8e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos12@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_40s04m16h_31-10-19_avg1_1D_raw.SGL' 9e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos13@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_31s06m16h_31-10-19_avg1_1D_raw.SGL' 10e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos14@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_55s08m16h_31-10-19_avg1_1D_raw.SGL' 12e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos15@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_38s10m16h_31-10-19_avg1_1D_raw.SGL' 13e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos16@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_34s12m16h_31-10-19_avg1_1D_raw.SGL' 14e-6
+%     '191031/resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_pos17@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_36s14m16h_31-10-19_avg1_1D_raw.SGL' 16e-6
+%     };
+% 
+% file_names      = diff_line_scans(:,1);
+% trigger_delays  = diff_line_scans(:,2);
+% 
+% % need to reshape to be able to loop through
+% file_names     = reshape(file_names,[1 length(file_names)]);
+% trigger_delays = reshape(trigger_delays,[1 length(trigger_delays)]);
 
 c0 = 1484;
 
 samples_cut_off = 50;
 samples_t0_correct = -14;
+
+
+
+
+
+
 
