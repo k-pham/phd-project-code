@@ -1,8 +1,8 @@
-function freqSpecSGLsingle(file_dir,file_name,freq_sampling,t_min,t_max,varargin)
+function [frequency, f_series] = freqSpecSGLsingle(file_dir,file_name,freq_sampling,t_min,t_max,varargin)
 % plot frequency spectrum of single time series using k-wave.spect
 
 num_avg = 12;
-min_length = 2001;
+min_length = 500; %2001;
 
 % set usage defaults
 num_req_input_variables = 5;
@@ -73,10 +73,18 @@ if toRemoveDC == true
 end
 
 
+%% flip time series if upside-down
+
+if mean(t_series) < 0
+    t_series = - t_series;
+end
+
+
 %% filter t_series with Tukey window
 
 if toApplyTukey == true
-    tukey_win = getWin(length(t_series),'Tukey');
+    tukey_win = getWin(100,'Tukey');
+    tukey_win = padarray(tukey_win,200);
     t_series = bsxfun(@times, tukey_win', t_series);
 end
 
@@ -139,7 +147,7 @@ hold on
 
 figure(102)
 set(gcf,'Position',[100 20 700 400])
-semilogy(frequency/1e6, f_series,linecolour)
+semilogy(frequency/1e6, f_series,[linecolour '.'],'MarkerSize',2)
     %plot(frequency/1e6, 20*log(f_series))
     %plot(frequency/1e6, f_series)
 hold on
@@ -147,7 +155,7 @@ hold on
         case true
             title({'normalised freqSpec of SPI time series',file_name},'Interpreter','none')
             ylim([1e-4 1])
-            xlim([0,400])
+            xlim([0,120])
         case false
             title({'freqSpec of SPI time series',file_name},'Interpreter','none')
 %             ylim([1e-5 1e-1])
@@ -179,7 +187,7 @@ hold on
     title('frequency spectrum')
     xlabel('frequency [MHz]')
     ylabel('signal amplitude')
-    xlim([0,400])
+    xlim([0,120])
 %     ylim([1e-4 1])
 subplot(2,2,4)
 semilogy(frequency/1e6, f_tukey,linecolour)
