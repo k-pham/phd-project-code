@@ -93,12 +93,12 @@ t_max = 500;
 f_series_AHD1_ar = zeros(4,251);
 f_series_BK31_ar = zeros(4,251);
 
-sensor_freq_response_ar = zeros(4,251);
+sensor_freq_response_ar = zeros(16,251);
 
 for idx_AHD1 = 1:length(file_names_AHD1)
 
     file_name_AHD1 = file_names_AHD1{idx_AHD1};
-    [frequency_AHD1, f_series_AHD1] = freqSpecSGLsingle(file_dir_AHD1,file_name_AHD1,1/dt,t_min,t_max,'NormTime',true,'NormFreq',false,'LineColour','g');
+    [frequency_AHD1, f_series_AHD1] = freqSpecSGLsingle(file_dir_AHD1,file_name_AHD1,1/dt,t_min,t_max,'NormTime',false,'NormFreq',true,'LineColour','g');
     f_series_AHD1_ar(idx_AHD1,:) = f_series_AHD1;
     
 end
@@ -106,7 +106,7 @@ end
 for idx_BK31 = 1:length(file_names_BK31)
 
     file_name_BK31 = file_names_BK31{idx_BK31};
-    [frequency_BK31, f_series_BK31] = freqSpecSGLsingle(file_dir_BK31,file_name_BK31,1/dt,t_min,t_max,'NormTime',true,'NormFreq',false,'LineColour','r');
+    [frequency_BK31, f_series_BK31] = freqSpecSGLsingle(file_dir_BK31,file_name_BK31,1/dt,t_min,t_max,'NormTime',false,'NormFreq',true,'LineColour','r');
     f_series_BK31_ar(idx_BK31,:) = f_series_BK31;
 
     assert(isequal(frequency_AHD1, frequency_BK31))
@@ -115,21 +115,21 @@ end
 
 idx_sfr = 0;
 for idx_AHD1 = 1:length(file_names_AHD1)
-%     for idx_BK31 = 1:length(file_names_BK31)
-        idx_BK31 = idx_AHD1;
+    for idx_BK31 = 1:length(file_names_BK31)
+%         idx_BK31 = idx_AHD1;
         
         sensor_freq_response = f_series_BK31_ar(idx_BK31,:) ./ f_series_AHD1_ar(idx_AHD1,:);
         
         idx_sfr = idx_sfr + 1;
         sensor_freq_response_ar(idx_sfr,:) = sensor_freq_response;
         
-%     end
+    end
 end
 
 % normalisation of each array to common norm
-f_series_AHD1_ar = f_series_AHD1_ar / max(max(f_series_AHD1_ar));
-f_series_BK31_ar = f_series_BK31_ar / max(max(f_series_BK31_ar));
-sensor_freq_response_ar = sensor_freq_response_ar / max(max(sensor_freq_response_ar(:,1:100)));
+% f_series_AHD1_ar = f_series_AHD1_ar / max(max(f_series_AHD1_ar));
+% f_series_BK31_ar = f_series_BK31_ar / max(max(f_series_BK31_ar));
+% sensor_freq_response_ar = sensor_freq_response_ar / max(max(sensor_freq_response_ar(:,1:100)));
 
 % mean and std for each array
 f_series_AHD1_mean = mean(f_series_AHD1_ar,1);
@@ -169,12 +169,12 @@ plot(frequency_BK31/1e6,f_series_BK31_mean+f_series_BK31_std,'k--')
 plot(frequency_BK31/1e6,sensor_freq_response_mean,'b-')
 plot(frequency_BK31/1e6,sensor_freq_response_mean-sensor_freq_response_std,'b--')
 plot(frequency_BK31/1e6,sensor_freq_response_mean+sensor_freq_response_std,'b--')
-
-h = zeros(3, 1);
-h(1) = plot(NaN,NaN,'g:');
-h(2) = plot(NaN,NaN,'r:');
-h(3) = plot(NaN,NaN,'b-');
-legend(h, 'AHD1 reference','BK31 sensor','BK31 / AHD1');
-% title('sensor frequency response (4*4 = 16 avg)')
-title('sensor frequency response (4*1to1 = 4 avg)')
+% 
+% h = zeros(3, 1);
+% h(1) = plot(NaN,NaN,'g:');
+% h(2) = plot(NaN,NaN,'r:');
+% h(3) = plot(NaN,NaN,'b-');
+% legend(h, 'AHD1 reference','BK31 sensor','BK31 / AHD1');
+% % title('sensor frequency response (4*4 = 16 avg)')
+% title('sensor frequency response (4*1to1 = 4 avg)')
 
