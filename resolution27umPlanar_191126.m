@@ -16,7 +16,7 @@ num_lines = length(file_name_xendings);
 num_files_inline = 13;
 
 % loop through 5 lines in x
-for idx_x = 1:num_lines
+for idx_x = 2 %1:num_lines
     
     file_name_filter_x = [file_name_stem, '_x', file_name_xendings{idx_x}];
 
@@ -45,6 +45,7 @@ for idx_x = 1:num_lines
 
     samples_cut_off = 50;
     samples_t0_correct = -14;
+%     samples_t0_correct = 2;
     
 
     %% USimaging Phantom -> Recon
@@ -56,10 +57,10 @@ for idx_x = 1:num_lines
 
     % save figures to directory path
     dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\';
-    dir_figures = [dir_figures 'x' file_name_xendings{idx_x} '\'];
+    dir_figures = [dir_figures 'x' file_name_xendings{idx_x} ' t0+2\'];
 
     % loop through range of c0
-    for c0 = 1460:1:1500
+    for c0 = 1440:2:1478
 
         % multiple file names:
         scanIDs = 1:length(file_names);
