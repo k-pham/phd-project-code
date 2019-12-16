@@ -13,6 +13,7 @@ for idx_dist = 1:length(dist_lims)
     dist_lim = dist_lims(idx_dist);
 
     Norm = zeros(1,length(c0_sample));
+    Norm_std = zeros(1,length(c0_sample));
 
     for idx_c = 1:length(c0_sample)
 
@@ -26,22 +27,26 @@ for idx_dist = 1:length(dist_lims)
         peaksPosZ    = peaksInfoAll(3,:)*1e3; % in mm
         peaksResoLat = peaksInfoAll(4,:)*1e6; % in um
 
-        distance = sqrt(peaksPosX.^2+peaksPosZ.^2); % in mm
-
-        includeInNorm = distance < dist_lim; % in mm
+        includeInNorm = rectangularNorm(peaksPosX, peaksPosZ, dist_lim);
+        
         peaksResoLatInNorm = peaksResoLat(includeInNorm);
 
         % assert(length(peaksResoLatInNorm)==104);
-        Norm(idx_c) = sum(peaksResoLatInNorm)/length(peaksResoLatInNorm);
+        Norm(idx_c) = mean(peaksResoLatInNorm);
+        Norm_std(idx_c) = std(peaksResoLatInNorm);
 
     end
     
     figure
     plot(c0_sample, Norm)
+    hold on
+    plot(c0_sample, Norm - Norm_std, '--')
+    plot(c0_sample, Norm + Norm_std, '--')
     xlabel('c0 [m/s]')
     ylabel('avg. lat. resolution within norm-radius [\mum]')
     title(['norm radius = ' num2str(dist_lim) ' mm'])
     set(gca,'FontSize',13)
+    axis([1460,1500,40,150])
     drawnow
     pause(0.1)
 
@@ -51,9 +56,36 @@ for idx_dist = 1:length(dist_lims)
 end
 
 figure
-plot(dist_lims, c0_minnorms)
-xlabel('norm radius [mm]')
+plot(dist_lims, c0_minnorms, 'x')
+xlabel('norm length scale [mm]')
 ylabel('c0 with minimum norm [m/s]')
 title('best c0 for different norm radii')
 set(gca,'FontSize',13)
+
+
+function includeInNorm = circularNorm(peaksPosX, peaksPosZ, radius)
+
+    distance = sqrt(peaksPosX.^2+peaksPosZ.^2); % in mm
+
+    includeInNorm = distance < radius; % in mm
+
+end
+
+function includeInNorm = squareNorm(peaksPosX, peaksPosZ, sidelength)
+
+    withinX = abs(peaksPosX) < sidelength/2;
+    withinZ = peaksPosZ < sidelength;
+    
+    includeInNorm = withinX & withinZ;
+
+end
+
+function includeInNorm = rectangularNorm(peaksPosX, peaksPosZ, sidelength)
+
+    withinX = abs(peaksPosX) < sidelength;
+    withinZ = peaksPosZ < sidelength;
+    
+    includeInNorm = withinX & withinZ;
+
+end
 
