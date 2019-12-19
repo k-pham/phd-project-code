@@ -44,7 +44,7 @@ for idx_x = 2 %1:num_lines
     trigger_delays = {0, 0, 1e-6, 3e-6, 5e-6, 6e-6, 8e-6, 9e-6, 10e-6, 12e-6, 13e-6, 14e-6, 16e-6};
 
     samples_cut_off = 50;
-    samples_t0_correct = -14;
+%     samples_t0_correct = -14;
 %     samples_t0_correct = 2;
     
 
@@ -57,10 +57,11 @@ for idx_x = 2 %1:num_lines
 
     % save figures to directory path
     dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\';
-    dir_figures = [dir_figures 'x' file_name_xendings{idx_x} ' t0+2\'];
+    dir_figures = [dir_figures 'x' file_name_xendings{idx_x} ' c0_var t0_var\'];
 
     % loop through range of c0
-    for c0 = 1440:2:1478
+    for samples_t0_correct = [-14,-17,-18] %[-16,-15,-13,-12]
+    for c0 = 1484:1:1494
 
         % multiple file names:
         scanIDs = 1:length(file_names);
@@ -168,6 +169,12 @@ for idx_x = 2 %1:num_lines
 
             kgrid.dt = params.dt;
 
+            %-----
+            temp = load([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat']);
+            ROIstack = temp.ROIstack;
+            save([dir_figures 'ROIstack.mat'], 'ROIstack');
+            %-----
+            
             threshold = 70;
             [peaksInfo, ROI] = imagePeakFinder(reflection_image, c0, threshold, dir_figures, scanID, 'methodFWHM', '1DgaussianFitLat', 'reduceSensitivity', false);
 
@@ -179,7 +186,7 @@ for idx_x = 2 %1:num_lines
             end
 
             % stack ROI masks for all line scans
-            if(~exist([dir_figures 'ROIstack.mat'],'file'))
+            if(~exist([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'],'file'))
                 if(~exist('ROIstack','var'))
                     ROIstack = cell(length(scanIDs));
                 end
@@ -205,51 +212,103 @@ for idx_x = 2 %1:num_lines
 
         end     % of scanID / file_name loop
 
-        save( [dir_figures 'peaksInfoAll_x' file_name_xendings{idx_x} '_c' sprintf('%0.1f',c0) '.mat'] , 'peaksInfoAll')
-        resoLat_contour_plot(peaksInfoAll, c0, dir_figures)
+        save( [dir_figures 'peaksInfoAll_x' file_name_xendings{idx_x} '_c' sprintf('%0.1f',c0) '_t0_' num2str(samples_t0_correct) '.mat'] , 'peaksInfoAll')
+        resoLat_contour_plot(peaksInfoAll, c0, samples_t0_correct, dir_figures)
         clear peaksInfoAll
         
-        if(~exist([dir_figures 'ROIstack.mat'],'file'))
-            save( [dir_figures 'ROIstack.mat'] , 'ROIstack')
+        if(~exist([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'],'file'))
+            save( [dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'] , 'ROIstack')
         end
 
     end     % of c0 loop
+    end     % of t0 loop
     
     
     %% USimagingAnalysis - movie of resoLat/countour plots at diff sound speeds
     
-    vidObj1 = VideoWriter([dir_figures '\vid_resoLat_c0.avi']);
-    vidObj2 = VideoWriter([dir_figures '\vid_resoLat_blur15_contour_c0.avi']);
-    
-    vidObj1.FrameRate = 5;
-    vidObj2.FrameRate = 5;
-    
-    open(vidObj1);
-    open(vidObj2);
-
-    c0_sample = 1460:1:1500;
-    % c0_sample = 1482:0.2:1490;
-    % c0_sample = 1484:0.1:1487;
-
-    for idx_c = 1:length(c0_sample)
-
-        c0 = c0_sample(idx_c);
-
-        figure(2*idx_c-1)
-        currFrame = getframe(gcf);
-        writeVideo(vidObj1,currFrame);
-        
-        figure(2*idx_c)
-        currFrame = getframe(gcf);
-        writeVideo(vidObj2,currFrame);
-
-        pause(0.05)
-
-    end
-
-    close(vidObj1);
-    close(vidObj2);
-    
-    close all
+%     vidObj1 = VideoWriter([dir_figures '\vid_resoLat_c0.avi']);
+%     vidObj2 = VideoWriter([dir_figures '\vid_resoLat_blur15_contour_c0.avi']);
+%     
+%     vidObj1.FrameRate = 5;
+%     vidObj2.FrameRate = 5;
+%     
+%     open(vidObj1);
+%     open(vidObj2);
+% 
+%     c0_sample = 1460:1:1500;
+%     % c0_sample = 1482:0.2:1490;
+%     % c0_sample = 1484:0.1:1487;
+% 
+%     for idx_c = 1:length(c0_sample)
+% 
+%         c0 = c0_sample(idx_c);
+% 
+%         figure(2*idx_c-1)
+%         currFrame = getframe(gcf);
+%         writeVideo(vidObj1,currFrame);
+%         
+%         figure(2*idx_c)
+%         currFrame = getframe(gcf);
+%         writeVideo(vidObj2,currFrame);
+% 
+%         pause(0.05)
+% 
+%     end
+% 
+%     close(vidObj1);
+%     close(vidObj2);
+%     
+%     close all
     
 end % of loop through 5 lines in x
+
+%% t0 and c0 variation plots
+
+t0_sample = -18:1:-12;
+c0_sample = 1484:1:1494;
+file_d='D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\x-05 c0_var t0_var\';
+
+figure(1)
+set(gcf,'Position',[70,0,1850,1000])
+
+idx_subpl = 0;
+for idx_t = 1:length(t0_sample)
+    t0=t0_sample(idx_t);
+    for idx_c = 1:length(c0_sample)
+        c0 = c0_sample(idx_c);
+        
+        file_n = ['peaksInfoAll_x-05_c' num2str(c0) '.0_t0_' num2str(t0) '.mat'];
+        data = load([file_d file_n]);
+        peaksInfoAll = data.peaksInfoAll;
+        
+        peaksPosX    = peaksInfoAll(2,:)*1e3; % in mm
+        peaksPosZ    = peaksInfoAll(3,:)*1e3; % in mm
+        peaksResoLat = peaksInfoAll(4,:)*1e6; % in um
+        
+        [gridX,gridZ] = meshgrid(-11:0.1:11, 0:0.1:12.5);
+        resoLat = griddata(peaksPosX,peaksPosZ,peaksResoLat,gridX,gridZ,'linear');
+        
+        xreal = -11:0.1:11;
+        zreal = 0:0.1:12.5;
+        xbounds = 9:194;
+        zbounds = 9:124;
+        xreal = xreal(xbounds);
+        zreal = zreal(zbounds);
+        resoLat = resoLat(zbounds,xbounds);
+        
+        resoLatBlur = imgaussfilt(resoLat,15);
+        
+        idx_subpl = idx_subpl + 1;
+        subplot(7,11,idx_subpl)
+        contoursLatMajor = 45:5:140;
+        [Cmajor, hmajor]= contour(xreal, zreal, resoLatBlur, contoursLatMajor, 'LineWidth', 0.5);
+        clabel(Cmajor,hmajor, 'labelspacing', 700);
+        % clabel(C,'manual')
+        colormap(gray)
+        xlim([-8.3,8.3])
+        ylim([0.8,12.3])
+        
+    end
+end
+
+

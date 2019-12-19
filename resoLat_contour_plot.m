@@ -1,4 +1,4 @@
-function resoLat_contour_plot(peaksInfoAll, c0, dir_figures)
+function resoLat_contour_plot(peaksInfoAll, c0, t0_correct, dir_figures)
 
 % peaksAmpl    = peaksInfoAll(1,:);
 peaksPosX    = peaksInfoAll(2,:)*1e3; % in mm
@@ -57,16 +57,16 @@ set(gcf,'Position',[100,100,800,450])
     colormap(gray)
     colorbar
     set(gca,'FontSize',13)
-    title(['c0 = ' sprintf('%0.1f',c0) ])
+    title(['c0 = ' sprintf('%0.1f',c0) ' t0 = ' num2str(t0_correct) ])
     caxis([0,400])
     xlabel('x axis / mm')
     ylabel('depth z / mm')
 drawnow
 
-savefig(fig_contour,[dir_figures 'resoLat_contour_blur15_c' num2str(10*c0) '.fig'], 'compact')
-saveas(fig_contour, [dir_figures 'resoLat_contour_blur15_c' num2str(10*c0) '.jpg'])
+savefig(fig_contour,[dir_figures 'resoLat_contour_blur15_c' num2str(10*c0) '_t0_' num2str(t0_correct) '.fig'], 'compact')
+saveas(fig_contour, [dir_figures 'resoLat_contour_blur15_c' num2str(10*c0) '_t0_' num2str(t0_correct) '.jpg'])
 
-savefig(fig_resoLat,[dir_figures 'resoLat_c' num2str(10*c0)], 'compact')
-saveas(fig_resoLat, [dir_figures 'resoLat_c' num2str(10*c0) '.jpg'])
+savefig(fig_resoLat,[dir_figures 'resoLat_c' num2str(10*c0) '_t0_' num2str(t0_correct) ], 'compact')
+saveas(fig_resoLat, [dir_figures 'resoLat_c' num2str(10*c0) '_t0_' num2str(t0_correct) '.jpg'])
 
 end
