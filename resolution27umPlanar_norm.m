@@ -6,7 +6,7 @@ file_dir = [file_dir 'x-05 c0_var t0_var\'];
 c0_sample = 1484:1:1494; % in m/s
 t0_sample = -18:1:-12;
 
-dist_lims = 22;%2:0.1:10; % in mm
+dist_lims = 2:0.1:10; % in mm
 
 c0_minnorms = zeros(length(t0_sample),length(dist_lims));
 % t0_minnorms = zeros(1,length(dist_lims));
