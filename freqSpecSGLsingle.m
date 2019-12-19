@@ -147,7 +147,7 @@ hold on
 
 figure(102)
 set(gcf,'Position',[100 20 700 400])
-semilogy(frequency/1e6, f_series,[linecolour '.'],'MarkerSize',2)
+semilogy(frequency/1e6, f_series,linecolour,'MarkerSize',2)
     %plot(frequency/1e6, 20*log(f_series))
     %plot(frequency/1e6, f_series)
 hold on

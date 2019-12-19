@@ -129,7 +129,7 @@ end
 % normalisation of each array to common norm
 % f_series_AHD1_ar = f_series_AHD1_ar / max(max(f_series_AHD1_ar));
 % f_series_BK31_ar = f_series_BK31_ar / max(max(f_series_BK31_ar));
-% sensor_freq_response_ar = sensor_freq_response_ar / max(max(sensor_freq_response_ar(:,1:100)));
+sensor_freq_response_ar = sensor_freq_response_ar / max(max(sensor_freq_response_ar(:,1:100)));
 
 % mean and std for each array
 f_series_AHD1_mean = mean(f_series_AHD1_ar,1);
@@ -145,14 +145,17 @@ figure(1002)
 set(gcf,'Position',[100 20 700 400])
 set(gca,'YScale','log')
 hold on
-for idx_AHD1 = 1:length(file_names_AHD1)
+for idx_AHD1 = 1:size(f_series_AHD1_ar,1)
     semilogy(frequency_AHD1/1e6, f_series_AHD1_ar(idx_AHD1,:),'g.','MarkerSize',4)
 end
-for idx_BK31 = 1:length(file_names_BK31)
+for idx_BK31 = 1:size(f_series_BK31_ar,1)
     semilogy(frequency_BK31/1e6, f_series_BK31_ar(idx_BK31,:),'r.','MarkerSize',4)
 end
-ylim([1e-4 1])
-xlim([0,120])
+for idx_sfr = 1:size(sensor_freq_response_ar,1)
+    semilogy(frequency_BK31/1e6, sensor_freq_response_ar(idx_sfr,:),'b.','MarkerSize',4)
+end
+ylim([1e-3 1.6])
+xlim([0,80])
 xlabel('frequency / MHz')
 ylabel('signal amplitude / V')
 
@@ -166,15 +169,16 @@ plot(frequency_BK31/1e6,f_series_BK31_mean,'k-')
 plot(frequency_BK31/1e6,f_series_BK31_mean-f_series_BK31_std,'k--')
 plot(frequency_BK31/1e6,f_series_BK31_mean+f_series_BK31_std,'k--')
 
-plot(frequency_BK31/1e6,sensor_freq_response_mean,'b-')
-plot(frequency_BK31/1e6,sensor_freq_response_mean-sensor_freq_response_std,'b--')
-plot(frequency_BK31/1e6,sensor_freq_response_mean+sensor_freq_response_std,'b--')
-% 
-% h = zeros(3, 1);
-% h(1) = plot(NaN,NaN,'g:');
-% h(2) = plot(NaN,NaN,'r:');
-% h(3) = plot(NaN,NaN,'b-');
-% legend(h, 'AHD1 reference','BK31 sensor','BK31 / AHD1');
-% % title('sensor frequency response (4*4 = 16 avg)')
+plot(frequency_BK31/1e6,sensor_freq_response_mean,'k-')
+plot(frequency_BK31/1e6,sensor_freq_response_mean-sensor_freq_response_std,'k--')
+plot(frequency_BK31/1e6,sensor_freq_response_mean+sensor_freq_response_std,'k--')
+
+h = zeros(3, 1);
+h(1) = plot(NaN,NaN,'g:');
+h(2) = plot(NaN,NaN,'r:');
+h(3) = plot(NaN,NaN,'b:');
+legend(h, 'AHD1 reference','BK31 sensor','BK31 / AHD1');
+title('sensor frequency response (4*4 = 16 avg)')
 % title('sensor frequency response (4*1to1 = 4 avg)')
+set(gca,'FontSize',13)
 
