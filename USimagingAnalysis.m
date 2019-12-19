@@ -163,11 +163,11 @@ resoLat = resoLat(zbounds,xbounds);
 
 figure
 set(gcf,'Position',[100,100,800,450])
-    contoursLatMajor = [50:5:60,60:10:120];
-    contoursLatMinor = [50:1:60,60:2:120];
+    contoursLatMajor = [45:10:61,61:10:121];
+%     contoursLatMinor = [50:1:60,60:2:120];
     hold on
     [Cmajor, hmajor]= contour(xreal, zreal, resoLatBlur, contoursLatMajor, 'LineWidth', 2);
-    [Cminor, hminor] = contour(xreal,zreal,resoLatBlur, contoursLatMinor, 'LineWidth', 2, 'LineStyle', ':');
+%     [Cminor, hminor] = contour(xreal,zreal,resoLatBlur, contoursLatMinor, 'LineWidth', 2, 'LineStyle', ':');
     hold off
     clabel(Cmajor,hmajor, 'labelspacing', 700);
 %     clabel(C,'manual')
