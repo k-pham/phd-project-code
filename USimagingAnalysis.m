@@ -114,39 +114,43 @@ imagePeakFinder(reflection_image, kgrid, t_array, c0, threshold)
 % data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191029 resolution27umPlanar BK31[CNT] trolley scrambled fibre\peaksInfoAll.mat');
 % data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPlanar BK31[CNT] trolley scrambled fibre central phantom\peaksInfoAll.mat');
 % data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191031 resolution27umPlanar BK31[CNT] trolley scrambled fibre central phantom\meth = 1DgaussianFitLat\peaksInfoAll.mat');
-data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\x-1\peaksInfoAll_x-1_c1488.0.mat');
+% data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\x-1\peaksInfoAll_x-1_c1488.0.mat');
 % data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\x-05\peaksInfoAll_x-05_c1488.0.mat');
+
+file_dir = 'D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\x-05 c0_var t0_var\';
+file_name = 'peaksInfoAll_x-05_c1488.0_t0_-13.mat';
+
+data = load([file_dir file_name]);
 peaksInfoAll = data.peaksInfoAll;
 
-peaksAmpl    = peaksInfoAll(1,:);
+% peaksAmpl    = peaksInfoAll(1,:);
 peaksPosX    = peaksInfoAll(2,:)*1e3; % in mm
 peaksPosZ    = peaksInfoAll(3,:)*1e3; % in mm
 peaksResoLat = peaksInfoAll(4,:)*1e6; % in um
-peaksResoAxi = peaksInfoAll(5,:)*1e6; % in um
+% peaksResoAxi = peaksInfoAll(5,:)*1e6; % in um
 
 [gridX,gridZ] = meshgrid(-11:0.1:11, 0:0.1:12.5);
 
 resoLat = griddata(peaksPosX,peaksPosZ,peaksResoLat,gridX,gridZ,'linear');
-resoAxi = griddata(peaksPosX,peaksPosZ,peaksResoAxi,gridX,gridZ,'linear');
-amplitude = griddata(peaksPosX,peaksPosZ,peaksAmpl,gridX,gridZ,'linear');
+% resoAxi = griddata(peaksPosX,peaksPosZ,peaksResoAxi,gridX,gridZ,'linear');
+% amplitude = griddata(peaksPosX,peaksPosZ,peaksAmpl,gridX,gridZ,'linear');
 
-resoLat = fillmissing(resoLat,'nearest');
-resoAxi = fillmissing(resoAxi,'nearest');
+% resoLat = fillmissing(resoLat,'nearest');
+% resoAxi = fillmissing(resoAxi,'nearest');
 
-resoLat(isnan(resoLat)) = 70;
-resoAxi(isnan(resoAxi)) = 40;
-amplitude(isnan(amplitude)) = 0;
-
-resoLatBlur = imgaussfilt(resoLat,15);
-resoAxiBlur = imgaussfilt(resoAxi,15);
+% resoLat(isnan(resoLat)) = 70;
+% resoAxi(isnan(resoAxi)) = 40;
+% amplitude(isnan(amplitude)) = 0;
 
 figure
 set(gcf,'Position',[100,100,800,450])
 imagesc(resoLat)
 
-figure
-set(gcf,'Position',[100,100,800,450])
-imagesc(resoAxi)
+% figure
+% set(gcf,'Position',[100,100,800,450])
+% imagesc(resoAxi)
+
+pause
 
 xreal = -11:0.1:11;
 zreal = 0:0.1:12.5;
@@ -163,27 +167,35 @@ resoLat = resoLat(zbounds,xbounds);
 
 figure
 set(gcf,'Position',[100,100,800,450])
-    contoursLatMajor = [45:10:61,61:10:121];
-%     contoursLatMinor = [50:1:60,60:2:120];
+imagesc(resoLat)
+
+pause
+
+resoLatBlur = imgaussfilt(resoLat,13);
+% resoAxiBlur = imgaussfilt(resoAxi,15);
+
+figure
+set(gcf,'Position',[100,100,800,450])
+    contoursLatMajor = 45:5:140;
+    contoursLatMinor = setdiff(45:1:140,contoursLatMajor);
     hold on
-    [Cmajor, hmajor]= contour(xreal, zreal, resoLatBlur, contoursLatMajor, 'LineWidth', 2);
-%     [Cminor, hminor] = contour(xreal,zreal,resoLatBlur, contoursLatMinor, 'LineWidth', 2, 'LineStyle', ':');
+    [Cmajor, hmajor]= contour(xreal, zreal, resoLatBlur, contoursLatMajor, 'LineWidth', 1);
+    [Cminor, hminor] = contour(xreal,zreal,resoLatBlur, contoursLatMinor, 'LineWidth', 1, 'LineStyle', ':');
     hold off
-    clabel(Cmajor,hmajor, 'labelspacing', 700);
-%     clabel(C,'manual')
     colormap(gray)
     xlim([-8.3,8.3])
     ylim([0.8,12.3])
-
+    clabel(Cmajor,hmajor, 'labelspacing', 500);
+%     clabel(Cmajor,'manual')
     
-contoursAxi = 30:5:45;
-figure
-set(gcf,'Position',[100,100,800,450])
-[Cmajor, hmajor]= contour(xreal, zreal, resoAxiBlur, contoursAxi, 'LineWidth', 2);
-    clabel(Cmajor,hmajor, 'labelspacing', 700);
-    colormap(gray)
-    colorbar
-    caxis([30,45])
+% contoursAxi = 30:5:45;
+% figure
+% set(gcf,'Position',[100,100,800,450])
+% [Cmajor, hmajor]= contour(xreal, zreal, resoAxiBlur, contoursAxi, 'LineWidth', 2);
+%     clabel(Cmajor,hmajor, 'labelspacing', 700);
+%     colormap(gray)
+%     colorbar
+%     caxis([30,45])
     
 
 %% movie of plots of depth profiles at diff latitudes
