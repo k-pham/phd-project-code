@@ -150,6 +150,7 @@ function [peaksInfo, ROI] = imagePeakFinder(reflection_image, c0, threshold, dir
                     case '1DgaussianFitLat'
                         init_x = [init_ampl, init_xmu, init_lat];
                         fit_x = fit(target_xaxis, target_xprofile, 'gauss1', 'Start', init_x);
+%                         'a1*exp(-((x-b1)/c1)^2)+d1'
                         peakFWHMlateral = fit_x.c1*2*sqrt(log(2));
                         peakFWHMaxial   = fwhm(target_zprofile,dt*c0,0);        % omit factor 1/2 bc of depth bug                     
                                                          
