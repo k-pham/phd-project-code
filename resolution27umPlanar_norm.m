@@ -81,6 +81,60 @@ end
 figure
 imagesc(dist_lims, t0_sample, c0_minnorms)
 
+
+%% find error given some c0 uncertainty
+
+file_dir = 'D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\';
+file_dir = [file_dir 'x-05 c0_var t0_var\'];
+
+c0_sample = 1485:1:1491;
+t0 = -13;
+
+xreal = -11:0.1:11;
+zreal = 0:0.1:12.5;
+
+xbounds = 9:194;
+zbounds = 9:124;
+
+xreal = xreal(xbounds);
+zreal = zreal(zbounds);
+
+resoLat_stack = zeros(length(c0_sample),length(zbounds),length(xbounds));
+
+for idx_c = 1:length(c0_sample)
+
+    c0 = c0_sample(idx_c);
+    
+	file_name = ['peaksInfoAll_x-05_c' sprintf('%0.1f',c0) '_t0_' num2str(t0) '.mat'];
+    data = load([file_dir file_name]);
+    peaksInfoAll = data.peaksInfoAll;
+
+    peaksPosX    = peaksInfoAll(2,:)*1e3; % in mm
+    peaksPosZ    = peaksInfoAll(3,:)*1e3; % in mm
+    peaksResoLat = peaksInfoAll(4,:)*1e6; % in um
+
+    [gridX,gridZ] = meshgrid(-11:0.1:11, 0:0.1:12.5);
+    resoLat = griddata(peaksPosX,peaksPosZ,peaksResoLat,gridX,gridZ,'linear');
+
+    resoLat = resoLat(zbounds,xbounds);
+    
+    resoLat_stack(idx_c,:,:) = resoLat;
+    
+end
+
+resoLat_mean = squeeze(mean(resoLat_stack, 1));
+resoLat_std  = squeeze(std(resoLat_stack, [], 1));
+
+figure
+imagesc(xreal, zreal, resoLat_std)
+
+resoLat_std_depth = mean(resoLat_std,2);
+figure
+plot(zreal,resoLat_std_depth)
+
+
+%% norm functions
+
 function includeInNorm = circularNorm(peaksPosX, peaksPosZ, radius)
 
     distance = sqrt(peaksPosX.^2+peaksPosZ.^2); % in mm
@@ -115,4 +169,9 @@ function includeInNorm = rectangularNorm2(peaksPosX, peaksPosZ, sidelength)
     includeInNorm = withinX & withinZ;
 
 end
+
+
+
+
+
 
