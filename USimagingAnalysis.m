@@ -171,7 +171,7 @@ imagesc(resoLat)
 
 pause
 
-resoLatBlur = imgaussfilt(resoLat,13);
+resoLatBlur = imgaussfilt(resoLat,15);
 % resoAxiBlur = imgaussfilt(resoAxi,15);
 
 figure
