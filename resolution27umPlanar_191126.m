@@ -1,4 +1,6 @@
-%%
+%% compound image
+
+compound_image = zeros(2204,3244);
 
 
 %% USimagingPhantoms
@@ -57,11 +59,11 @@ for idx_x = 2 %1:num_lines
 
     % save figures to directory path
     dir_figures = 'D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\';
-    dir_figures = [dir_figures 'x' file_name_xendings{idx_x} ' c0_var t0_var\'];
+    dir_figures = [dir_figures 'x' file_name_xendings{idx_x} ' c0_1488 t0_-13\'];
 
     % loop through range of c0
-    for samples_t0_correct = [-14,-17,-18] %[-16,-15,-13,-12]
-    for c0 = 1484:1:1494
+    for samples_t0_correct = -13
+    for c0 = 1488
 
         % multiple file names:
         scanIDs = 1:length(file_names);
@@ -142,56 +144,57 @@ for idx_x = 2 %1:num_lines
 
             %% plot reconstructed image
 
-            global kgrid %t_array Nt
+            global kgrid t_array Nt
 
-%             fig_image = figure;
-%             set(gcf,'Position',[100,100,800,450])
-%             switch dim
-%                 case 2
-%                     imagesc(kgrid.x_vec, t_array*c0, reflection_image(:,1:Nt)') % omit factor 1/2 in dz because of doubled depth bug
-%                         % 1st index (x) = row index = y axis -- transposed -> x axis
-%                         xlabel('x [m]')
-%                         ylabel('z [m]')
-%                 case 3
-%                     imagesc(kgrid.x_vec, t_array*c0, squeeze(reflection_image(:,75,1:Nt))') % omit factor 1/2 in dz because of doubled depth bug
-%                         xlabel('x [m]')
-%                         ylabel('z [m]')
-%             end
-%                 title(['reconstructed image with c0 = ' num2str(c0) ', t0 correction = ' num2str(params.Nt_t0_correct)])
-%                 cmap = colormap(gray);
-%                 cmap = flipud(cmap);    % flip colormap to make black = signal
-%                 colormap(cmap);
-%                 colorbar
-%                 drawnow
+            fig_image = figure;
+            set(gcf,'Position',[100,100,800,450])
+            switch dim
+                case 2
+                    imagesc(kgrid.x_vec, t_array*c0, reflection_image(:,1:Nt)') % omit factor 1/2 in dz because of doubled depth bug
+                        % 1st index (x) = row index = y axis -- transposed -> x axis
+                        xlabel('x [m]')
+                        ylabel('z [m]')
+                case 3
+                    imagesc(kgrid.x_vec, t_array*c0, squeeze(reflection_image(:,75,1:Nt))') % omit factor 1/2 in dz because of doubled depth bug
+                        xlabel('x [m]')
+                        ylabel('z [m]')
+            end
+                title(['reconstructed image with c0 = ' num2str(c0) ', t0 correction = ' num2str(params.Nt_t0_correct)])
+                cmap = colormap(gray);
+                %cmap = flipud(cmap);    % flip colormap to make black = signal
+                colormap(cmap);
+                colorbar
+                axis image
+                drawnow
 
 
             %% find image peaks and FWHM for resolution measurements
 
-            kgrid.dt = params.dt;
-
-            %-----
-            temp = load([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat']);
-            ROIstack = temp.ROIstack;
-            save([dir_figures 'ROIstack.mat'], 'ROIstack');
-            %-----
-            
-            threshold = 70;
-            [peaksInfo, ROI] = imagePeakFinder(reflection_image, c0, threshold, dir_figures, scanID, 'methodFWHM', '1DgaussianFitLat', 'reduceSensitivity', false);
-
-            % concatenate peaksInfo array for all line scans
-            if(~exist('peaksInfoAll','var'))
-                peaksInfoAll = peaksInfo;
-            else
-                peaksInfoAll = cat(2,peaksInfoAll,peaksInfo);
-            end
-
-            % stack ROI masks for all line scans
-            if(~exist([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'],'file'))
-                if(~exist('ROIstack','var'))
-                    ROIstack = cell(length(scanIDs));
-                end
-                ROIstack{scanID} = ROI;
-            end
+%             kgrid.dt = params.dt;
+% 
+%             %-----
+%             temp = load([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat']);
+%             ROIstack = temp.ROIstack;
+%             save([dir_figures 'ROIstack.mat'], 'ROIstack');
+%             %-----
+%             
+%             threshold = 70;
+%             [peaksInfo, ROI] = imagePeakFinder(reflection_image, c0, threshold, dir_figures, scanID, 'methodFWHM', '1DgaussianFitLat', 'reduceSensitivity', false);
+% 
+%             % concatenate peaksInfo array for all line scans
+%             if(~exist('peaksInfoAll','var'))
+%                 peaksInfoAll = peaksInfo;
+%             else
+%                 peaksInfoAll = cat(2,peaksInfoAll,peaksInfo);
+%             end
+% 
+%             % stack ROI masks for all line scans
+%             if(~exist([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'],'file'))
+%                 if(~exist('ROIstack','var'))
+%                     ROIstack = cell(length(scanIDs));
+%                 end
+%                 ROIstack{scanID} = ROI;
+%             end
 
 
             %% save figures
@@ -204,6 +207,13 @@ for idx_x = 2 %1:num_lines
             % 
             % savefig(fig_image,[dir_figures 'autoplots\scan' num2str(scanID) '_image_marked'], 'compact')
             % saveas(fig_image, [dir_figures 'autoplots\scan' num2str(scanID) '_image_marked.jpg'])
+            
+            savefig(fig_image,[dir_figures 'autoplots\scan' num2str(scanID) '_image_unmarked'], 'compact')
+            saveas(fig_image, [dir_figures 'autoplots\scan' num2str(scanID) '_image_unmarked.eps'])
+            
+            %% add to compound
+            
+            compound_image(1:size(reflection_image,1),1:size(reflection_image,2)) = compound_image(1:size(reflection_image,1),1:size(reflection_image,2)) + reflection_image;
 
 
             %% run multiple reconstructions in loop (end)
@@ -212,13 +222,13 @@ for idx_x = 2 %1:num_lines
 
         end     % of scanID / file_name loop
 
-        save( [dir_figures 'peaksInfoAll_x' file_name_xendings{idx_x} '_c' sprintf('%0.1f',c0) '_t0_' num2str(samples_t0_correct) '.mat'] , 'peaksInfoAll')
-        resoLat_contour_plot(peaksInfoAll, c0, samples_t0_correct, dir_figures)
-        clear peaksInfoAll
+%         save( [dir_figures 'peaksInfoAll_x' file_name_xendings{idx_x} '_c' sprintf('%0.1f',c0) '_t0_' num2str(samples_t0_correct) '.mat'] , 'peaksInfoAll')
+%         resoLat_contour_plot(peaksInfoAll, c0, samples_t0_correct, dir_figures)
+%         clear peaksInfoAll
         
-        if(~exist([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'],'file'))
-            save( [dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'] , 'ROIstack')
-        end
+%         if(~exist([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'],'file'))
+%             save( [dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'] , 'ROIstack')
+%         end
 
     end     % of c0 loop
     end     % of t0 loop
@@ -262,53 +272,61 @@ for idx_x = 2 %1:num_lines
     
 end % of loop through 5 lines in x
 
+
 %% t0 and c0 variation plots
 
-t0_sample = -18:1:-12;
-c0_sample = 1484:1:1494;
-file_d='D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\x-05 c0_var t0_var\';
+% t0_sample = -18:1:-12;
+% c0_sample = 1484:1:1494;
+% file_d='D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\x-05 c0_var t0_var\';
+% 
+% figure(1)
+% set(gcf,'Position',[70,0,1850,1000])
+% 
+% idx_subpl = 0;
+% for idx_t = 1:length(t0_sample)
+%     t0=t0_sample(idx_t);
+%     for idx_c = 1:length(c0_sample)
+%         c0 = c0_sample(idx_c);
+%         
+%         file_n = ['peaksInfoAll_x-05_c' num2str(c0) '.0_t0_' num2str(t0) '.mat'];
+%         data = load([file_d file_n]);
+%         peaksInfoAll = data.peaksInfoAll;
+%         
+%         peaksPosX    = peaksInfoAll(2,:)*1e3; % in mm
+%         peaksPosZ    = peaksInfoAll(3,:)*1e3; % in mm
+%         peaksResoLat = peaksInfoAll(4,:)*1e6; % in um
+%         
+%         [gridX,gridZ] = meshgrid(-11:0.1:11, 0:0.1:12.5);
+%         resoLat = griddata(peaksPosX,peaksPosZ,peaksResoLat,gridX,gridZ,'linear');
+%         
+%         xreal = -11:0.1:11;
+%         zreal = 0:0.1:12.5;
+%         xbounds = 9:194;
+%         zbounds = 9:124;
+%         xreal = xreal(xbounds);
+%         zreal = zreal(zbounds);
+%         resoLat = resoLat(zbounds,xbounds);
+%         
+%         resoLatBlur = imgaussfilt(resoLat,15);
+%         
+%         idx_subpl = idx_subpl + 1;
+%         subplot(7,11,idx_subpl)
+%         contoursLatMajor = 45:5:140;
+%         [Cmajor, hmajor]= contour(xreal, zreal, resoLatBlur, contoursLatMajor, 'LineWidth', 0.5);
+%         clabel(Cmajor,hmajor, 'labelspacing', 700);
+%         % clabel(C,'manual')
+%         colormap(gray)
+%         xlim([-8.3,8.3])
+%         ylim([0.8,12.3])
+%         
+%     end
+% end
 
-figure(1)
-set(gcf,'Position',[70,0,1850,1000])
 
-idx_subpl = 0;
-for idx_t = 1:length(t0_sample)
-    t0=t0_sample(idx_t);
-    for idx_c = 1:length(c0_sample)
-        c0 = c0_sample(idx_c);
-        
-        file_n = ['peaksInfoAll_x-05_c' num2str(c0) '.0_t0_' num2str(t0) '.mat'];
-        data = load([file_d file_n]);
-        peaksInfoAll = data.peaksInfoAll;
-        
-        peaksPosX    = peaksInfoAll(2,:)*1e3; % in mm
-        peaksPosZ    = peaksInfoAll(3,:)*1e3; % in mm
-        peaksResoLat = peaksInfoAll(4,:)*1e6; % in um
-        
-        [gridX,gridZ] = meshgrid(-11:0.1:11, 0:0.1:12.5);
-        resoLat = griddata(peaksPosX,peaksPosZ,peaksResoLat,gridX,gridZ,'linear');
-        
-        xreal = -11:0.1:11;
-        zreal = 0:0.1:12.5;
-        xbounds = 9:194;
-        zbounds = 9:124;
-        xreal = xreal(xbounds);
-        zreal = zreal(zbounds);
-        resoLat = resoLat(zbounds,xbounds);
-        
-        resoLatBlur = imgaussfilt(resoLat,15);
-        
-        idx_subpl = idx_subpl + 1;
-        subplot(7,11,idx_subpl)
-        contoursLatMajor = 45:5:140;
-        [Cmajor, hmajor]= contour(xreal, zreal, resoLatBlur, contoursLatMajor, 'LineWidth', 0.5);
-        clabel(Cmajor,hmajor, 'labelspacing', 700);
-        % clabel(C,'manual')
-        colormap(gray)
-        xlim([-8.3,8.3])
-        ylim([0.8,12.3])
-        
-    end
-end
+%% compound image with c0 = 1488, t0 = -13
+
+
+
+
 
 
