@@ -1,7 +1,7 @@
 %% find c0 and t0 given some more or less arbitrary norm
 
 file_dir = 'D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\';
-file_dir = [file_dir 'x-05 c0_var t0_var\'];
+file_dir = [file_dir 'x-05 c0_var t0_var gauss_offset\'];
 
 c0_sample = 1484:1:1494; % in m/s
 t0_sample = -18:1:-12;
@@ -43,19 +43,19 @@ for idx_t = 1:length(t0_sample)
 
         end
 
-        figure
-        plot(c0_sample,Norm(idx_t,:))
-        hold on
-    %     plot(c0_sample, Norm - Norm_std, '--')
-    %     plot(c0_sample, Norm + Norm_std, '--')
-        xlabel('c0 [m/s]')
-        ylabel('t0 correction [dt]')
-    %     ylabel('avg. lat. resolution within norm-radius [\mum]')
-        title(['norm radius = ' num2str(dist_lim) ' mm'])
-        set(gca,'FontSize',13)
-    %     axis([1460,1500,40,150])
-        drawnow
-        pause(0.1)
+%         figure
+%         plot(c0_sample,Norm(idx_t,:))
+%         hold on
+%     %     plot(c0_sample, Norm - Norm_std, '--')
+%     %     plot(c0_sample, Norm + Norm_std, '--')
+%         xlabel('c0 [m/s]')
+% %         ylabel('t0 correction [dt]')
+%         ylabel('avg. lat. resolution within norm-radius [\mum]')
+%         title(['norm radius = ' num2str(dist_lim) ' mm'])
+%         set(gca,'FontSize',13)
+%     %     axis([1460,1500,40,150])
+%         drawnow
+%         pause(0.1)
 
 %         minnorm = min(Norm,[],'all');
 %         [idx_minnorm_t, idx_minnorm_c] = find(Norm==minnorm);
@@ -85,11 +85,11 @@ imagesc(dist_lims, t0_sample, c0_minnorms)
 %% find error given some c0 uncertainty
 
 file_dir = 'D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\';
-file_dir = [file_dir 'x-05 c0_var t0_var\'];
+file_dir = [file_dir 'x-05 c0_var t0_var gauss_offset\'];
 
-c0_sample = 1485:1:1491;
-t0 = -13;
-
+c0_sample = 1486:1:1492;
+t0 = -14;
+    
 xreal = -11:0.1:11;
 zreal = 0:0.1:12.5;
 
@@ -127,10 +127,15 @@ resoLat_std  = squeeze(std(resoLat_stack, [], 1));
 
 figure
 imagesc(xreal, zreal, resoLat_std)
+xlim([-8.3,8.3])
 
 resoLat_std_depth = mean(resoLat_std,2);
+resoLat_std_std_depth = std(resoLat_std,[],2);
 figure
 plot(zreal,resoLat_std_depth)
+hold on
+plot(zreal,resoLat_std_depth+resoLat_std_std_depth,'--')
+plot(zreal,resoLat_std_depth-resoLat_std_std_depth,'--')
 
 
 %% norm functions
