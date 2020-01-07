@@ -117,23 +117,23 @@ imagePeakFinder(reflection_image, kgrid, t_array, c0, threshold)
 % data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\x-1\peaksInfoAll_x-1_c1488.0.mat');
 % data = load('D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\x-05\peaksInfoAll_x-05_c1488.0.mat');
 
-file_dir = 'D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\x-05 c0_var t0_var\';
-file_name = 'peaksInfoAll_x-05_c1488.0_t0_-13.mat';
+file_dir = 'D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\x-05 c0_1489 t0_-14\';
+file_name = 'peaksInfoAll_x-05_c1489.0_t0_-14.mat';
 
 data = load([file_dir file_name]);
 peaksInfoAll = data.peaksInfoAll;
 
-% peaksAmpl    = peaksInfoAll(1,:);
+peaksAmpl    = peaksInfoAll(1,:);
 peaksPosX    = peaksInfoAll(2,:)*1e3; % in mm
 peaksPosZ    = peaksInfoAll(3,:)*1e3; % in mm
 peaksResoLat = peaksInfoAll(4,:)*1e6; % in um
-% peaksResoAxi = peaksInfoAll(5,:)*1e6; % in um
+peaksResoAxi = peaksInfoAll(5,:)*1e6; % in um
 
 [gridX,gridZ] = meshgrid(-11:0.1:11, 0:0.1:12.5);
 
 resoLat = griddata(peaksPosX,peaksPosZ,peaksResoLat,gridX,gridZ,'linear');
-% resoAxi = griddata(peaksPosX,peaksPosZ,peaksResoAxi,gridX,gridZ,'linear');
-% amplitude = griddata(peaksPosX,peaksPosZ,peaksAmpl,gridX,gridZ,'linear');
+resoAxi = griddata(peaksPosX,peaksPosZ,peaksResoAxi,gridX,gridZ,'linear');
+amplitude = griddata(peaksPosX,peaksPosZ,peaksAmpl,gridX,gridZ,'linear');
 
 % resoLat = fillmissing(resoLat,'nearest');
 % resoAxi = fillmissing(resoAxi,'nearest');
@@ -183,10 +183,20 @@ set(gcf,'Position',[100,100,800,450])
     [Cminor, hminor] = contour(xreal,zreal,resoLatBlur, contoursLatMinor, 'LineWidth', 1, 'LineStyle', ':');
     hold off
     colormap(gray)
+    axis image
     xlim([-8.3,8.3])
     ylim([0.8,12.3])
-    clabel(Cmajor,hmajor, 'labelspacing', 500);
+    xticks(-8:4:8)
+    clabel(Cmajor,hmajor,'labelspacing',450);
+    clabel(Cmajor,hmajor,'FontSize',20)
+    clabel(Cmajor,hmajor,'FontName','Times New Roman')
 %     clabel(Cmajor,'manual')
+
+set(gca,'FontSize',20)
+set(gca,'FontName','Times New Roman')
+xlabel('y [mm]')
+ylabel('z [mm]')
+title('c0 = 1489, t0 = -14')
     
 % contoursAxi = 30:5:45;
 % figure
