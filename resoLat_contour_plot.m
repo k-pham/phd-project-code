@@ -48,7 +48,7 @@ resoLat = fillmissing(resoLat,'nearest');
 resoLatBlur = imgaussfilt(resoLat,15);
 % resoAxiBlur = imgaussfilt(resoAxi,15);
 
-contoursLat = [50:2:60,60:5:120,120:10:200,200:20:500];
+contoursLat = [40:2:60,60:5:120,120:10:200,200:20:500];
 fig_contour = figure;
 set(gcf,'Position',[100,100,800,450])
 [C, h]= contour(xreal, zreal, resoLatBlur, contoursLat, 'LineWidth', 2);
