@@ -87,7 +87,7 @@ imagesc(dist_lims, t0_sample, c0_minnorms)
 file_dir = 'D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\';
 file_dir = [file_dir 'x-05 c0_var t0_var gauss_offset\'];
 
-c0_sample = 1486:1:1492;
+c0_sample = 1488:1:1490;
 t0 = -14;
     
 xreal = -11:0.1:11;
