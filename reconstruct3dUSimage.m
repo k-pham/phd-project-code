@@ -7,7 +7,8 @@ num_req_input_variables = 3;
 zero_pad_sides = 0;
 toUpsample = false;
 toApodise = false;
-freqfilter_params = {};
+freqbandfilter_params = {};
+freqlowfilter_params = {};
 tgc_params = {};
 toEnvelopeDetect = false;
 compression_ratio = 0;
@@ -27,10 +28,16 @@ elseif ~isempty(varargin)
             case 'Apodise'
                 toApodise = varargin{input_index + 1};
             case 'FreqBandFilter'
-                freqfilter_params = varargin{input_index + 1};
-                assert(iscell(freqfilter_params),'Need cell array {centre_freq(Hz) bandwidth(Hz)}.')
-                if ~isempty(freqfilter_params)
-                    assert(length(freqfilter_params)==2,'Need cell array of length 2.')
+                freqbandfilter_params = varargin{input_index + 1};
+                assert(iscell(freqbandfilter_params),'Need cell array {centre_freq(Hz) bandwidth(Hz)}.')
+                if ~isempty(freqbandfilter_params)
+                    assert(length(freqbandfilter_params)==2,'Need cell array of length 2.')
+                end
+            case 'FreqLowFilter'
+                freqlowfilter_params = varargin{input_index + 1};
+                assert(iscell(freqlowfilter_params),'Need cell array {cutoff_freq(Hz)}.')
+                if ~isempty(freqlowfilter_params)
+                    assert(length(freqlowfilter_params)==1,'Need cell array of length 1.')
                 end
             case 'TimeGainCompensate'
                 tgc_params = varargin{input_index + 1};
@@ -101,8 +108,11 @@ if toApodise
 end
 
 % frequency band filtering data (to use for frequency compounding)
-if ~isempty(freqfilter_params)
-    sensor_data = freq_filtering(sensor_data, freqfilter_params);
+if ~isempty(freqbandfilter_params)
+    sensor_data = freq_filtering(sensor_data, freqbandfilter_params);
+end
+if ~isempty(freqlowfilter_params)
+    sensor_data = freq_filtering_butter(sensor_data, freqlowfilter_params);
 end
 
 
@@ -146,7 +156,8 @@ end
 %% saving image data to .mat
 
 if toSaveImage
-    savingImageToMat(reflection_image, params.file_data, dt*c0, freqfilter_params)     % omit factor 1/2 in dz because of doubled depth bug
+    savingImageToMat(reflection_image, params.file_data, dt*c0, ...     % omit factor 1/2 in dz because of doubled depth bug
+                        freqbandfilter_params, freqlowfilter_params)
 end
 
 
@@ -308,7 +319,7 @@ function sensor_data_filtered = freq_filtering(sensor_data, freqfilter_params)
 
     global Nx dt
     
-    disp('Frequency bandpass filtering ...'),
+    disp('Frequency bandpass filtering (gaussian) ...'),
     tic
     
     [centre_freq, bandwidth] = freqfilter_params{:};
@@ -324,8 +335,31 @@ function sensor_data_filtered = freq_filtering(sensor_data, freqfilter_params)
 end
 
 
+%% frequency bandpass filtering data (for frequency compounding)
+function sensor_data_filtered = freq_filtering_butter(sensor_data, freqfilter_params)
+
+    global Nx Ny dt
+    
+    disp('Frequency lowpass filtering (butterworth) ...'),
+    tic
+    
+    freq_cutoff = freqfilter_params{:};
+    [b,a] = butter(6,freq_cutoff*2*dt,'low');
+    sensor_data_filtered = zeros(size(sensor_data));
+    
+    for i = 1:Nx
+        for j = 1:Ny
+            sensor_data_filtered(i,j,:) = filter(b,a,sensor_data(i,j,:));
+        end
+    end
+    
+    disp(['  completed in ' scaleTime(toc)]);
+
+end
+
+
 %% saving image data to .mat (for sliceViewer)
-function savingImageToMat(reflection_image, file_data, dz, freqfilter_params)
+function savingImageToMat(reflection_image, file_data, dz, freqbandfilter_params, freqlowfilter_params)
 
     global Nx Ny kgrid
     
@@ -338,11 +372,22 @@ function savingImageToMat(reflection_image, file_data, dz, freqfilter_params)
 
     phantom_id = strtok(file_data,'@'); % parse string up to specified delimiter
     phantom_id = phantom_id(8:end);     % remove date folder from string
-    [centre_freq, bandwidth] = freqfilter_params{:};
-    file_image = ['recon_data\' phantom_id ...
-                    '_f' num2str(centre_freq/1e6) ... % incl freq filtering info ...
-                    '_bw' num2str(bandwidth/1e6) ...  % in image file name
-                    '.mat'];
+    
+    if(~isempty(freqbandfilter_params))
+        [centre_freq, bandwidth] = freqbandfilter_params{:};
+        phantom_id = [phantom_id ...
+                        '_f' num2str(centre_freq/1e6) ...
+                        '_bw' num2str(bandwidth/1e6) ...
+                     ];
+    end
+    if(~isempty(freqlowfilter_params))
+        cutoff_freq = freqlowfilter_params{:};
+        phantom_id = [phantom_id ...
+                        '_fc' num2str(cutoff_freq/1e6) ...
+                     ];
+    end
+        
+    file_image = ['recon_data\' phantom_id '.mat'];
     
     save(file_image,'volume_data','volume_spacing','-v7.3')
     
