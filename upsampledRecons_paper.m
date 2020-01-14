@@ -11,8 +11,8 @@ file_dir = '..\data\imagingUS\';
 %     c0 = 1484;
 
 % 180626 polymerLeaf curved     WRONG FILE CHECK AGAIN
-    file_name = '180626\polymerLeaf_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_39s38m19h_26-06-18_avg1_2D_raw.SGL';
-    trigger_delay = 4.5e-6;
+    file_name = '180626\polymerLeaf2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_51s28m20h_26-06-18_avg1_2D_raw.SGL';
+    trigger_delay = 4e-6;
     samples_cut_off = 0;
     samples_t0_correct = -6;
     c0 = 1484;
