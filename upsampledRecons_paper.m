@@ -11,20 +11,20 @@ file_dir = '..\data\imagingUS\';
 %     c0 = 1484;
 
 % 180626 polymerLeaf curved     WRONG FILE CHECK AGAIN
-    file_name = '180626\polymerLeaf2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_51s28m20h_26-06-18_avg1_2D_raw.SGL';
-    trigger_delay = 4e-6;
-    samples_cut_off = 0;
-    samples_t0_correct = -6;
-    c0 = 1484;
+%     file_name = '180626\polymerLeaf2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_51s28m20h_26-06-18_avg1_2D_raw.SGL';
+%     trigger_delay = 4e-6;
+%     samples_cut_off = 0;
+%     samples_t0_correct = -6;
+%     c0 = 1484;
 
 % 180629 gel wax tmm
-%     file_name = '180629\gelwaxLayers_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_39s51m16h_29-06-18_avg1_2D_raw.SGL';
-%     trigger_delay = 0;
-%     samples_cut_off = 10;
-%     samples_t0_correct = -6;
-%     c0 = 1470;
-%         % clinical scanner:
-%         file_name_cli = '180629\clinical scanner\29-06-2018_17-41-25 DICOM +2 higher gain\17-38-33.dcm';
+    file_name = '180629\gelwaxLayers_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_39s51m16h_29-06-18_avg1_2D_raw.SGL';
+    trigger_delay = 0;
+    samples_cut_off = 10;
+    samples_t0_correct = -6;
+    c0 = 1470;
+        % clinical scanner:
+        file_name_cli = '180629\clinical scanner\29-06-2018_17-41-25 DICOM +2 higher gain\17-38-33.dcm';
 
 % 181204 atmm orgasol 1
 %     file_name = '181204/atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
@@ -77,7 +77,7 @@ imagesc(squeeze(sensor_data(40,:,:))')
 
 pause
 
-sensor_data = sensor_data(:,:,1:1000);
+% sensor_data = sensor_data(:,:,1:1000);
 
 
 %% look at frequency content of data
