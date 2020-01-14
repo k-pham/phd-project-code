@@ -10,12 +10,12 @@ file_dir = '..\data\imagingUS\';
 %     samples_t0_correct = -6;
 %     c0 = 1484;
 
-% 180626 polymerLeaf curved
-%     file_name = '180626\polymerLeaf_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_39s38m19h_26-06-18_avg1_2D_raw.SGL';
-%     trigger_delay = 4.5e-6;
-%     samples_cut_off = 0;
-%     samples_t0_correct = -6;
-%     c0 = 1484;
+% 180626 polymerLeaf curved     WRONG FILE CHECK AGAIN
+    file_name = '180626\polymerLeaf_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_39s38m19h_26-06-18_avg1_2D_raw.SGL';
+    trigger_delay = 4.5e-6;
+    samples_cut_off = 0;
+    samples_t0_correct = -6;
+    c0 = 1484;
 
 % 180629 gel wax tmm
 %     file_name = '180629\gelwaxLayers_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_39s51m16h_29-06-18_avg1_2D_raw.SGL';
@@ -34,11 +34,11 @@ file_dir = '..\data\imagingUS\';
 %     c0 = 1544;
 
 % 180828 pork belly 3
-    file_name = '180828\porkBelly3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[20ns]_26s20m19h_28-08-18_avg1_2D_raw.SGL';
-    trigger_delay = 0;
-    samples_cut_off = 10;
-    samples_t0_correct = -4;
-    c0 = 1460;
+%     file_name = '180828\porkBelly3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[20ns]_26s20m19h_28-08-18_avg1_2D_raw.SGL';
+%     trigger_delay = 0;
+%     samples_cut_off = 10;
+%     samples_t0_correct = -4;
+%     c0 = 1460;
 
 % 190114 lymph node (L3)
 %     file_name = '190114/lymphNode2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_13s51m16h_14-01-19_avg1_2D_raw.SGL';
@@ -49,6 +49,8 @@ file_dir = '..\data\imagingUS\';
 
 
 %% load sensor data
+
+disp(['Loading: ' file_name])
 
 [sensor_data, params] = loadSGL([file_dir file_name]);
 % sensor_data = - sensor_data;            % flip for trolley scanner
@@ -73,7 +75,36 @@ imagesc(squeeze(sensor_data(40,:,:))')
     ylabel('time [dt]')
     drawnow
 
-% pause
+pause
+
+sensor_data = sensor_data(:,:,1:1000);
+
+
+%% look at frequency content of data
+
+% [frequency, f_series_avg] = freqSpecSGLavg(sensor_data,1/params.dt);
+% 
+% f_series_avg = zeros(1,params.Nt);
+% 
+% figure
+%     hold on
+%     title('single frequency spectrum')
+%     xlabel('frequency / MHz')
+%     ylabel('signal amplitude / V')
+%         
+% for slice_x = 1:params.Nx
+%     for slice_y = 1:params.Ny
+%         t_series = squeeze(sensor_data(slice_x,slice_y,:));
+%         [frequency, f_series] = spect(t_series,1/params.dt); %,'Window','Cosine');
+%         f_series_avg = f_series_avg + f_series;
+%         
+%         semilogy(frequency/1e6, f_series/max(f_series))
+%         drawnow
+% 
+%     end
+% end
+% 
+% f_series_avg = f_series_avg / (Nx*Ny);
 
 
 %% run reconstruction
@@ -84,7 +115,8 @@ disp(['Reconstructing: ' file_name])
                             'ZeroPad', 10, ...
                             'Upsample', true, ...
                             'Apodise', false, ...
-                            'FreqBandFilter', {10e6,15e6}, ...
+                            'FreqBandFilter', {}, ...
+                            'FreqLowFilter', {30e6}, ...
                             'TimeGainCompensate', {}, ...
                             'EnvelopeDetect', true, ...
                             'LogCompress', 0, ...
