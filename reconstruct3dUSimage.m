@@ -335,7 +335,7 @@ function sensor_data_filtered = freq_filtering(sensor_data, freqfilter_params)
 end
 
 
-%% frequency bandpass filtering data (for frequency compounding)
+%% frequency lowpass filtering data
 function sensor_data_filtered = freq_filtering_butter(sensor_data, freqfilter_params)
 
     global Nx Ny dt
