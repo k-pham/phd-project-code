@@ -87,7 +87,7 @@ for idx_layer = 1:num_layers
         num_sensors = sum(sensor.mask(:));
 
 
-        %% SIMULATE UP EXPERIMENT
+        %% SIMULATE EXPERIMENT
 
         inputs = {'PMLSize', pml_size, 'PlotLayout', true, 'PlotSim', true};
         sensor_data = kspaceFirstOrder2D(kgrid, medium, source, sensor, inputs{:});
