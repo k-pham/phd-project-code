@@ -2,7 +2,7 @@
 
 clearvars;
 
-file_dir = 'D:\PROJECT\data\simulations\freqconsi\broadVShighFreq_1D\';
+file_dir = 'D:\PROJECT\data\simulations\freqconsi\slowImpChange_1D\';
 
 
 %% SET UP EXPERIMENT
