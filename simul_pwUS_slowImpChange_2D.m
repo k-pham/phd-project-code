@@ -22,14 +22,12 @@ c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
 
 % define imaging target
-% blob_radius = 50;
-% blob_x = round(Nx/2);
-% blob_y = round(Ny/2);
-% blob = makeDisc(Nx, Ny, blob_x, blob_y, blob_radius);
-% blob_c = repmat(linspace(1500,1700,Ny),Nx,1);
-% blob_rho = repmat(linspace(1200,1600,Ny),Nx,1);
-
-
+blob_radius = 50;
+blob_x = round(Nx/2);
+blob_y = round(Ny/2);
+blob = makeDisc(Nx, Ny, blob_x, blob_y, blob_radius);
+blob_c = repmat(linspace(1500,1700,Ny),Nx,1);
+blob_rho = repmat(linspace(1200,1600,Ny),Nx,1);
 
 % define sound speed and density of medium
 medium.sound_speed = c0 * ones(Nx, Ny);          % sound speed [m/s]
