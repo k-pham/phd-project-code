@@ -1,4 +1,5 @@
 % Pulse-echo plane-wave US imaging - scattering TMM with holes (simulate agarTMM)
+% simulate scattering as randomly heterogeneous medium
 
 clear all
 close all
