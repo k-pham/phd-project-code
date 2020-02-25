@@ -55,10 +55,13 @@ end
 c_hole      = 1500;
 rho_hole    = 1300;
 
-num_holes   = 4;
+% num_holes   = 4;
+num_holes   = 1;
 hole_radius = 50;
-hole_xs     = round((1:1:num_holes)*Nx/(num_holes+1));
-hole_ys     = round((1:1:num_holes)*Ny/(num_holes+1));
+% hole_xs     = round((1:1:num_holes)*Nx/(num_holes+1));
+% hole_ys     = round((1:1:num_holes)*Ny/(num_holes+1));
+hole_xs     = round(Nx/2);
+hole_ys     = round(Ny/4);
 holes = zeros(Nx,Ny);
 for i = 1:num_holes
     holes = holes + makeDisc(Nx,Ny,hole_xs(i),hole_ys(i),hole_radius);
@@ -94,7 +97,8 @@ imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,medium.density')
 
 % create time array
 cfl = 0.2;              % CFL number
-t_end = 2*Ny*dy/c0;     % end time of the simulation [s]
+% t_end = 2*Ny*dy/c0;     % end time of the simulation [s]
+t_end = 1.5*Ny*dy/c0;     % end time of the simulation [s]
 kgrid.makeTime(medium.sound_speed,cfl,t_end);
 
 % define source

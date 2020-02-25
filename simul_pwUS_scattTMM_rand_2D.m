@@ -29,10 +29,13 @@ c_rand    = (rand(Nx,Ny)-0.5) * c_range;
 rho_range = 100;
 rho_rand  = (rand(Nx,Ny)-0.5) * rho_range;
 
-num_holes   = 4;
+% num_holes   = 4;
+num_holes   = 1;
 hole_radius = 50;
-hole_xs     = round((1:1:num_holes)*Nx/(num_holes+1));
-hole_ys     = round((1:1:num_holes)*Ny/(num_holes+1));
+% hole_xs     = round((1:1:num_holes)*Nx/(num_holes+1));
+% hole_ys     = round((1:1:num_holes)*Ny/(num_holes+1));
+hole_xs     = round(Nx/2);
+hole_ys     = round(Ny/4);
 holes = zeros(Nx,Ny);
 for i = 1:num_holes
     holes = holes + makeDisc(Nx,Ny,hole_xs(i),hole_ys(i),hole_radius);
@@ -45,9 +48,28 @@ medium.density     = rho0 * ones(Nx, Ny) + rho_rand;
 medium.sound_speed(holes==1) = c0;
 medium.density(holes==1) = rho0;
 
+% plot medium sound speed and density
+figure
+set(gcf,'Position',[200,200,500,700])
+subplot(2,1,1)
+imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,medium.sound_speed')
+    axis image
+    title('sound speed')
+    xlabel('x position / mm')
+    ylabel('y position / mm')
+    colorbar
+subplot(2,1,2)
+imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,medium.density')
+    axis image
+    title('density')
+    xlabel('x position / mm')
+    ylabel('y position / mm')
+    colorbar
+
 % create time array
 cfl = 0.2;              % CFL number
-t_end = 2*Ny*dy/c0;     % end time of the simulation [s]
+% t_end = 2*Ny*dy/c0;     % end time of the simulation [s]
+t_end = 1.5*Ny*dy/c0;     % end time of the simulation [s]
 kgrid.makeTime(medium.sound_speed,cfl,t_end);
 
 % define source
@@ -72,10 +94,10 @@ num_sensors = sum(sensor.mask(:));
 inputs = {'PMLSize', pml_size, 'PlotLayout', true, 'PlotSim', true};
 sensor_data = kspaceFirstOrder2DC(kgrid, medium, source, sensor, inputs{:});
 
-save([file_dir 'sensor_data'], 'sensor_data')
+% save([file_dir 'sensor_data'], 'sensor_data')
 
 figure
-imagesc(kgrid.x_vec*1e3,kgrid.t_array*1e6,sensor_data')
+imagesc(kgrid.x_vec*1e3,kgrid.t_array(50:end)*1e6,sensor_data(:,50:end)')
 xlabel('x position / mm')
 ylabel('time / \mus')
 
