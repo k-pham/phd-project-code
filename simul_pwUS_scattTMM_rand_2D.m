@@ -32,6 +32,7 @@ rho_rand  = (rand(Nx,Ny)-0.5) * rho_range;
 % define non-scattering holes
 c_hole   = 1500;
 rho_hole = 1300;
+
 % num_holes   = 4;
 num_holes   = 1;
 hole_radius = 50;
