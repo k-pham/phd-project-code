@@ -23,12 +23,15 @@ pml_size = 20;
 c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
 
-% define scattering medium and non-scattering holes
+% define scattering medium
 c_range   = 0;
-c_rand    = (rand(Nx,Ny)-0.5) * c_range;
 rho_range = 100;
+c_rand    = (rand(Nx,Ny)-0.5) * c_range;
 rho_rand  = (rand(Nx,Ny)-0.5) * rho_range;
 
+% define non-scattering holes
+c_hole   = 1500;
+rho_hole = 1300;
 % num_holes   = 4;
 num_holes   = 1;
 hole_radius = 50;
@@ -45,8 +48,8 @@ end
 medium.sound_speed = c0   * ones(Nx, Ny) + c_rand;
 medium.density     = rho0 * ones(Nx, Ny) + rho_rand;
 
-medium.sound_speed(holes==1) = c0;
-medium.density(holes==1) = rho0;
+medium.sound_speed(holes==1) = c_hole;
+medium.density(holes==1)     = rho_hole;
 
 % plot medium sound speed and density
 figure
