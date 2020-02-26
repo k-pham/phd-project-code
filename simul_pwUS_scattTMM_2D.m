@@ -26,9 +26,12 @@ pml_size = 20;
 c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
 
+% choose option to represent scattering medium as
+scattering = 'random';      % options: 'random', 'point scatterers'
+
 % define scattering medium as random medium
 c_range   = 0;
-rho_range = 100;
+rho_range = 0;
 
 % define scattering medium as point scatterers
 c_pointscatt   = 1550;
@@ -40,8 +43,12 @@ rho_pointscatt = 1100;
 c_hole      = 1500;
 rho_hole    = 1300;
 
-% medium = define_random_medium(Nx,Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole);
-medium = define_pointscatt_medium(Nx,Ny,c0,rho0,c_pointscatt,rho_pointscatt,dx,dy,num_points_per_voxel,vox_size,c_hole,rho_hole);
+switch scattering
+    case 'random'
+        medium = define_random_medium(Nx,Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole);
+    case 'point scatterers'
+        medium = define_pointscatt_medium(Nx,Ny,c0,rho0,c_pointscatt,rho_pointscatt,dx,dy,num_points_per_voxel,vox_size,c_hole,rho_hole);
+end
 
 % plot medium sound speed and density
 figure
@@ -72,8 +79,8 @@ kgrid.makeTime(medium.sound_speed,cfl,t_end);
 
 %% SOURCE
 
-source_width = 0.4;
-source_amplitude = 10;
+source_width = 0.4;         % proportion of width Nx
+source_amplitude = 10;      % [Pa}
 
 source.p_mask = zeros(Nx, Ny);
 source.p_mask(:, pml_size + 1) = 1;
