@@ -27,11 +27,11 @@ c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
 
 % choose option to represent scattering medium as
-scattering = 'random';      % options: 'random', 'point scatterers'
+scattering_type = 'random';      % options: 'random', 'point scatterers'
 
 % define scattering medium as random medium
 c_range   = 0;
-rho_range = 0;
+rho_range = 100;
 
 % define scattering medium as point scatterers
 c_pointscatt   = 1550;
@@ -41,9 +41,9 @@ rho_pointscatt = 1100;
 
 % define non-scattering holes
 c_hole      = 1500;
-rho_hole    = 1300;
+rho_hole    = 1100;
 
-switch scattering
+switch scattering_type
     case 'random'
         medium = define_random_medium(Nx,Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole);
     case 'point scatterers'
@@ -51,7 +51,7 @@ switch scattering
 end
 
 % plot medium sound speed and density
-figure
+fig_medium = figure;
 set(gcf,'Position',[200,200,500,700])
 subplot(2,1,1)
 imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,medium.sound_speed')
@@ -108,6 +108,11 @@ sensor_data = kspaceFirstOrder2DC(kgrid, medium, source, sensor, inputs{:});
 % save([file_dir 'sensor_data'], 'sensor_data')
 
 figure
+imagesc(sensor_data(:,1:50)')
+    xlabel('x position / dx')
+    ylabel('time / dt')
+    
+fig_data = figure;
 imagesc(kgrid.x_vec*1e3,kgrid.t_array(50:end)*1e6,sensor_data(:,50:end)')
     xlabel('x position / mm')
     ylabel('time / \mus')
@@ -128,12 +133,36 @@ params.file_data            = '111111\scattTMM_simul';
 
 reflection_image = reconstruct2dUSimage(sensor_data, params, c0);
 
-fig_img = figure;
+fig_image = figure;
 imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,reflection_image')
     axis image
     xlabel('x position / mm')
     ylabel('y position / mm')
 
+
+%% save figures
+
+file_name = ['..\figures\_Matlab figs\simulations\scattTMM\' scattering_type ];
+switch scattering_type
+    case 'random'
+        file_name = [file_name ...
+                     '_c_scatt'   num2str(c0-c_range/2)     '-' num2str(c0+c_range/2) ...
+                     '_rho_scatt' num2str(rho0-rho_range/2) '-' num2str(rho0+rho_range/2) ];
+    case 'point scatterers'
+        file_name = [file_name ...
+                     '_c_scatt'   num2str(c_pointscatt) ...
+                     '_rho_scatt' num2str(rho_pointscatt) ];
+end
+file_name = [file_name ...
+             '_c_hole'   num2str(c_hole) ...
+             '_rho_hole' num2str(rho_hole) ];
+
+saveas(fig_medium,[file_name '_medium.fig'])
+saveas(fig_medium,[file_name '_medium.jpg'])
+saveas(fig_data,  [file_name '_data.fig'])
+saveas(fig_data,  [file_name '_data.jpg'])
+saveas(fig_image, [file_name '_image.fig'])
+saveas(fig_image, [file_name '_image.jpg'])
 
 
 %% FUNCTIONS
