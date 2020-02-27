@@ -1,10 +1,17 @@
 % Pulse-echo plane-wave US imaging - scattering TMM with holes (simulate agarTMM)
 % combine _rand and _points scripts into one
 
-clear all
+%% loops for parameter search
+
+for c_range = 0:10:150
+for rho_range = 0:10:100
+%% SET UP
+
+% clear all
 close all
 
-file_dir = 'D:\PROJECT\data\simulations\scattTMM\';
+file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\';
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
 
 
 %% SET UP EXPERIMENT
@@ -27,11 +34,11 @@ c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
 
 % choose option to represent scattering medium as
-scattering_type = 'random';      % options: 'random', 'point scatterers'
+scattering_type = 'random';      % options: 'random', 'points'
 
 % define scattering medium as random medium
-c_range   = 0;
-rho_range = 0;
+% c_range   = 0;
+% rho_range = 0;
 
 % define scattering medium as point scatterers
 c_pointscatt   = 1550;
@@ -41,13 +48,17 @@ rho_pointscatt = 1100;
 
 % define non-scattering holes
 c_hole      = 1500;
-rho_hole    = 1100;
+rho_hole    = 1300;
 
 switch scattering_type
     case 'random'
         medium = define_random_medium(Nx,Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole);
-    case 'point scatterers'
+        c_scatt = c_range;
+        rho_scatt = rho_range;
+    case 'points'
         medium = define_pointscatt_medium(Nx,Ny,c0,rho0,c_pointscatt,rho_pointscatt,dx,dy,num_points_per_voxel,vox_size,c_hole,rho_hole);
+        c_scatt = c_pointscatt;
+        rho_scatt = rho_pointscatt;
 end
 
 % plot medium sound speed and density
@@ -56,14 +67,14 @@ set(gcf,'Position',[200,200,500,700])
 subplot(2,1,1)
 imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,medium.sound_speed')
     axis image
-    title('sound speed')
+    title(['sound speed: ' scattering_type num2str(c_scatt)])
     xlabel('x position / mm')
     ylabel('y position / mm')
     colorbar
 subplot(2,1,2)
 imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,medium.density')
     axis image
-    title('density')
+    title(['density: ' scattering_type num2str(rho_scatt)])
     xlabel('x position / mm')
     ylabel('y position / mm')
     colorbar
@@ -105,15 +116,14 @@ num_sensors = sum(sensor.mask(:));
 inputs = {'PMLSize', pml_size, 'PlotLayout', true, 'PlotSim', true};
 sensor_data = kspaceFirstOrder2DC(kgrid, medium, source, sensor, inputs{:});
 
-% save([file_dir 'sensor_data'], 'sensor_data')
-
-figure
-imagesc(sensor_data(:,1:50)')
-    xlabel('x position / dx')
-    ylabel('time / dt')
+% figure
+% imagesc(sensor_data(:,1:50)')
+%     xlabel('x position / dx')
+%     ylabel('time / dt')
 
 fig_data = figure;
 imagesc(kgrid.x_vec*1e3,kgrid.t_array(50:end)*1e6,sensor_data(:,50:end)')
+    title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
     xlabel('x position / mm')
     ylabel('time / \mus')
 
@@ -136,34 +146,28 @@ reflection_image = reconstruct2dUSimage(sensor_data, params, c0);
 fig_image = figure;
 imagesc(kgrid.x_vec*1e3,kgrid.t_array*c0/2*1e3,reflection_image')
     axis image
+    title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
     xlabel('x position / mm')
     ylabel('y position / mm')
 
 
-%% SAVE FIGURES
+%% SAVE FIGURES & DATA
 
-file_name = ['..\figures\_Matlab figs\simulations\scattTMM\' scattering_type ];
-switch scattering_type
-    case 'random'
-        file_name = [file_name ...
-                     '_c_scatt'   num2str(c0-c_range/2)     '-' num2str(c0+c_range/2) ...
-                     '_rho_scatt' num2str(rho0-rho_range/2) '-' num2str(rho0+rho_range/2) ];
-    case 'point scatterers'
-        file_name = [file_name ...
-                     '_c_scatt'   num2str(c_pointscatt) ...
-                     '_rho_scatt' num2str(rho_pointscatt) ];
+file_name = [scattering_type '_SCATT_c' num2str(c_scatt) '_rho' num2str(rho_scatt) ...
+                             '_HOLE_c' num2str(c_hole) '_rho' num2str(rho_hole) ];
+
+saveas(fig_medium,[file_dir_figs file_name '_medium.fig'])
+saveas(fig_medium,[file_dir_figs file_name '_medium.jpg'])
+saveas(fig_data,  [file_dir_figs file_name '_data.fig'])
+saveas(fig_data,  [file_dir_figs file_name '_data.jpg'])
+saveas(fig_image, [file_dir_figs file_name '_image.fig'])
+saveas(fig_image, [file_dir_figs file_name '_image.jpg'])
+
+save([file_dir_data file_name '_sensor_data'], 'sensor_data')
+
+%% end of loops for parameter search
 end
-file_name = [file_name ...
-             '_c_hole'   num2str(c_hole) ...
-             '_rho_hole' num2str(rho_hole) ];
-
-saveas(fig_medium,[file_name '_medium.fig'])
-saveas(fig_medium,[file_name '_medium.jpg'])
-saveas(fig_data,  [file_name '_data.fig'])
-saveas(fig_data,  [file_name '_data.jpg'])
-saveas(fig_image, [file_name '_image.fig'])
-saveas(fig_image, [file_name '_image.jpg'])
-
+end
 
 %% FUNCTIONS
 
