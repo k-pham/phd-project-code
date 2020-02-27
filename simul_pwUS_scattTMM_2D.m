@@ -31,7 +31,7 @@ scattering_type = 'random';      % options: 'random', 'point scatterers'
 
 % define scattering medium as random medium
 c_range   = 0;
-rho_range = 100;
+rho_range = 0;
 
 % define scattering medium as point scatterers
 c_pointscatt   = 1550;
@@ -111,7 +111,7 @@ figure
 imagesc(sensor_data(:,1:50)')
     xlabel('x position / dx')
     ylabel('time / dt')
-    
+
 fig_data = figure;
 imagesc(kgrid.x_vec*1e3,kgrid.t_array(50:end)*1e6,sensor_data(:,50:end)')
     xlabel('x position / mm')
@@ -128,19 +128,19 @@ params.dt = kgrid.dt;
 
 params.trigger_delay        = 0;
 params.Nt_zero_pad_source   = 50;
-params.Nt_t0_correct        = -17;
+params.Nt_t0_correct        = -16;
 params.file_data            = '111111\scattTMM_simul';
 
 reflection_image = reconstruct2dUSimage(sensor_data, params, c0);
 
 fig_image = figure;
-imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,reflection_image')
+imagesc(kgrid.x_vec*1e3,kgrid.t_array*c0/2*1e3,reflection_image')
     axis image
     xlabel('x position / mm')
     ylabel('y position / mm')
 
 
-%% save figures
+%% SAVE FIGURES
 
 file_name = ['..\figures\_Matlab figs\simulations\scattTMM\' scattering_type ];
 switch scattering_type
