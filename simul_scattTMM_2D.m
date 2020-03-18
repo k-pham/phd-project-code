@@ -150,8 +150,13 @@ imagesc(kgrid.x_vec*1e3,kgrid.t_array*c0/2*1e3,reflection_image')
     xlabel('x position / mm')
     ylabel('y position / mm')
 
+% prepare for saving
+[Nx_image, Ny_image] = size(reflection_image);
+volume_data = reshape(reflection_image,Nx_image,1,Ny_image);
+volume_spacing = [params.dx/2, 1, params.dt*c0];           % omit factor 1/2 in dz because of doubled depth bug
 
-%% SAVE FIGURES & DATA
+
+%% SAVE FIGURES & SENSOR DATA & IMAGE DATA
 
 file_name = [scattering_type '_SCATT_c' num2str(c_scatt) '_rho' num2str(rho_scatt) ...
                              '_HOLE_c' num2str(c_hole) '_rho' num2str(rho_hole) ];
@@ -163,7 +168,10 @@ saveas(fig_data,  [file_dir_figs file_name '_data.jpg'])
 saveas(fig_image, [file_dir_figs file_name '_image.fig'])
 saveas(fig_image, [file_dir_figs file_name '_image.jpg'])
 
-save([file_dir_data file_name '_sensor_data'], 'sensor_data')
+save([file_dir_data file_name '_sensor_data'], 'sensor_data', 'params')
+
+save([file_dir_data file_name '_image_data.mat'],'volume_data','volume_spacing','-v7.3')
+
 
 %% end of loops for parameter search
 end
