@@ -1,9 +1,21 @@
-%% loading sensor data & preparing for reconstruction
+%% data file locations & params
 
-clear all %#ok<CLALL>
-run('USimagingPhantoms.m')
-
+% 181204 agar-based tissue mimicking phantom (atmm) with orgasol - BK31[CNT]
 phantom_id = 'atmm_orgasol1_BK31[CNT]';
+file_name = '181204/atmm_orgasol1_BK31[CNT]@0nm_t[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
+c0 = 1544;
+trigger_delay = 0;
+samples_cut_off = 50;
+samples_t0_correct = -6;
+
+
+%% frequency bands to compound
+
+bandwidths   = [1:1:3,4:2:10,15:5:40] *1e6;
+centre_freqs = (1:1:35) *1e6;
+
+
+%% load and prepare data
 
 [sensor_data, params] = loadSGL([file_dir file_name]);
 
@@ -13,9 +25,6 @@ params.Nt_t0_correct        = samples_t0_correct;
 params.file_data            = file_name;
 
 global Nx Ny Nt kgrid t_array %#ok<NUSED>
-
-bandwidths   = [1:1:3,4:2:10,15:5:40] *1e6;
-centre_freqs = (1:1:35) *1e6;
 
 
 %% generate lots of different reconstructions with varying freq filters
