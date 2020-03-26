@@ -3,20 +3,20 @@
 file_dir = '../data/imagingUS/';
 
 % 181204 atmm with orgasol
-%     phantom_id = 'atmm_orgasol1_BK31[CNT]';
-%     file_name = '181204/atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
-%     trigger_delay = 0;
-%     samples_cut_off = 50;
-%     samples_t0_correct = -6;
-%     c0 = 1544;
+    phantom_id = 'atmm_orgasol1_BK31[CNT]';
+    file_name = '181204/atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
+    trigger_delay = 0;
+    samples_cut_off = 50;
+    samples_t0_correct = -6;
+    c0 = 1544;
 
 % 180828 pork belly 3
-    phantom_id = 'porkBelly3_BK31[CNT]';
-    file_name = '180828\porkBelly3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[20ns]_26s20m19h_28-08-18_avg1_2D_raw.SGL';
-    trigger_delay = 0;
-    samples_cut_off = 10;
-    samples_t0_correct = -4;
-    c0 = 1460;
+%     phantom_id = 'porkBelly3_BK31[CNT]';
+%     file_name = '180828\porkBelly3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[20ns]_26s20m19h_28-08-18_avg1_2D_raw.SGL';
+%     trigger_delay = 0;
+%     samples_cut_off = 10;
+%     samples_t0_correct = -4;
+%     c0 = 1460;
 
 % 190114 lymph node (L3)
 %     phantom_id = 'lymphNode2_BK31[CNT]';
@@ -45,15 +45,10 @@ params.file_data            = file_name;
 global kgrid t_array %#ok<NUSED>
 
 
-%% set up compounding
-
-% Nx = 344; Ny = 342; Nt = 1497;
-% compound_image = zeros([Nx,Ny,Nt]);
-num_images_compounded = 0;
-
-
 %% generate lots of different reconstructions with varying freq filters
 % and save image in .mat and meanIP in .jpg/.fig
+
+num_images_compounded = 0;
 
 for bandwidth = bandwidths
     for centre_freq = centre_freqs
@@ -93,19 +88,75 @@ display_and_save_projection(compound_image,c0,2.15e6,bandwidth,phantom_id)
 %% save compound for sliceViewer
 
 tic
+disp('Saving compound image data')
+save_compound_image(compound_image,[kgrid.dx, kgrid.dy, params.dt*c0],phantom_id)
+disp(['  completed in ' scaleTime(toc)]);
 
-disp('saving compound image data')
 
-volume_data = compound_image; % reshape(compound_image,Nx,Ny,Nt);
-volume_spacing = [kgrid.dx, kgrid.dy, params.dt*c0];
+%% compound with weights
 
-file_path = ['recon_data\' phantom_id '_compound.mat'];
-save(file_path,'volume_data','volume_spacing','-v7.3')
+phantom_id = 'atmm_orgasol1_BK31[CNT]';
 
+bandwidths   = 10e6;
+centre_freqs = (2:1:15)*1e6;
+
+%linear weighting:
+weights = linspace(0.5,1.5,length(centre_freqs));
+assert(sum(weights)==length(centre_freqs));
+
+for bandwidth = bandwidths
+    for idx_f = 1:length(centre_freqs)
+        
+        centre_freq = centre_freqs(idx_f);
+        weight = weights(idx_f);
+        
+        tic
+        disp(['Loading and adding f = ' num2str(centre_freq/1e6) ' MHz ..'])
+        
+        % load frequency banded image
+        [reflection_image, voxel_size] = load_image(phantom_id, centre_freq, bandwidth);
+        % add image with weight
+        if ~exist('compound_image','var')
+            compound_image = weight * reflection_image;
+        else
+            compound_image = compound_image + weight * reflection_image;
+        end
+        
+        disp(['  completed in ' scaleTime(toc)])
+        
+    end
+end
+
+% save compound
+tic
+disp('Saving compound image data')
+save_compound_image(compound_image,voxel_size,[phantom_id '_weighted'])
 disp(['  completed in ' scaleTime(toc)]);
 
 
 %% local functions
+
+function [reflection_image, voxel_size] = load_image(phantom_id, centre_freq, bandwidth)
+
+    file_path = ['recon_data\' phantom_id ...
+         '_f' num2str(centre_freq/1e6) ...
+         '_bw' num2str(bandwidth/1e6) ...
+         '.mat'];
+    image_data = load(file_path);
+    reflection_image = image_data.volume_data;
+    voxel_size = image_data.volume_spacing;
+
+end
+
+function save_compound_image(volume_data, volume_spacing, phantom_id)
+
+    % volume_data = compound_image; % reshape(compound_image,Nx,Ny,Nt); - not needed?
+    % volume_spacing = voxel_size; % [kgrid.dx, kgrid.dy, dt*c0];
+
+    file_path = ['recon_data\' phantom_id '_compound.mat'];
+    save(file_path,'volume_data','volume_spacing','-v7.3')
+
+end
 
 function meanIP = get_mean_intensity_projection(reflection_image,xrange,yrange,zrange)
 
