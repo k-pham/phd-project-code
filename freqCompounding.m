@@ -3,20 +3,20 @@
 file_dir = '../data/imagingUS/';
 
 % 181204 atmm with orgasol
-    phantom_id = 'atmm_orgasol1_BK31[CNT]';
-    file_name = '181204/atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
-    trigger_delay = 0;
-    samples_cut_off = 50;
-    samples_t0_correct = -6;
-    c0 = 1544;
+%     phantom_id = 'atmm_orgasol1_BK31[CNT]';
+%     file_name = '181204/atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
+%     trigger_delay = 0;
+%     samples_cut_off = 50;
+%     samples_t0_correct = -6;
+%     c0 = 1544;
 
 % 180828 pork belly 3
-%     phantom_id = 'porkBelly3_BK31[CNT]';
-%     file_name = '180828\porkBelly3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[20ns]_26s20m19h_28-08-18_avg1_2D_raw.SGL';
-%     trigger_delay = 0;
-%     samples_cut_off = 10;
-%     samples_t0_correct = -4;
-%     c0 = 1460;
+    phantom_id = 'porkBelly3_BK31[CNT]';
+    file_name = '180828\porkBelly3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[20ns]_26s20m19h_28-08-18_avg1_2D_raw.SGL';
+    trigger_delay = 0;
+    samples_cut_off = 10;
+    samples_t0_correct = -4;
+    c0 = 1460;
 
 % 190114 lymph node (L3)
 %     phantom_id = 'lymphNode2_BK31[CNT]';
@@ -72,7 +72,7 @@ for bandwidth = bandwidths
                                     'SaveImageToFile', true ...
                                 );
                             
-        display_and_save_meanIP(reflection_image, c0, centre_freq, bandwidth, phantom_id)
+        display_and_save_projection(reflection_image, c0, centre_freq, bandwidth, phantom_id)
         
         % add to compound or create new if first image
         if ~exist('compound_image','var')
@@ -87,7 +87,7 @@ end
 
 compound_image = compound_image / num_images_compounded;
 
-display_and_save_meanIP(compound_image,c0,2.15e6,bandwidth,phantom_id)
+display_and_save_projection(compound_image,c0,2.15e6,bandwidth,phantom_id)
 
 
 %% save compound for sliceViewer
@@ -118,7 +118,18 @@ function meanIP = get_mean_intensity_projection(reflection_image,xrange,yrange,z
 
 end
 
-function display_and_save_meanIP(reflection_image,c0,centre_freq,bandwidth,phantom_id,varargin)
+function maxIP = get_max_intensity_projection(reflection_image,xrange,yrange,zrange)
+
+    global t_array
+    
+    maxIP = squeeze(max(reflection_image(xrange,yrange,zrange),[],2));
+    if length(t_array) > max(zrange)
+        t_array = t_array(zrange);
+    end
+
+end
+
+function display_and_save_projection(reflection_image,c0,centre_freq,bandwidth,phantom_id,varargin)
 % varargin to allow for optional specification of colour axis
 
     global kgrid t_array
@@ -128,27 +139,33 @@ function display_and_save_meanIP(reflection_image,c0,centre_freq,bandwidth,phant
             xrange = 10:210;
             yrange = 70:110;
             zrange = 105:753;
+            mIP = get_mean_intensity_projection(reflection_image,xrange,yrange,zrange);
         case 'porkBelly3_BK31[CNT]'
             xrange = 22:322;
             yrange = 145:185;
             zrange = 1:377;
+            mIP = get_mean_intensity_projection(reflection_image,xrange,yrange,zrange);
         case 'lymphNode2_BK31[CNT]'
             xrange = 22:322;
-            yrange = 21:321;
+            yrange = 160:200; % 5th slice % 21:321 % full volume;
             zrange = 30:360;
+            mIP = get_max_intensity_projection(reflection_image,xrange,yrange,zrange);
     end
-    
-    meanIP = get_mean_intensity_projection(reflection_image,xrange,yrange,zrange);
-    
+	
     figure
-    imagesc(kgrid.x_vec(xrange)*1e3,t_array*c0*1e3,meanIP')
+    imagesc(kgrid.x_vec(xrange)*1e3,t_array*c0*1e3,mIP')
         axis image
         colormap(gray)
         if ~isempty(varargin)
             caxis(varargin{1})
         end
-        brighten(0.4)
-        title(['z-x MeanIP 2 mm slice: f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6)])
+        brighten(0.3)
+        switch phantom_id
+            case 'lymphNode2_BK31[CNT]'
+                title(['z-x MaxIP 2 mm slice: f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6)])
+            otherwise
+                title(['z-x MeanIP 2 mm slice: f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6)])
+        end
         xlabel('x-position [mm]')
         ylabel('z-position [mm]')
         set(gca,'FontName','Arial')
