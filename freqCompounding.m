@@ -238,7 +238,11 @@ function save_compound_image(volume_data, volume_spacing, phantom_id)
 end
 
 function [compound_image, voxel_size] = compound_with_weights(phantom_id,centre_freqs,bandwidths,weights)
+% currently only supports weights for different centre_freqs not for
+% different bandwidths
 
+    num_images_compounded = 0;
+    
     for bandwidth = bandwidths
         for idx_f = 1:length(centre_freqs)
 
@@ -256,11 +260,14 @@ function [compound_image, voxel_size] = compound_with_weights(phantom_id,centre_
             else
                 compound_image = compound_image + weight * reflection_image;
             end
-
+            num_images_compounded = num_images_compounded + 1;
+            
             disp(['  completed in ' scaleTime(toc)])
 
         end
     end
+    
+    compound_image = compound_image / num_images_compounded;
 
 end
 
