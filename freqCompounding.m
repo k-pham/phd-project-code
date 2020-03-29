@@ -117,7 +117,6 @@ save_compound_image(compound_image,voxel_size,[phantom_id '_weighted_' weighting
     kgrid = kWaveGrid(Nx, dx, Ny, dy);
     t_array = linspace(1,Nt,Nt)*dt;
 display_and_save_projection(phantom_id, compound_image, c0, 'Brightness', 0.5, 'WeightingType', weighting_type)
-title(['z-x MeanIP 2 mm slice compound weighted ' weighting_type])
 
 
 %% LOCAL FUNCTIONS
@@ -222,8 +221,9 @@ function display_and_save_projection(phantom_id, reflection_image, c0, varargin)
         % title
         if centre_freq == 0 && bandwidth == 0
             title('z-x MeanIP 2 mm slice compound')
-        elseif exist('weighting_type','var')
-            title(['z-x MeanIP 2 mm slice compound weighted ' weighting_type])
+            if exist('weighting_type','var')
+                title(['z-x MeanIP 2 mm slice compound weighted ' weighting_type])
+            end
         else
             switch phantom_id
                 case 'lymphNode2_BK31[CNT]'
