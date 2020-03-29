@@ -67,7 +67,7 @@ for bandwidth = bandwidths
                                     'SaveImageToFile', true ...
                                 );
                             
-        display_and_save_projection(reflection_image, c0, centre_freq, bandwidth, phantom_id)
+        display_and_save_projection(phantom_id, reflection_image, c0, 'CentreFreq', centre_freq, 'Bandwidth', bandwidth)
         
         % add to compound or create new if first image
         if ~exist('compound_image','var')
@@ -82,7 +82,7 @@ end
 
 compound_image = compound_image / num_images_compounded;
 
-display_and_save_projection(compound_image,c0,2.15e6,bandwidth,phantom_id)
+display_and_save_projection(phantom_id,compound_image,c0)
 
 save_compound_image(compound_image,[kgrid.dx, kgrid.dy, params.dt*c0],phantom_id)
 
@@ -127,7 +127,7 @@ save_compound_image(compound_image,voxel_size,[phantom_id '_weighted'])
 
 
 
-%% local functions
+%% LOCAL FUNCTIONS
 
 function [reflection_image, voxel_size] = load_image(phantom_id, centre_freq, bandwidth)
 
@@ -138,21 +138,6 @@ function [reflection_image, voxel_size] = load_image(phantom_id, centre_freq, ba
     image_data = load(file_path);
     reflection_image = image_data.volume_data;
     voxel_size = image_data.volume_spacing;
-
-end
-
-function save_compound_image(volume_data, volume_spacing, phantom_id)
-
-    % volume_data = compound_image; % reshape(compound_image,Nx,Ny,Nt); - not needed?
-    % volume_spacing = voxel_size; % [kgrid.dx, kgrid.dy, dt*c0];
-
-    tic
-    disp('Saving compound image data ..')
-    
-    file_path = ['recon_data\' phantom_id '_compound.mat'];
-    save(file_path,'volume_data','volume_spacing','-v7.3')
-    
-    disp(['  completed in ' scaleTime(toc)]);
 
 end
 
@@ -178,11 +163,36 @@ function maxIP = get_max_intensity_projection(reflection_image,xrange,yrange,zra
 
 end
 
-function display_and_save_projection(reflection_image,c0,centre_freq,bandwidth,phantom_id,varargin)
-% varargin to allow for optional specification of colour axis
+function display_and_save_projection(phantom_id,reflection_image,c0,varargin)
+% varargin to allow for optional specification of colour axis.
+% compound images identified as (f,bw) = (0,0), saved as '_compound'
+% for any other images (f,bw) is specified in varargin
 
     global kgrid t_array
     
+    num_req_input_variables = 3;
+    centre_freq = 0;
+    bandwidth = 0;
+    
+    % check for optional inputs
+    if nargin < num_req_input_variables
+        error('Incorrect number of inputs.');
+    elseif ~isempty(varargin)
+        for input_index = 1:2:length(varargin)
+            switch varargin{input_index}
+                case 'CentreFreq'
+                    centre_freq = varargin{input_index+1};
+                case 'Bandwidth'
+                    bandwidth = varargin{input_index+1};
+                case 'Colormap'
+                    climits = varargin{input_index+1};
+                otherwise
+                    error('Unknown optional input.');
+            end
+        end
+    end
+    
+    % define limits for intensity projections
     switch phantom_id
         case 'atmm_orgasol1_BK31[CNT]'
             xrange = 10:210;
@@ -196,17 +206,18 @@ function display_and_save_projection(reflection_image,c0,centre_freq,bandwidth,p
             mIP = get_mean_intensity_projection(reflection_image,xrange,yrange,zrange);
         case 'lymphNode2_BK31[CNT]'
             xrange = 22:322;
-            yrange = 160:200; % 5th slice % 21:321 % full volume;
+            yrange = 160:200; % 5th slice % full volume = 21:321
             zrange = 30:360;
             mIP = get_max_intensity_projection(reflection_image,xrange,yrange,zrange);
     end
 	
+    % plot figure
     figure
     imagesc(kgrid.x_vec(xrange)*1e3,t_array*c0*1e3,mIP')
         axis image
         colormap(gray)
-        if ~isempty(varargin)
-            caxis(varargin{1})
+        if exist('climits','var')
+            caxis(climits)
         end
         brighten(0.3)
         switch phantom_id
@@ -219,12 +230,30 @@ function display_and_save_projection(reflection_image,c0,centre_freq,bandwidth,p
         ylabel('z-position [mm]')
         set(gca,'FontName','Arial')
         set(gca,'FontSize',12)
-
-    file_img = ['..\figures\_Matlab figs\freqCompounding\' phantom_id ...
-         '_f' num2str(centre_freq/1e6) ...
-         '_bw' num2str(bandwidth/1e6)   ];
+    
+	% save figure
+    file_img = ['..\figures\_Matlab figs\freqCompounding\' phantom_id];
+    if centre_freq == 0 && bandwidth == 0
+        file_img = [file_img '_compound'];
+    else
+        file_img = [file_img ...
+                     '_f' num2str(centre_freq/1e6) ...
+                     '_bw' num2str(bandwidth/1e6)   ];
+    end
     saveas(gcf,[file_img '.fig'])
     saveas(gcf,[file_img '.jpg'])
+
+end
+
+function save_compound_image(volume_data, volume_spacing, phantom_id)
+
+    tic
+    disp('Saving compound image data ..')
+    
+    file_path = ['recon_data\' phantom_id '_compound.mat'];
+    save(file_path,'volume_data','volume_spacing','-v7.3')
+    
+    disp(['  completed in ' scaleTime(toc)]);
 
 end
 
