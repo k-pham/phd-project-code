@@ -186,6 +186,8 @@ function display_and_save_projection(phantom_id,reflection_image,c0,varargin)
                     bandwidth = varargin{input_index+1};
                 case 'Colormap'
                     climits = varargin{input_index+1};
+                case 'Brightness'
+                    brightness = varargin{input_index+1};
                 otherwise
                     error('Unknown optional input.');
             end
@@ -219,7 +221,9 @@ function display_and_save_projection(phantom_id,reflection_image,c0,varargin)
         if exist('climits','var')
             caxis(climits)
         end
-        brighten(0.3)
+        if exist('brightness','var')
+            brighten(brightness)
+        end
         switch phantom_id
             case 'lymphNode2_BK31[CNT]'
                 title(['z-x MaxIP 2 mm slice: f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6)])
