@@ -219,11 +219,18 @@ function display_and_save_projection(phantom_id, reflection_image, c0, varargin)
         if exist('brightness','var')
             brighten(brightness)
         end
-        switch phantom_id
-            case 'lymphNode2_BK31[CNT]'
-                title(['z-x MaxIP 2 mm slice: f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6)])
-            otherwise
-                title(['z-x MeanIP 2 mm slice: f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6)])
+        % title
+        if centre_freq == 0 && bandwidth == 0
+            title('z-x MeanIP 2 mm slice compound')
+        elseif exist('weighting_type','var')
+            title(['z-x MeanIP 2 mm slice compound weighted ' weighting_type])
+        else
+            switch phantom_id
+                case 'lymphNode2_BK31[CNT]'
+                    title(['z-x MaxIP 2 mm slice: f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6)])
+                otherwise
+                    title(['z-x MeanIP 2 mm slice: f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6)])
+            end
         end
         xlabel('x-position [mm]')
         ylabel('z-position [mm]')
