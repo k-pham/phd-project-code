@@ -117,7 +117,7 @@ function [reflection_image, voxel_size] = load_image(phantom_id, centre_freq, ba
 
 end
 
-function meanIP = get_mean_intensity_projection(reflection_image,xrange,yrange,zrange)
+function meanIP = get_mean_intensity_projection(reflection_image, xrange, yrange, zrange)
 
     global t_array
     
@@ -128,7 +128,7 @@ function meanIP = get_mean_intensity_projection(reflection_image,xrange,yrange,z
 
 end
 
-function maxIP = get_max_intensity_projection(reflection_image,xrange,yrange,zrange)
+function maxIP = get_max_intensity_projection(reflection_image, xrange, yrange, zrange)
 
     global t_array
     
@@ -139,7 +139,7 @@ function maxIP = get_max_intensity_projection(reflection_image,xrange,yrange,zra
 
 end
 
-function display_and_save_projection(phantom_id,reflection_image,c0,varargin)
+function display_and_save_projection(phantom_id, reflection_image, c0, varargin)
 % varargin to allow for optional specification of colour axis.
 % compound images identified as (f,bw) = (0,0), saved as '_compound'
 % for any other images (f,bw) is specified in varargin
@@ -237,7 +237,7 @@ function save_compound_image(volume_data, volume_spacing, phantom_id)
 
 end
 
-function [compound_image, voxel_size] = compound_with_weights(phantom_id,centre_freqs,bandwidths,weights)
+function [compound_image, voxel_size] = compound_with_weights(phantom_id, centre_freqs, bandwidths, weights)
 % currently only supports weights for different centre_freqs not for
 % different bandwidths
 
