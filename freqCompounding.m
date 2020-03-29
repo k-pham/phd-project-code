@@ -116,7 +116,7 @@ save_compound_image(compound_image,voxel_size,[phantom_id '_weighted_' weighting
     dt = voxel_size(3)/c0;
     kgrid = kWaveGrid(Nx, dx, Ny, dy);
     t_array = linspace(1,Nt,Nt)*dt;
-display_and_save_projection(phantom_id, compound_image, c0, 'Brightness', 0.5)
+display_and_save_projection(phantom_id, compound_image, c0, 'Brightness', 0.5, 'WeightingType', weighting_type)
 title(['z-x MeanIP 2 mm slice compound weighted ' weighting_type])
 
 
@@ -181,6 +181,8 @@ function display_and_save_projection(phantom_id, reflection_image, c0, varargin)
                     climits = varargin{input_index+1};
                 case 'Brightness'
                     brightness = varargin{input_index+1};
+                case 'WeightingType'
+                    weighting_type = varargin{input_index+1};
                 otherwise
                     error('Unknown optional input.');
             end
@@ -231,6 +233,9 @@ function display_and_save_projection(phantom_id, reflection_image, c0, varargin)
 	% save figure
     file_img = ['..\figures\_Matlab figs\freqCompounding\' phantom_id];
     if centre_freq == 0 && bandwidth == 0
+        if exist('weighting_type','var')
+            file_img = [file_img '_weighted_' weighting_type];
+        end
         file_img = [file_img '_compound'];
     else
         file_img = [file_img ...
