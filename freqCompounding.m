@@ -29,8 +29,8 @@ file_dir = '../data/imagingUS/';
 
 %% frequency bands to compound
 
-bandwidths   = 10e6;
 centre_freqs = (2:1:15)*1e6;
+bandwidths   = 10e6;
 
 
 %% load and prepare data
@@ -91,16 +91,16 @@ save_compound_image(compound_image,[kgrid.dx, kgrid.dy, params.dt*c0],phantom_id
 
 phantom_id = 'atmm_orgasol1_BK31[CNT]';
 
-bandwidths   = 10e6;
 centre_freqs = (2:1:15)*1e6;
+bandwidths   = 10e6;
 
 %linear weighting:
-weights = linspace(0.5,1.5,length(centre_freqs));
-assert(sum(weights)==length(centre_freqs));
+weights = linspace(0.5,1.5,length(centre_freqs)) / length(centre_freqs);
+weighting_type = '_linear0.5-1.5';
 
 [compound_image, voxel_size] = compound_with_weights(phantom_id,centre_freqs,bandwidths,weights);
 
-save_compound_image(compound_image,voxel_size,[phantom_id '_weighted'])
+save_compound_image(compound_image,voxel_size,[phantom_id weighting_type '_weighted'])
 
 
 %% LOCAL FUNCTIONS
@@ -241,7 +241,9 @@ function [compound_image, voxel_size] = compound_with_weights(phantom_id,centre_
 % currently only supports weights for different centre_freqs not for
 % different bandwidths
 
-    num_images_compounded = 0;
+    disp(['Compounding ' phantom_id ' with weights:'])
+    
+    assert(sum(weights)==1);
     
     for bandwidth = bandwidths
         for idx_f = 1:length(centre_freqs)
@@ -260,14 +262,11 @@ function [compound_image, voxel_size] = compound_with_weights(phantom_id,centre_
             else
                 compound_image = compound_image + weight * reflection_image;
             end
-            num_images_compounded = num_images_compounded + 1;
-            
+                        
             disp(['  completed in ' scaleTime(toc)])
 
         end
     end
     
-    compound_image = compound_image / num_images_compounded;
-
 end
 
