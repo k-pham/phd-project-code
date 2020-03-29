@@ -42,7 +42,7 @@ params.Nt_zero_pad_source   = samples_cut_off;
 params.Nt_t0_correct        = samples_t0_correct;
 params.file_data            = file_name;
 
-global kgrid t_array %#ok<NUSED>
+global kgrid t_array
 
 
 %% generate lots of different reconstructions with varying freq filters
@@ -89,18 +89,35 @@ save_compound_image(compound_image,[kgrid.dx, kgrid.dy, params.dt*c0],phantom_id
 
 %% compound with weights
 
+global kgrid t_array %#ok<REDEFGG>
+
 phantom_id = 'atmm_orgasol1_BK31[CNT]';
+c0 = 1544;
 
 centre_freqs = (2:1:15)*1e6;
 bandwidths   = 10e6;
 
 %linear weighting:
-weights = linspace(0.5,1.5,length(centre_freqs)) / length(centre_freqs);
-weighting_type = '_linear0.5-1.5';
+weight_2  = 0.5;
+weight_15 = 1.5;
+weights = linspace(weight_2,weight_15,length(centre_freqs)) / length(centre_freqs);
+weighting_type = 'linear0.5-1.5';
 
 [compound_image, voxel_size] = compound_with_weights(phantom_id,centre_freqs,bandwidths,weights);
 
-save_compound_image(compound_image,voxel_size,[phantom_id weighting_type '_weighted'])
+save_compound_image(compound_image,voxel_size,[phantom_id '_weighted_' weighting_type])
+
+% need to re-define kgrid and t_array for plotting
+    Nx = size(compound_image,1);
+    Ny = size(compound_image,2);
+    Nt = size(compound_image,3);
+    dx = voxel_size(1);
+    dy = voxel_size(2);
+    dt = voxel_size(3)/c0;
+    kgrid = kWaveGrid(Nx, dx, Ny, dy);
+    t_array = linspace(1,Nt,Nt)*dt;
+display_and_save_projection(phantom_id, compound_image, c0, 'Brightness', 0.5)
+title(['z-x MeanIP 2 mm slice compound weighted ' weighting_type])
 
 
 %% LOCAL FUNCTIONS
@@ -262,9 +279,9 @@ function [compound_image, voxel_size] = compound_with_weights(phantom_id, centre
             else
                 compound_image = compound_image + weight * reflection_image;
             end
-                        
+            
             disp(['  completed in ' scaleTime(toc)])
-
+            
         end
     end
     
