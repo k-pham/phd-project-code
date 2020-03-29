@@ -98,33 +98,9 @@ centre_freqs = (2:1:15)*1e6;
 weights = linspace(0.5,1.5,length(centre_freqs));
 assert(sum(weights)==length(centre_freqs));
 
-for bandwidth = bandwidths
-    for idx_f = 1:length(centre_freqs)
-        
-        centre_freq = centre_freqs(idx_f);
-        weight = weights(idx_f);
-        
-        tic
-        disp(['Loading and adding f = ' num2str(centre_freq/1e6) ' MHz ..'])
-        
-        % load frequency banded image
-        [reflection_image, voxel_size] = load_image(phantom_id, centre_freq, bandwidth);
-        % add image with weight
-        if ~exist('compound_image','var')
-            compound_image = weight * reflection_image;
-        else
-            compound_image = compound_image + weight * reflection_image;
-        end
-        
-        disp(['  completed in ' scaleTime(toc)])
-        
-    end
-end
-
-% save compound
+[compound_image, voxel_size] = compound_with_weights(phantom_id,centre_freqs,bandwidths,weights);
 
 save_compound_image(compound_image,voxel_size,[phantom_id '_weighted'])
-
 
 
 %% LOCAL FUNCTIONS
@@ -258,6 +234,33 @@ function save_compound_image(volume_data, volume_spacing, phantom_id)
     save(file_path,'volume_data','volume_spacing','-v7.3')
     
     disp(['  completed in ' scaleTime(toc)]);
+
+end
+
+function [compound_image, voxel_size] = compound_with_weights(phantom_id,centre_freqs,bandwidths,weights)
+
+    for bandwidth = bandwidths
+        for idx_f = 1:length(centre_freqs)
+
+            centre_freq = centre_freqs(idx_f);
+            weight = weights(idx_f);
+
+            tic
+            disp(['Loading and adding f = ' num2str(centre_freq/1e6) ', bw = ' num2str(bandwidth/1e6) ' MHz ..'])
+
+            % load frequency banded image
+            [reflection_image, voxel_size] = load_image(phantom_id, centre_freq, bandwidth);
+            % add image with weight
+            if ~exist('compound_image','var')
+                compound_image = weight * reflection_image;
+            else
+                compound_image = compound_image + weight * reflection_image;
+            end
+
+            disp(['  completed in ' scaleTime(toc)])
+
+        end
+    end
 
 end
 
