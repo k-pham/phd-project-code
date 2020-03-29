@@ -84,13 +84,7 @@ compound_image = compound_image / num_images_compounded;
 
 display_and_save_projection(compound_image,c0,2.15e6,bandwidth,phantom_id)
 
-
-%% save compound for sliceViewer
-
-tic
-disp('Saving compound image data')
 save_compound_image(compound_image,[kgrid.dx, kgrid.dy, params.dt*c0],phantom_id)
-disp(['  completed in ' scaleTime(toc)]);
 
 
 %% compound with weights
@@ -128,10 +122,9 @@ for bandwidth = bandwidths
 end
 
 % save compound
-tic
-disp('Saving compound image data')
+
 save_compound_image(compound_image,voxel_size,[phantom_id '_weighted'])
-disp(['  completed in ' scaleTime(toc)]);
+
 
 
 %% local functions
@@ -153,8 +146,13 @@ function save_compound_image(volume_data, volume_spacing, phantom_id)
     % volume_data = compound_image; % reshape(compound_image,Nx,Ny,Nt); - not needed?
     % volume_spacing = voxel_size; % [kgrid.dx, kgrid.dy, dt*c0];
 
+    tic
+    disp('Saving compound image data ..')
+    
     file_path = ['recon_data\' phantom_id '_compound.mat'];
     save(file_path,'volume_data','volume_spacing','-v7.3')
+    
+    disp(['  completed in ' scaleTime(toc)]);
 
 end
 
