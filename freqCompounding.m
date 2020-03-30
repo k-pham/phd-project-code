@@ -299,3 +299,51 @@ function [compound_image, voxel_size] = compound_with_weights(phantom_id, centre
     
 end
 
+function [resoLat, resoAxi] = get_resolution_of_tube(mIP, dx, dz)
+
+    ROI = mIP(113:123,300:370);
+    
+    [~,peak_pos] = max(ROI,[],'all','linear');
+    [peak_pos_x, peak_pos_z] = ind2sub(size(ROI),peak_pos);
+    
+    profile_x = ROI(peak_pos_x,:);
+    profile_z = ROI(:,peak_pos_z);
+    
+    resoLat = fwhm(profile_x,dx,1);
+    resoAxi = fwhm(profile_z,dz,1);
+
+end
+
+function signal_tube = get_peak_signal_of_tube(mIP) % hard numbers !
+% limits customised to third tube
+
+    signal_tube_front = max(max(mIP(113:123,300:370)));
+    signal_tube_back  = max(max(mIP(113:123,370:440)));
+    signal_tube = mean([signal_tube_front,signal_tube_back]);
+
+end
+
+function [scatter_water_mean, scatter_water_std] = get_scattering_distr_in_water(mIP) % hard numbers !
+% limits customised to third tube
+
+    ROI = mIP(113:123,355:395);
+    
+    scatter_water_mean = mean(ROI(:));
+    scatter_water_std  = std(ROI(:));
+
+end
+
+function [scatter_atmm_mean, scatter_atmm_std] = get_scattering_distr_in_atmm(mIP) % hard numbers !
+% limits customised to third tube
+
+    ROI_left  = mIP(90:100,355:395);
+    ROI_right = mIP(136:146,355:395);
+    ROI_front = mIP(113:123,270:310);
+    ROI_back  = mIP(113:123,440:480);
+    
+    ROI = [ROI_left ROI_right ROI_front ROI_back];
+
+    scatter_atmm_mean = mean(ROI(:));
+    scatter_atmm_std  = std(ROI(:));
+
+end
