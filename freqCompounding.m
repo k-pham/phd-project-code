@@ -30,7 +30,7 @@ file_dir = '../data/imagingUS/';
 %% frequency bands to compound
 
 centre_freqs = (2:1:15)*1e6;
-bandwidths   = 10e6;
+bandwidths   = 2e6;
 
 
 %% load and prepare data
@@ -67,7 +67,7 @@ for bandwidth = bandwidths
                                     'SaveImageToFile', true ...
                                 );
                             
-        display_and_save_projection(phantom_id, reflection_image, c0, 'CentreFreq', centre_freq, 'Bandwidth', bandwidth)
+        display_and_save_projection(phantom_id, reflection_image, c0, 'CentreFreq', centre_freq, 'Bandwidth', bandwidth, 'Brightness', 0.5)
         
         % add to compound or create new if first image
         if ~exist('compound_image','var')
@@ -82,9 +82,9 @@ end
 
 compound_image = compound_image / num_images_compounded;
 
-display_and_save_projection(phantom_id,compound_image,c0)
+display_and_save_projection(phantom_id, compound_image, c0, 'Brightness', 0.5)
 
-save_compound_image(compound_image,[kgrid.dx, kgrid.dy, params.dt*c0],phantom_id)
+save_compound_image(phantom_id, compound_image, [kgrid.dx, kgrid.dy, params.dt*c0])
 
 
 %% compound with weights
@@ -95,17 +95,17 @@ phantom_id = 'atmm_orgasol1_BK31[CNT]';
 c0 = 1544;
 
 centre_freqs = (2:1:15)*1e6;
-bandwidths   = 10e6;
+bandwidths   = 2e6;
 
 %linear weighting:
-weight_2  = 0.5;
-weight_15 = 1.5;
+weight_2  = 1;
+weight_15 = 1;
 weights = linspace(weight_2,weight_15,length(centre_freqs)) / length(centre_freqs);
-weighting_type = 'linear0.5-1.5';
+weighting_type = ['bw' num2str(bandwidths/1e6) '_linear' num2str(weight_2) '-' num2str(weight_15)];
 
 [compound_image, voxel_size] = compound_with_weights(phantom_id,centre_freqs,bandwidths,weights);
 
-save_compound_image(compound_image,voxel_size,[phantom_id '_weighted_' weighting_type])
+save_compound_image([phantom_id '_weighted_' weighting_type], compound_image, voxel_size)
 
 % need to re-define kgrid and t_array for plotting
     Nx = size(compound_image,1);
@@ -254,7 +254,7 @@ function display_and_save_projection(phantom_id, reflection_image, c0, varargin)
 
 end
 
-function save_compound_image(volume_data, volume_spacing, phantom_id)
+function save_compound_image(phantom_id, volume_data, volume_spacing)
 
     tic
     disp('Saving compound image data ..')
