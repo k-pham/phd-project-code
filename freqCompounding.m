@@ -119,6 +119,40 @@ save_compound_image([phantom_id '_weighted_' weighting_type], compound_image, vo
 display_and_save_projection(phantom_id, compound_image, c0, 'Brightness', 0.5, 'WeightingType', weighting_type)
 
 
+%% assess image quality
+
+global kgrid t_array
+
+phantom_id = 'atmm_orgasol1_BK31[CNT]';
+bandwidths   = 10e6;
+weight_2  = 0.5;
+weight_15 = 1.5;
+weighting_type = ['bw' num2str(bandwidths/1e6) '_linear' num2str(weight_2) '-' num2str(weight_15) '_compound.mat'];
+
+file_path = ['recon_data\' phantom_id '_weighted_' weighting_type];
+
+image_data = load(file_path);
+compound_image = image_data.volume_data;
+voxel_size = image_data.volume_spacing;
+
+xrange = 10:210;
+yrange = 70:110;
+zrange = 105:753;
+
+meanIP = get_mean_intensity_projection(compound_image, xrange, yrange, zrange);
+figure
+imagesc(meanIP')
+
+[resoLat, resoAxi]                      = get_resolution_of_tube(meanIP, voxel_size(1), voxel_size(3));
+signal_tube                             = get_peak_signal_of_tube(meanIP);
+[scatter_water_mean, scatter_water_std] = get_scattering_distr_in_water(meanIP);
+[scatter_atmm_mean, scatter_atmm_std]   = get_scattering_distr_in_atmm(meanIP);
+
+specSNR = signal_tube       ./ scatter_water_mean;
+scatSNR = scatter_atmm_mean ./ scatter_water_mean;
+CNR = (scatter_atmm_mean - scatter_water_mean) ./ (scatter_atmm_std + scatter_water_std);
+
+
 %% LOCAL FUNCTIONS
 
 function [reflection_image, voxel_size] = load_image(phantom_id, centre_freq, bandwidth)
