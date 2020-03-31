@@ -98,8 +98,8 @@ centre_freqs = (2:1:15)*1e6;
 bandwidths   = 2e6;
 
 % linear weighting:
-weight_2  = 0.5;
-weight_15 = 1.5;
+weight_2  = 1.8;
+weight_15 = 0.2;
 weights = linspace(weight_2,weight_15,length(centre_freqs)) / length(centre_freqs);
 weighting_type = ['bw' num2str(bandwidths/1e6) '_linear' num2str(weight_2) '-' num2str(weight_15)];
 
@@ -120,13 +120,14 @@ display_and_save_projection(phantom_id, compound_image, c0, 'Brightness', 0.5, '
 
 % plot showing weights and save
 figure
+set(gcf,'Position',[300,300,550,250])
 bar(centre_freqs/1e6,weights)
     xlim([1,16])
     ylim([0,0.12])
     xlabel('centre frequency / MHz')
     ylabel('weight')
     set(gca,'FontSize',14)
-    save(gcf,['..\figures\_Matlab figs\freqCompounding\weight_linear' num2str(weight_2) '-' num2str(weight_15) '.jpg'])
+    saveas(gcf,['..\figures\_Matlab figs\freqCompounding\weight_linear' num2str(weight_2) '-' num2str(weight_15) '.jpg'])
 
 
 %% assess image quality of weighted compounds
@@ -134,8 +135,8 @@ bar(centre_freqs/1e6,weights)
 % file id to get weighting_type
 phantom_id = 'atmm_orgasol1_BK31[CNT]';
 bandwidths   = 10e6;
-weight_2  = 1;
-weight_15 = 1;
+weight_2  = 1.8;
+weight_15 = 0.2;
 weighting_type = ['bw' num2str(bandwidths/1e6) '_linear' num2str(weight_2) '-' num2str(weight_15) '_compound.mat'];
 
 % load image data with specified weighting_type
@@ -162,6 +163,9 @@ signal_tube                             = get_peak_signal_of_tube(meanIP);
 specSNR = signal_tube       / scatter_water_mean;
 scatSNR = scatter_atmm_mean / scatter_water_mean;
 scatCNR = (scatter_atmm_mean - scatter_water_mean) / (scatter_atmm_std + scatter_water_std);
+
+disp('  resoLat   resoAxi   specSNR   scatSNR   scatCNR')
+disp([resoLat*1e6,resoAxi*1e6,specSNR,scatSNR,scatCNR])
 
 
 %% LOCAL FUNCTIONS
@@ -267,7 +271,7 @@ function display_and_save_projection(phantom_id, reflection_image, c0, varargin)
         if centre_freq == 0 && bandwidth == 0
             title('z-x MeanIP 2 mm slice compound')
             if exist('weighting_type','var')
-                title(['z-x MeanIP 2 mm slice compound weighted ' weighting_type])
+                title(['z-x MeanIP 2 mm slice compound weighted ' weighting_type],'Interpreter','none')
             end
         else
             switch phantom_id
