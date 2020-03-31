@@ -98,8 +98,8 @@ centre_freqs = (2:1:15)*1e6;
 bandwidths   = 2e6;
 
 % linear weighting:
-weight_2  = 1;
-weight_15 = 1;
+weight_2  = 0.5;
+weight_15 = 1.5;
 weights = linspace(weight_2,weight_15,length(centre_freqs)) / length(centre_freqs);
 weighting_type = ['bw' num2str(bandwidths/1e6) '_linear' num2str(weight_2) '-' num2str(weight_15)];
 
@@ -118,14 +118,24 @@ save_compound_image([phantom_id '_weighted_' weighting_type], compound_image, vo
     t_array = linspace(1,Nt,Nt)*dt;
 display_and_save_projection(phantom_id, compound_image, c0, 'Brightness', 0.5, 'WeightingType', weighting_type)
 
+% plot showing weights and save
+figure
+bar(centre_freqs/1e6,weights)
+    xlim([1,16])
+    ylim([0,0.12])
+    xlabel('centre frequency / MHz')
+    ylabel('weight')
+    set(gca,'FontSize',14)
+    save(gcf,['..\figures\_Matlab figs\freqCompounding\weight_linear' num2str(weight_2) '-' num2str(weight_15) '.jpg'])
+
 
 %% assess image quality of weighted compounds
 
 % file id to get weighting_type
 phantom_id = 'atmm_orgasol1_BK31[CNT]';
 bandwidths   = 10e6;
-weight_2  = 0.5;
-weight_15 = 1.5;
+weight_2  = 1;
+weight_15 = 1;
 weighting_type = ['bw' num2str(bandwidths/1e6) '_linear' num2str(weight_2) '-' num2str(weight_15) '_compound.mat'];
 
 % load image data with specified weighting_type
