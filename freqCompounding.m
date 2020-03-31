@@ -97,14 +97,14 @@ c0 = 1544;
 centre_freqs = (2:1:15)*1e6;
 bandwidths   = 2e6;
 
-%linear weighting:
+% linear weighting:
 weight_2  = 1;
 weight_15 = 1;
 weights = linspace(weight_2,weight_15,length(centre_freqs)) / length(centre_freqs);
 weighting_type = ['bw' num2str(bandwidths/1e6) '_linear' num2str(weight_2) '-' num2str(weight_15)];
 
+% compound with weights and save image data
 [compound_image, voxel_size] = compound_with_weights(phantom_id,centre_freqs,bandwidths,weights);
-
 save_compound_image([phantom_id '_weighted_' weighting_type], compound_image, voxel_size)
 
 % need to re-define kgrid and t_array for plotting
@@ -119,38 +119,39 @@ save_compound_image([phantom_id '_weighted_' weighting_type], compound_image, vo
 display_and_save_projection(phantom_id, compound_image, c0, 'Brightness', 0.5, 'WeightingType', weighting_type)
 
 
-%% assess image quality
+%% assess image quality of weighted compounds
 
-global kgrid t_array
-
+% file id to get weighting_type
 phantom_id = 'atmm_orgasol1_BK31[CNT]';
 bandwidths   = 10e6;
 weight_2  = 0.5;
 weight_15 = 1.5;
 weighting_type = ['bw' num2str(bandwidths/1e6) '_linear' num2str(weight_2) '-' num2str(weight_15) '_compound.mat'];
 
+% load image data with specified weighting_type
 file_path = ['recon_data\' phantom_id '_weighted_' weighting_type];
-
 image_data = load(file_path);
 compound_image = image_data.volume_data;
 voxel_size = image_data.volume_spacing;
 
+% get meanIP
 xrange = 10:210;
 yrange = 70:110;
 zrange = 105:753;
-
 meanIP = get_mean_intensity_projection(compound_image, xrange, yrange, zrange);
 figure
 imagesc(meanIP')
 
+% extract resolution/signal/scattering from meanIP
 [resoLat, resoAxi]                      = get_resolution_of_tube(meanIP, voxel_size(1), voxel_size(3));
 signal_tube                             = get_peak_signal_of_tube(meanIP);
 [scatter_water_mean, scatter_water_std] = get_scattering_distr_in_water(meanIP);
 [scatter_atmm_mean, scatter_atmm_std]   = get_scattering_distr_in_atmm(meanIP);
 
-specSNR = signal_tube       ./ scatter_water_mean;
-scatSNR = scatter_atmm_mean ./ scatter_water_mean;
-CNR = (scatter_atmm_mean - scatter_water_mean) ./ (scatter_atmm_std + scatter_water_std);
+% calculate image quality metrics
+specSNR = signal_tube       / scatter_water_mean;
+scatSNR = scatter_atmm_mean / scatter_water_mean;
+scatCNR = (scatter_atmm_mean - scatter_water_mean) / (scatter_atmm_std + scatter_water_std);
 
 
 %% LOCAL FUNCTIONS
@@ -335,13 +336,13 @@ end
 
 function [resoLat, resoAxi] = get_resolution_of_tube(mIP, dx, dz)
 
-    ROI = mIP(113:123,300:370);
+    ROI = mIP(106:130,300:370);
     
     [~,peak_pos] = max(ROI,[],'all','linear');
     [peak_pos_x, peak_pos_z] = ind2sub(size(ROI),peak_pos);
     
-    profile_x = ROI(peak_pos_x,:);
-    profile_z = ROI(:,peak_pos_z);
+    profile_x = ROI(:,peak_pos_z);
+    profile_z = ROI(peak_pos_x,:);
     
     resoLat = fwhm(profile_x,dx,1);
     resoAxi = fwhm(profile_z,dz,1);
