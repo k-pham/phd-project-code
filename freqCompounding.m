@@ -98,8 +98,8 @@ centre_freqs = (2:1:15)*1e6;
 bandwidths   = 2e6;
 
 % linear weighting:
-weight_2  = 1.8;
-weight_15 = 0.2;
+weight_2  = 0.2;
+weight_15 = 1.8;
 weights = linspace(weight_2,weight_15,length(centre_freqs)) / length(centre_freqs);
 weighting_type = ['bw' num2str(bandwidths/1e6) '_linear' num2str(weight_2) '-' num2str(weight_15)];
 
@@ -123,7 +123,7 @@ figure
 set(gcf,'Position',[300,300,550,250])
 bar(centre_freqs/1e6,weights)
     xlim([1,16])
-    ylim([0,0.12])
+    ylim([0,0.15])
     xlabel('centre frequency / MHz')
     ylabel('weight')
     set(gca,'FontSize',14)
@@ -164,7 +164,7 @@ specSNR = signal_tube       / scatter_water_mean;
 scatSNR = scatter_atmm_mean / scatter_water_mean;
 scatCNR = (scatter_atmm_mean - scatter_water_mean) / (scatter_atmm_std + scatter_water_std);
 
-disp('  resoLat   resoAxi   specSNR   scatSNR   scatCNR')
+disp('  resoLat    resoAxi    specSNR   scatSNR   scatCNR')
 disp([resoLat*1e6,resoAxi*1e6,specSNR,scatSNR,scatCNR])
 
 
