@@ -145,6 +145,9 @@ reflection_image = reconstruct2dUSimage(sensor_data, params, c0);
 
 fig_image = figure;
 imagesc(kgrid.x_vec*1e3,kgrid.t_array*c0/2*1e3,reflection_image')
+    % can use kgrid.x_vec here, even though spacing is different in image,
+    % because only care about end points of sensor; kgrid.t_array is
+    % correct to use with c0/2 scaling
     axis image
     title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
     xlabel('x position / mm')
