@@ -170,7 +170,7 @@ imagesc(kgrid.x_vec*1e3,t_array*c0*1e3,reflection_image')
 % prepare for saving
 [Nx_image, Ny_image] = size(reflection_image);
 volume_data = reshape(reflection_image,Nx_image,1,Ny_image);
-volume_spacing = [params.dx/2, 1, params.dt*c0];           % omit factor 1/2 in dz because of doubled depth bug
+volume_spacing = [kgrid.dx, 1, params.dt*c0];           % omit factor 1/2 in dz because of doubled depth bug
 
 
 %% SAVE FIGURES & SENSOR DATA & IMAGE DATA
