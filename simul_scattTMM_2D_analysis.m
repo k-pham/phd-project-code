@@ -1,3 +1,18 @@
+%% parameters needed to make kgrid and time
+
+dx = 10e-6;                 % grid point spacing in the x direction [m]
+dy = dx;                    % grid point spacing in the y direction [m]
+Nx = 1536;                  % number of grid points in the x (row) direction
+Ny = 1024;                  % number of grid points in the y (column) direction
+kgrid = kWaveGrid(Nx, dx, Ny, dy);
+
+c0 = 1500;      % sound speed [m/s]
+rho0 = 1000;    % density [kg/m^3]
+
+
+medium = define_random_medium(Nx,Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole);
+
+
 %% load images
 
 file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\';
@@ -19,7 +34,7 @@ for idx_c = 16:16%length(c_scatts)
         
         file_name = [scattering_type '_SCATT_c' num2str(c_scatt) '_rho' num2str(rho_scatt) ...
                                      '_HOLE_c' num2str(c_hole) '_rho' num2str(rho_hole) ];
-        % fig_image = openfig([file_dir_figs file_name '_image.fig']);
+        
         SNS = load([file_dir_data file_name '_sensor_data.mat']);
         IMG = load([file_dir_data file_name '_image_data.mat']);
         
@@ -29,10 +44,6 @@ for idx_c = 16:16%length(c_scatts)
         image_data    = squeeze(IMG.volume_data);
         image_spacing = IMG.volume_spacing;
         
-        % axObjs = fig_image.Children;
-        % dataObjs = axObjs.Children;
-        % imgdata = dataObjs.CData;
-        % figure, imagesc(imgdata)
 
     end
 end
