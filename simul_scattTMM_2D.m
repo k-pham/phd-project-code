@@ -48,7 +48,7 @@ rho_pointscatt = 1100;
 
 % define non-scattering holes
 c_hole      = 1500;
-rho_hole    = 1300;
+rho_hole    = 1000;
 
 switch scattering_type
     case 'random'
@@ -164,11 +164,11 @@ volume_spacing = [params.dx/2, 1, params.dt*c0];           % omit factor 1/2 in 
 file_name = [scattering_type '_SCATT_c' num2str(c_scatt) '_rho' num2str(rho_scatt) ...
                              '_HOLE_c' num2str(c_hole) '_rho' num2str(rho_hole) ];
 
-saveas(fig_medium,[file_dir_figs file_name '_medium.fig'])
+% saveas(fig_medium,[file_dir_figs file_name '_medium.fig'])
 saveas(fig_medium,[file_dir_figs file_name '_medium.jpg'])
-saveas(fig_data,  [file_dir_figs file_name '_data.fig'])
+% saveas(fig_data,  [file_dir_figs file_name '_data.fig'])
 saveas(fig_data,  [file_dir_figs file_name '_data.jpg'])
-saveas(fig_image, [file_dir_figs file_name '_image.fig'])
+% saveas(fig_image, [file_dir_figs file_name '_image.fig'])
 saveas(fig_image, [file_dir_figs file_name '_image.jpg'])
 
 save([file_dir_data file_name '_sensor_data'], 'sensor_data', 'params')
