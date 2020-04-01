@@ -1,6 +1,8 @@
 % Pulse-echo plane-wave US imaging - scattering TMM with holes (simulate agarTMM)
 % combine _rand and _points scripts into one
 
+global kgrid t_array
+
 %% loops for parameter search
 
 for c_range = 0:10:150
@@ -116,6 +118,13 @@ num_sensors = sum(sensor.mask(:));
 inputs = {'PMLSize', pml_size, 'PlotLayout', true, 'PlotSim', true};
 sensor_data = kspaceFirstOrder2DC(kgrid, medium, source, sensor, inputs{:});
 
+% save simulation set-up
+simu.kgrid  = kgrid;
+simu.medium = medium;
+simu.source = source;
+simu.sensor = sensor;
+simu.inputs = inputs;
+
 % figure
 % imagesc(sensor_data(:,1:50)')
 %     xlabel('x position / dx')
@@ -126,6 +135,7 @@ imagesc(kgrid.x_vec*1e3,kgrid.t_array(50:end)*1e6,sensor_data(:,50:end)')
     title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
     xlabel('x position / mm')
     ylabel('time / \mus')
+    colorbar
 
 
 %% IMAGE FORMATION
@@ -142,16 +152,20 @@ params.Nt_t0_correct        = -16;
 params.file_data            = '111111\scattTMM_simul';
 
 reflection_image = reconstruct2dUSimage(sensor_data, params, c0);
+    % NOTE: kgrid and t_array UPDATED
 
 fig_image = figure;
-imagesc(kgrid.x_vec*1e3,kgrid.t_array*c0/2*1e3,reflection_image')
-    % can use kgrid.x_vec here, even though spacing is different in image,
-    % because only care about end points of sensor; kgrid.t_array is
-    % correct to use with c0/2 scaling
+% imagesc(kgrid.x_vec*1e3,kgrid.t_array*c0/2*1e3,reflection_image')
+%     % can use kgrid.x_vec here, even though spacing is different in image,
+%     % because only care about end points of sensor; kgrid.t_array is
+%     % correct to use with c0/2 scaling
+imagesc(kgrid.x_vec*1e3,t_array*c0*1e3,reflection_image')
+    % using updated kgrid and t_array from reconstruct2dUSimage
     axis image
     title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
     xlabel('x position / mm')
     ylabel('y position / mm')
+    colorbar
 
 % prepare for saving
 [Nx_image, Ny_image] = size(reflection_image);
@@ -171,9 +185,9 @@ saveas(fig_data,  [file_dir_figs file_name '_data.jpg'])
 % saveas(fig_image, [file_dir_figs file_name '_image.fig'])
 saveas(fig_image, [file_dir_figs file_name '_image.jpg'])
 
-save([file_dir_data file_name '_sensor_data'], 'sensor_data', 'params')
+save([file_dir_data file_name '_sensor_data'], 'sensor_data', 'params', 'simu')
 
-save([file_dir_data file_name '_image_data.mat'],'volume_data','volume_spacing','-v7.3')
+save([file_dir_data file_name '_image_data.mat'], 'volume_data', 'volume_spacing', 'kgrid', 't_array', '-v7.3')
 
 
 %% end of loops for parameter search
