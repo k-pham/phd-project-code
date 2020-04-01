@@ -1,18 +1,3 @@
-%% parameters needed to make kgrid and time
-
-dx = 10e-6;                 % grid point spacing in the x direction [m]
-dy = dx;                    % grid point spacing in the y direction [m]
-Nx = 1536;                  % number of grid points in the x (row) direction
-Ny = 1024;                  % number of grid points in the y (column) direction
-kgrid = kWaveGrid(Nx, dx, Ny, dy);
-
-c0 = 1500;      % sound speed [m/s]
-rho0 = 1000;    % density [kg/m^3]
-
-
-medium = define_random_medium(Nx,Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole);
-
-
 %% load images
 
 file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\';
@@ -40,9 +25,12 @@ for idx_c = 16:16%length(c_scatts)
         
         sensor_data = SNS.sensor_data;
         params      = SNS.params;
+        simu        = SNS.simu;
         
         image_data    = squeeze(IMG.volume_data);
         image_spacing = IMG.volume_spacing;
+        image_kgrid   = IMG.kgrid;
+        image_t_array = IMG.t_array;
         
 
     end
