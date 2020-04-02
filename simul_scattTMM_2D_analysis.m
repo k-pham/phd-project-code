@@ -41,6 +41,26 @@ for idx_c = 16:16%length(c_scatts)
 end
 
 
+%% compare with experimental data
+% 181204 atmm with orgasol
+
+file_dir = '../data/imagingUS/';
+file_name = '181204/atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
+trigger_delay = 0;
+samples_cut_off = 50;
+samples_t0_correct = -6;
+c0 = 1544;
+
+[exp.data, exp.params] = loadSGL([file_dir file_name]);
+exp.kgrid   = kWaveGrid(exp.params.Nx, exp.params.dx, exp.params.Ny ,exp.params.dy);
+exp.t_array = linspace(1, exp.params.Nt, exp.params.Nt) * exp.params.dt;
+
+figure
+imagesc(exp.kgrid.x_vec*1e3, exp.t_array*1e6, squeeze(exp.data(:,round(exp.params.Nx/2),:))')
+figure
+plot(exp.t_array*1e6, squeeze(exp.data(round(exp.params.Nx/2),round(exp.params.Ny/2),:)))
+
+
 %% LOCAL FUNCTIONS
 
 function look_at_central_sensor_data(sensor)
@@ -48,10 +68,12 @@ function look_at_central_sensor_data(sensor)
     x_centre = round(sensor.params.Nx/2);
     
     figure
-    plot(sensor.t_array*1e6,sensor.data(x_centre,:)') % (50:end)
+    plot(sensor.t_array*1e6,sensor.data(x_centre,:)) % (50:end)
+        xlabel('time / \mus')
+        ylabel('acoustic pressure / Pa')
     
-    figure
-    imagesc(sensor.kgrid.x_vec*1e3,sensor.t_array(50:end)*1e6,sensor.data(:,50:end)')    
+    % figure
+    % imagesc(sensor.kgrid.x_vec*1e3,sensor.t_array(50:end)*1e6,sensor.data(:,50:end)')    
 
 end
 
