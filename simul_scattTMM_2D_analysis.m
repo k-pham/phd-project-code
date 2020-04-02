@@ -23,15 +23,19 @@ for idx_c = 16:16%length(c_scatts)
         SNS = load([file_dir_data file_name '_sensor_data.mat']);
         IMG = load([file_dir_data file_name '_image_data.mat']);
         
-        sensor_data   = SNS.sensor_data;
-        sensor_params = SNS.params;
+        sensor.data   = SNS.sensor_data;
+        sensor.params = SNS.params;
         simu          = SNS.simu;
         
-        image_data    = squeeze(IMG.volume_data);
-        image_spacing = IMG.volume_spacing;
-        image_kgrid   = IMG.kgrid;
-        image_t_array = IMG.t_array;
+        sensor.kgrid   = kWaveGrid(sensor.params.Nx, sensor.params.dx, sensor.params.Ny, sensor.params.dy);
+        sensor.t_array = simu.kgrid.t_array;
         
+        image.data    = squeeze(IMG.volume_data);
+        image.spacing = IMG.volume_spacing;
+        image.kgrid   = IMG.kgrid;
+        image.t_array = IMG.t_array;
+        
+        look_at_central_sensor_data(sensor)
 
     end
 end
@@ -39,9 +43,15 @@ end
 
 %% LOCAL FUNCTIONS
 
-function look_at_central_sensor_data(sensor_data, params)
+function look_at_central_sensor_data(sensor)
 
+    x_centre = round(sensor.params.Nx/2);
     
+    figure
+    plot(sensor.t_array*1e6,sensor.data(x_centre,:)') % (50:end)
+    
+    figure
+    imagesc(sensor.kgrid.x_vec*1e3,sensor.t_array(50:end)*1e6,sensor.data(:,50:end)')    
 
 end
 
