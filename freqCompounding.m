@@ -87,7 +87,13 @@ compound_image = compound_image / num_images_compounded;
 
 display_and_save_projection(phantom_id, compound_image, c0, 'Brightness', 0.5)
 
-% --- envelope detection after compounding
+% ------ envelope detection after compounding
+% % - set file_name to change after loading of data to save nonEnvDetected images as different file names
+% % - set EnvelopeDetect to false
+% % - uncomment this section
+% % - run up to this section
+% % - change phantom id in functions to allow for saving of envDetected
+% % - save nonEnvDetected compound image if needed
 % disp('Envelope detecting ...')
 % tic
 % compound_image_env = zeros(size(compound_image));
@@ -96,11 +102,11 @@ display_and_save_projection(phantom_id, compound_image, c0, 'Brightness', 0.5)
 % end
 % assert(isequal( size(compound_image_env), size(compound_image) ))
 % disp(['  completed in ' scaleTime(toc)]);
-% %% change phantom id for saving first
+% %% ! before running this section: change phantom id in functions for saving of envDetected
 % display_and_save_projection([phantom_id '_envDetected'], compound_image_env, c0, 'Brightness', 0.5)
 % save_compound_image(phantom_id, compound_image_env, [kgrid.dx, kgrid.dy, params.dt*c0])
 % %%
-% ---
+% ------
 
 save_compound_image(phantom_id, compound_image, [kgrid.dx, kgrid.dy, params.dt*c0])
 
