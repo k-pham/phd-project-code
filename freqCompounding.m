@@ -30,7 +30,7 @@ file_dir = '../data/imagingUS/';
 %% frequency bands to compound
 
 centre_freqs = (2:1:15)*1e6;
-bandwidths   = 10e6;
+bandwidths   = 2e6;
 
 
 %% load and prepare data
@@ -96,7 +96,10 @@ display_and_save_projection(phantom_id, compound_image, c0, 'Brightness', 0.5)
 % end
 % assert(isequal( size(compound_image_env), size(compound_image) ))
 % disp(['  completed in ' scaleTime(toc)]);
+% %% change phantom id for saving first
 % display_and_save_projection([phantom_id '_envDetected'], compound_image_env, c0, 'Brightness', 0.5)
+% save_compound_image(phantom_id, compound_image_env, [kgrid.dx, kgrid.dy, params.dt*c0])
+% %%
 % ---
 
 save_compound_image(phantom_id, compound_image, [kgrid.dx, kgrid.dy, params.dt*c0])
@@ -149,7 +152,7 @@ bar(centre_freqs/1e6,weights)
 
 % file id to get weighting_type
 phantom_id = 'atmm_orgasol1_BK31[CNT]';
-bandwidths   = 10e6;
+bandwidths   = 2e6;
 % weight_2  = 1.8;
 % weight_15 = 0.2;
 % weighting_type = ['bw' num2str(bandwidths/1e6) '_linear' num2str(weight_2) '-' num2str(weight_15) '_compound.mat'];
