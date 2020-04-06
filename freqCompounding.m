@@ -30,19 +30,22 @@ file_dir = '../data/imagingUS/';
 %% frequency bands to compound
 
 centre_freqs = (2:1:15)*1e6;
-bandwidths   = 2e6;
+bandwidths   = 10e6;
 
 
 %% load and prepare data
 
 [sensor_data, params] = loadSGL([file_dir file_name]);
 
+% change file name for env detect after test
+% file_name = '181204/atmm_orgasol1_BK31[CNT]_nonEnvDetect@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
+
 params.trigger_delay        = trigger_delay;
 params.Nt_zero_pad_source   = samples_cut_off;
 params.Nt_t0_correct        = samples_t0_correct;
 params.file_data            = file_name;
 
-global kgrid t_array
+global kgrid t_array Ny
 
 
 %% generate lots of different reconstructions with varying freq filters
@@ -83,6 +86,18 @@ end
 compound_image = compound_image / num_images_compounded;
 
 display_and_save_projection(phantom_id, compound_image, c0, 'Brightness', 0.5)
+
+% --- envelope detection after compounding
+% disp('Envelope detecting ...')
+% tic
+% compound_image_env = zeros(size(compound_image));
+% for i = 1:Ny
+%     compound_image_env(:,i,:) = envelopeDetection(squeeze(compound_image(:,i,:)));
+% end
+% assert(isequal( size(compound_image_env), size(compound_image) ))
+% disp(['  completed in ' scaleTime(toc)]);
+% display_and_save_projection([phantom_id '_envDetected'], compound_image_env, c0, 'Brightness', 0.5)
+% ---
 
 save_compound_image(phantom_id, compound_image, [kgrid.dx, kgrid.dy, params.dt*c0])
 
@@ -239,7 +254,7 @@ function display_and_save_projection(phantom_id, reflection_image, c0, varargin)
     
     % define limits for intensity projections
     switch phantom_id
-        case 'atmm_orgasol1_BK31[CNT]'
+        case 'atmm_orgasol1_BK31[CNT]' % _envDetected'
             xrange = 10:210;
             yrange = 70:110;
             zrange = 105:753;
@@ -308,7 +323,7 @@ function save_compound_image(phantom_id, volume_data, volume_spacing)
     tic
     disp('Saving compound image data ..')
     
-    file_path = ['recon_data\' phantom_id '_compound.mat'];
+    file_path = ['recon_data\' phantom_id '_compound.mat']; % _envDetectAfter.mat'];
     save(file_path,'volume_data','volume_spacing','-v7.3')
     
     disp(['  completed in ' scaleTime(toc)]);
