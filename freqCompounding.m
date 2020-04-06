@@ -145,17 +145,18 @@ bar(centre_freqs/1e6,weights)
     saveas(gcf,['..\figures\_Matlab figs\freqCompounding\weight_linear' num2str(weight_2) '-' num2str(weight_15) '.jpg'])
 
 
-%% assess image quality of weighted compounds
+%% assess image quality of compounds
 
 % file id to get weighting_type
 phantom_id = 'atmm_orgasol1_BK31[CNT]';
 bandwidths   = 10e6;
-weight_2  = 1.8;
-weight_15 = 0.2;
-weighting_type = ['bw' num2str(bandwidths/1e6) '_linear' num2str(weight_2) '-' num2str(weight_15) '_compound.mat'];
+% weight_2  = 1.8;
+% weight_15 = 0.2;
+% weighting_type = ['bw' num2str(bandwidths/1e6) '_linear' num2str(weight_2) '-' num2str(weight_15) '_compound.mat'];
 
 % load image data with specified weighting_type
-file_path = ['recon_data\' phantom_id '_weighted_' weighting_type];
+% file_path = ['recon_data\' phantom_id '_weighted_' weighting_type];
+file_path = ['recon_data\' phantom_id '_compound_envDetectAfter.mat'];
 image_data = load(file_path);
 compound_image = image_data.volume_data;
 voxel_size = image_data.volume_spacing;
