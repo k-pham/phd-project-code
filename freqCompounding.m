@@ -159,7 +159,7 @@ bandwidths   = 2e6;
 
 % load image data with specified weighting_type
 % file_path = ['recon_data\' phantom_id '_weighted_' weighting_type];
-file_path = ['recon_data\' phantom_id '_compound_envDetectAfter.mat'];
+file_path = ['recon_data\' phantom_id '_bw2_compound_envDetectAfter.mat'];
 image_data = load(file_path);
 compound_image = image_data.volume_data;
 voxel_size = image_data.volume_spacing;
