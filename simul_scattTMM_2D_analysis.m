@@ -39,7 +39,7 @@ for idx_c = 5%length(c_scatts)
         image.c0      = c0;
         
         % look_at_central_sensor_data(sensor)
-
+        
         figure
         imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')
             axis image
@@ -48,11 +48,21 @@ for idx_c = 5%length(c_scatts)
             ylabel('y position / mm')
             colorbar
         
+        fig_distr = figure;
+            title('scattering distributions')
+            hold on
+            xlabel('pixel intensity')
+            ylabel('count')
+        
         [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image);
         [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image);
         
+            legend(gca,'show')
+        
+        
+        
         % figure
-        % imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,hole_surrounding')
+        % imagesc(image.kgrid.x_vec*1e3,image.t_array*image.c0*1e3,mask')
         %     axis image
         %     xlabel('x position / mm')
         %     ylabel('y position / mm')
@@ -140,6 +150,9 @@ function [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(im
     scatter_hole_mean = mean(ROI(:));
     scatter_hole_std  = std(ROI(:));
 
+    figure(gcf)
+    histogram(ROI,'BinWidth',10,'DisplayStyle','stairs','DisplayName','scatter hole')
+    
 end
 
 function [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image)
@@ -154,7 +167,10 @@ function [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image
     
     scatter_tmm_mean = mean(ROI(:));
     scatter_tmm_std  = std(ROI(:));
-
+    
+    figure(gcf)
+    histogram(ROI,'BinWidth',10,'DisplayStyle','stairs','DisplayName','scatter tmm')
+    
 end
 
 
