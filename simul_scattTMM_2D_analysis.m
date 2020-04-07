@@ -13,9 +13,11 @@ rho0 = 1000;
 c_hole     = 1500;
 rho_hole   = 1000;
 
-for idx_c = 5%length(c_scatts)
-    for idx_r = 9%length(rho_scatts)
-
+for idx_c = 5%1:length(c_ranges)
+    for idx_r = 9%1:length(rho_ranges)
+        
+        % close all
+        
         c_scatt = c_ranges(idx_c);
         rho_scatt = rho_ranges(idx_r);
         
@@ -59,7 +61,11 @@ for idx_c = 5%length(c_scatts)
         
             legend(gca,'show')
         
+        scatSNR = scatter_tmm_mean / scatter_hole_mean;
+        scatCNR = (scatter_tmm_mean - scatter_hole_mean) / (scatter_tmm_std + scatter_hole_std);
         
+        disp('  scatSNR   scatCNR')
+        disp([scatSNR,scatCNR])
         
         % figure
         % imagesc(image.kgrid.x_vec*1e3,image.t_array*image.c0*1e3,mask')
@@ -68,7 +74,7 @@ for idx_c = 5%length(c_scatts)
         %     ylabel('y position / mm')
         %     colorbar
         
-        
+        % pause
         
     end
 end
@@ -191,7 +197,7 @@ function plot_histogram_of_scattering_distr(ROI, legend_entry, varargin)
     end
     
     binwidth   = 10;    
-    binedges   = 0:binwidth:max(ROI(:))*1.1;
+    binedges   = 0:binwidth:max(ROI(:))*1.1+binwidth;
     bincount   = histcounts(ROI,binedges);
     bincentres = 0.5*(binedges(2:end)+binedges(1:end-1));
 	
