@@ -36,36 +36,30 @@ for idx_c = 5%length(c_scatts)
         image.spacing = IMG.volume_spacing;
         image.kgrid   = IMG.kgrid;
         image.t_array = IMG.t_array;
+        image.c0      = c0;
         
         % look_at_central_sensor_data(sensor)
+
+        figure
+        imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')
+            axis image
+            title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
+            xlabel('x position / mm')
+            ylabel('y position / mm')
+            colorbar
         
-        hole             = get_hole_location_in_image(image, c0, 1);
-        hole_inside      = get_hole_location_in_image(image, c0, 0.9);
-        hole_notoutside  = get_hole_location_in_image(image, c0, 1.1);
+        [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image);
+        [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image);
         
-        hole_outside     = not(hole_notoutside);
-        large_hole       = get_hole_location_in_image(image,c0, 2);
-        
-        hole_surrounding = and(hole_outside,large_hole);
-        
-        % figure
-        % imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')
-        %     axis image
-        %     title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
-        %     xlabel('x position / mm')
-        %     ylabel('y position / mm')
-        %     colorbar
-        % 
         % figure
         % imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,hole_surrounding')
         %     axis image
-        %     title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
         %     xlabel('x position / mm')
         %     ylabel('y position / mm')
         %     colorbar
         
         
-
+        
     end
 end
 
@@ -113,7 +107,7 @@ function look_at_central_sensor_data(sensor)
 
 end
 
-function hole = get_hole_location(Nx, Ny)
+function hole = get_hole_location_in_simu(Nx, Ny)
 
     hole_radius = 50;
     hole_x     = round(Nx/2);
@@ -122,28 +116,46 @@ function hole = get_hole_location(Nx, Ny)
         
 end
 
-function hole = get_hole_location_in_image(image, c0, rad_frac)
+function ROI = get_discROI_at_hole_in_image(image, fractional_radius)
 
     hole_x = 0;
     hole_y = 2.5e-3;
     hole_radius = 0.5e-3;
     
     vec_x = image.kgrid.x_vec;
-    vec_y = image.t_array*c0;
+    vec_y = image.t_array*image.c0;
     
     distance = sqrt((vec_x - hole_x).^2 + (vec_y - hole_y).^2);
     
-    hole = distance < hole_radius * rad_frac;
+    ROI = distance < hole_radius * fractional_radius;
     
 end
 
-function image_quality_metric = get_image_quality_metric(reflection_image)
+function [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image)
 
+    mask = get_discROI_at_hole_in_image(image, 0.9);
     
+    ROI = image.data(mask);
+    
+    scatter_hole_mean = mean(ROI(:));
+    scatter_hole_std  = std(ROI(:));
 
 end
 
+function [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image)
 
+    hole_notoutside = get_discROI_at_hole_in_image(image, 1.1);
+    hole_outside    = not(hole_notoutside);
+    large_hole      = get_discROI_at_hole_in_image(image, 2);
+    
+    mask = and(hole_outside,large_hole);
+    
+    ROI = image.data(mask);
+    
+    scatter_tmm_mean = mean(ROI(:));
+    scatter_tmm_std  = std(ROI(:));
+
+end
 
 
 
