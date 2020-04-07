@@ -150,7 +150,7 @@ function [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(im
     scatter_hole_mean = mean(ROI(:));
     scatter_hole_std  = std(ROI(:));
     
-    plot_histogram_of_scattering_distr(ROI, 'scatter hole')
+    plot_histogram_of_scattering_distr(ROI, 'scatter hole', 'Normalise', true)
     
 end
 
@@ -167,17 +167,38 @@ function [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image
     scatter_tmm_mean = mean(ROI(:));
     scatter_tmm_std  = std(ROI(:));
     
-    plot_histogram_of_scattering_distr(ROI, 'scatter tmm')
+    plot_histogram_of_scattering_distr(ROI, 'scatter tmm', 'Normalise', true)
     
 end
 
-function plot_histogram_of_scattering_distr(ROI, legend_entry)
+function plot_histogram_of_scattering_distr(ROI, legend_entry, varargin)
 
+    % set default
+    num_req_input_variables = 2;
+    toNormalise = false;
+    
+    if nargin < num_req_input_variables
+        error('Incorrect number of inputs.');
+    elseif ~isempty(varargin)
+        for input_index = 1:2:length(varargin)
+            switch varargin{input_index}
+                case 'Normalise'
+                    toNormalise = varargin{input_index + 1};
+                otherwise
+                    error('Unknown optional input.');
+            end
+        end
+    end
+    
     binwidth   = 10;    
     binedges   = 0:binwidth:max(ROI(:))*1.1;
     bincount   = histcounts(ROI,binedges);
     bincentres = 0.5*(binedges(2:end)+binedges(1:end-1));
 	
+    if toNormalise
+        bincount = bincount / max(bincount);
+    end
+    
     figure(gcf)
     % histogram(ROI,'BinWidth',10,'DisplayStyle','stairs','DisplayName',legend_entry)
     plot(bincentres,bincount,'DisplayName',legend_entry)
