@@ -269,3 +269,14 @@ function holes = get_hole_locations(Nx, Ny)
     end
     
 end
+
+function slab = get_slab_location(Nx, Ny)
+
+    slab_thickness = 100;
+    slab_y         = 250;
+    slab_yrange    = round(slab_y-slab_thickness/2+0.5 : slab_y+slab_thickness/2-0.5);
+    
+    slab = zeros(Nx,Ny);
+    slab(:,slab_yrange) = 1;
+    
+end
