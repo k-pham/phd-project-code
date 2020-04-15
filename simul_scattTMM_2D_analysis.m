@@ -21,11 +21,17 @@ for idx_c = 5%1:length(c_ranges)
         c_scatt = c_ranges(idx_c);
         rho_scatt = rho_ranges(idx_r);
         
+        
+        %% load data from simu, sensor and recon
+        
         file_name = [scattering_type '_SCATT_c' num2str(c_scatt) '_rho' num2str(rho_scatt) ...
                                      '_HOLE_c' num2str(c_hole) '_rho' num2str(rho_hole) ];
         
         SNS = load([file_dir_data file_name '_sensor_data.mat']);
         IMG = load([file_dir_data file_name '_image_data.mat']);
+        
+        
+        %% assign loaded data to structures
         
         sensor.data   = SNS.sensor_data;
         sensor.params = SNS.params;
@@ -40,26 +46,52 @@ for idx_c = 5%1:length(c_ranges)
         image.t_array = IMG.t_array;
         image.c0      = c0;
         
-        % look_at_central_sensor_data(sensor)
         
-        figure
-        imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')
-            axis image
-            title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
-            xlabel('x position / mm')
-            ylabel('y position / mm')
-            colorbar
+        %% look_at_central_sensor_data
         
-        fig_distr = figure;
-            title('scattering distributions')
-            hold on
-            xlabel('pixel intensity')
-            ylabel('count')
+        % x_centre = round(sensor.params.Nx/2);
+        % 
+        % figure
+        % plot(sensor.t_array*1e6,sensor.data(x_centre,:)) % (50:end)
+        %     xlabel('time / \mus')
+        %     ylabel('acoustic pressure / Pa')
+
+        % figure
+        % imagesc(sensor.kgrid.x_vec*1e3,sensor.t_array(50:end)*1e6,sensor.data(:,50:end)')    
         
-        [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image);
-        [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image);
         
+        %% plot image
+        
+        % figure
+        % imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')
+        %     axis image
+        %     title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
+        %     xlabel('x position / mm')
+        %     ylabel('y position / mm')
+        %     colorbar
+        
+        
+        %% scattering distributions in hole & tmm, plot if wanted
+        
+        plot_toggle = false;
+        
+        if plot_toggle == true
+            fig_distr = figure;
+                title('scattering distributions')
+                hold on
+                xlabel('pixel intensity')
+                ylabel('count')
+        end
+        
+        [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image, plot_toggle);
+        [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image, plot_toggle);
+        
+        if plot_toggle == true
             legend(gca,'show')
+        end
+        
+        
+        %% image quality metrics
         
         scatSNR = scatter_tmm_mean / scatter_hole_mean;
         scatCNR = (scatter_tmm_mean - scatter_hole_mean) / (scatter_tmm_std + scatter_hole_std);
@@ -75,6 +107,7 @@ for idx_c = 5%1:length(c_ranges)
         %     colorbar
         
         % pause
+        
         
     end
 end
@@ -109,29 +142,6 @@ plot(exp.t_array*1e6, squeeze(exp.data(round(exp.params.Nx/2),round(exp.params.N
 
 %% LOCAL FUNCTIONS
 
-function look_at_central_sensor_data(sensor)
-
-    x_centre = round(sensor.params.Nx/2);
-    
-    figure
-    plot(sensor.t_array*1e6,sensor.data(x_centre,:)) % (50:end)
-        xlabel('time / \mus')
-        ylabel('acoustic pressure / Pa')
-    
-    % figure
-    % imagesc(sensor.kgrid.x_vec*1e3,sensor.t_array(50:end)*1e6,sensor.data(:,50:end)')    
-
-end
-
-function hole = get_hole_location_in_simu(Nx, Ny)
-
-    hole_radius = 50;
-    hole_x     = round(Nx/2);
-    hole_y     = round(Ny/4);
-    hole = makeDisc(Nx,Ny,hole_x,hole_y,hole_radius);
-        
-end
-
 function ROI = get_discROI_at_hole_in_image(image, fractional_radius)
 
     hole_x = 0;
@@ -147,7 +157,7 @@ function ROI = get_discROI_at_hole_in_image(image, fractional_radius)
     
 end
 
-function [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image)
+function [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image, plot_toggle)
 
     mask = get_discROI_at_hole_in_image(image, 0.9);
     
@@ -156,11 +166,13 @@ function [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(im
     scatter_hole_mean = mean(ROI(:));
     scatter_hole_std  = std(ROI(:));
     
-    plot_histogram_of_scattering_distr(ROI, 'scatter hole', 'Normalise', true)
+    if plot_toggle == true
+        plot_histogram_of_scattering_distr(ROI, 'scatter hole', 'Normalise', true)
+    end
     
 end
 
-function [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image)
+function [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image, plot_toggle)
 
     hole_notoutside = get_discROI_at_hole_in_image(image, 1.1);
     hole_outside    = not(hole_notoutside);
@@ -173,7 +185,9 @@ function [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image
     scatter_tmm_mean = mean(ROI(:));
     scatter_tmm_std  = std(ROI(:));
     
-    plot_histogram_of_scattering_distr(ROI, 'scatter tmm', 'Normalise', true)
+    if plot_toggle == true
+        plot_histogram_of_scattering_distr(ROI, 'scatter tmm', 'Normalise', true)
+    end
     
 end
 
