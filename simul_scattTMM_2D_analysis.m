@@ -76,14 +76,14 @@ for idx_c = 5%1:length(c_ranges)
         % average consecutive sensor points to make larger effective sensor
         % element, with more directional response (i.e. A-line)
         
-        element_size   = 5;          % number of sensor elements to average
+        element_size   = 11;          % number of sensor elements to average
         element_centre = round(sensor.params.Nx/2);
         element_bounds = round(element_centre-element_size/2+0.5 : element_centre+element_size/2-0.5);
         
         element_data   = sensor.data(element_bounds,:);
         
-        element_weights = ones(element_size,1);     % linear weights
-        % element_weights = getWin(element_size,'Gaussian');      % gaussian window weights
+        % element_weights = ones(element_size,1);     % constant weights
+        element_weights = getWin(element_size,'Gaussian');      % gaussian window weights
         element_weights = element_weights / sum(element_weights);
         
         element_bmform = element_weights .* element_data;
@@ -91,10 +91,9 @@ for idx_c = 5%1:length(c_ranges)
         
         figure
         plot(sensor.t_array*1e6,element_bmform)
-        
-        
-        
-
+            title([num2str(element_size) ' sensor points averaged (Gaussian weights): ' num2str(element_bounds(1)) ' - ' num2str(element_bounds(end))])
+            xlabel('time / \mus')
+            ylabel('acoustic pressure / Pa')
         
         
         %% plot image
