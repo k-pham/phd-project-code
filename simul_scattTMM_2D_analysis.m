@@ -47,6 +47,18 @@ for idx_c = 5%1:length(c_ranges)
         image.c0      = c0;
         
         
+        %% look at simulation masks
+        
+        mask = simu.medium.density;
+        
+        figure
+        imagesc(simu.kgrid.x_vec*1e3,simu.kgrid.y_vec*1e3,mask')
+            axis image
+            xlabel('x position / mm')
+            ylabel('y position / mm')
+            colorbar
+        
+        
         %% look_at_central_sensor_data
         
         x_centre = round(sensor.params.Nx/2);
@@ -64,13 +76,15 @@ for idx_c = 5%1:length(c_ranges)
         % average consecutive sensor points to make larger effective sensor
         % element, with more directional response (i.e. A-line)
         
-        element_size   = 6;          % number of sensor elements to average
+        element_size   = 7;          % number of sensor elements to average
         element_centre = round(sensor.params.Nx/2);
-        element_bounds = element_centre-element_size/2 : element_centre+element_size/2-1;
+        element_bounds = round(element_centre-element_size/2+0.5 : element_centre+element_size/2-0.5);
         
         element_data   = sensor.data(element_bounds,:);
         
-        element_weights = ones(element_size,1);
+        % element_weights = ones(element_size,1);     % linear weights
+        
+        element_weights = getWin(element_size,'Gaussian');
         
         element_bmform = element_weights .* element_data;
         element_bmform = mean(element_bmform,1);
@@ -121,13 +135,6 @@ for idx_c = 5%1:length(c_ranges)
         
         disp('  scatSNR   scatCNR')
         disp([scatSNR,scatCNR])
-        
-        % figure
-        % imagesc(image.kgrid.x_vec*1e3,image.t_array*image.c0*1e3,mask')
-        %     axis image
-        %     xlabel('x position / mm')
-        %     ylabel('y position / mm')
-        %     colorbar
         
         % pause
         
