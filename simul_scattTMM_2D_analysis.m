@@ -49,24 +49,24 @@ for idx_c = 5%1:length(c_ranges)
         
         %% look at simulation masks
         
-        mask = simu.medium.density;
-        
-        figure
-        imagesc(simu.kgrid.x_vec*1e3,simu.kgrid.y_vec*1e3,mask')
-            axis image
-            xlabel('x position / mm')
-            ylabel('y position / mm')
-            colorbar
+        % mask = simu.medium.density;
+        % 
+        % figure
+        % imagesc(simu.kgrid.x_vec*1e3,simu.kgrid.y_vec*1e3,mask')
+        %     axis image
+        %     xlabel('x position / mm')
+        %     ylabel('y position / mm')
+        %     colorbar
         
         
         %% look_at_central_sensor_data
         
-        x_centre = round(sensor.params.Nx/2);
-        
-        figure
-        plot(sensor.t_array*1e6,sensor.data(x_centre,:)) % (50:end)
-            xlabel('time / \mus')
-            ylabel('acoustic pressure / Pa')
+        % x_centre = round(sensor.params.Nx/2);
+        % 
+        % figure
+        % plot(sensor.t_array*1e6,sensor.data(x_centre,:)) % (50:end)
+        %     xlabel('time / \mus')
+        %     ylabel('acoustic pressure / Pa')
 
         % figure
         % imagesc(sensor.kgrid.x_vec*1e3,sensor.t_array(50:end)*1e6,sensor.data(:,50:end)')    
@@ -76,18 +76,18 @@ for idx_c = 5%1:length(c_ranges)
         % average consecutive sensor points to make larger effective sensor
         % element, with more directional response (i.e. A-line)
         
-        element_size   = 7;          % number of sensor elements to average
+        element_size   = 5;          % number of sensor elements to average
         element_centre = round(sensor.params.Nx/2);
         element_bounds = round(element_centre-element_size/2+0.5 : element_centre+element_size/2-0.5);
         
         element_data   = sensor.data(element_bounds,:);
         
-        % element_weights = ones(element_size,1);     % linear weights
-        
-        element_weights = getWin(element_size,'Gaussian');
+        element_weights = ones(element_size,1);     % linear weights
+        % element_weights = getWin(element_size,'Gaussian');      % gaussian window weights
+        element_weights = element_weights / sum(element_weights);
         
         element_bmform = element_weights .* element_data;
-        element_bmform = mean(element_bmform,1);
+        element_bmform = sum(element_bmform,1);
         
         figure
         plot(sensor.t_array*1e6,element_bmform)
