@@ -121,20 +121,25 @@ for idx_c = 5%1:length(c_ranges)
         [frequency, f_series] = spect(simu.source.p(750,:),1/simu.kgrid.dt);
         plot(frequency/1e6,f_series,'k')
         
-        xlim([0,100])
-        legend('sensor data - unfiltered','sensor data - filtered','source')
+            title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt) ',' ...
+                                   ' freq ' num2str(centre_freq/1e6) ' +/- ' num2str(bandwidth/1e6)])
+            xlim([0,100])
+            xlabel('frequency / MHz')
+            ylabel('amplitude')
+            legend('sensor data - unfiltered','sensor data - filtered','source')
         
         % recon with narrowband data
         reflection_image = reconstruct2dUSimage(sensor_data_filtered, sensor.params, c0);
         
-        fig_image = figure;
-        imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,reflection_image')
+        figure
+        imagesc(image.kgrid.x_vec*1e3,image.t_array(150:end-150)*c0*1e3,reflection_image(:,150:end-150)')
             axis image
-            title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt) ...
-                                   ' filter ' num2str(centre_freq/1e6) ' +/- ' num2str(bandwidth/1e6)])
+            title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt) ',' ...
+                                   ' freq ' num2str(centre_freq/1e6) ' +/- ' num2str(bandwidth/1e6)])
             xlabel('x position / mm')
             ylabel('y position / mm')
             colorbar
+        
         
         %% plot image
         
@@ -210,6 +215,10 @@ plot(exp.t_array*1e6, squeeze(exp.data(round(exp.params.Nx/2),round(exp.params.N
 
 [frequency, f_series] = spect(squeeze(exp.data(75,75,:)),1/exp.params.dt); % ,'Window','Tukey'
 figure, plot(frequency/1e6,f_series,'b')
+    xlim([0,100])
+    ylim([0,0.05])
+    xlabel('frequency / MHz')
+    ylabel('amplitude')
 
 
 %% LOCAL FUNCTIONS
