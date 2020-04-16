@@ -1,6 +1,6 @@
 %% load images
 
-file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\';
+file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random with water hole\';
 file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
 
 scattering_type = 'random';      % options: 'random', 'points'
@@ -37,14 +37,18 @@ for idx_c = 5%1:length(c_ranges)
         sensor.params = SNS.params;
         simu          = SNS.simu;
         
-        sensor.kgrid   = kWaveGrid(sensor.params.Nx, sensor.params.dx, sensor.params.Ny, sensor.params.dy);
-        sensor.t_array = simu.kgrid.t_array;
+        sensor.kgrid    = kWaveGrid(sensor.params.Nx, sensor.params.dx, sensor.params.Ny, sensor.params.dy);
+        sensor.kgrid.dt = simu.kgrid.dt;
+        sensor.kgrid.Nt = simu.kgrid.Nt;
+        sensor.t_array  = simu.kgrid.t_array;
         
         image.data    = squeeze(IMG.volume_data);
         image.spacing = IMG.volume_spacing;
         image.kgrid   = IMG.kgrid;
         image.t_array = IMG.t_array;
         image.c0      = c0;
+        
+        clear SNS IMG
         
         
         %% look at simulation masks
@@ -98,9 +102,39 @@ for idx_c = 5%1:length(c_ranges)
         
         %% narrowband data before recon
         
+        centre_freq = 10e6;
+        bandwidth = 20e6;
         
+        bandwidth_pc = bandwidth / centre_freq * 100;
         
+	    sensor_data_filtered = gaussianFilter(sensor.data,1/sensor.kgrid.dt,centre_freq,bandwidth_pc,false);
         
+        figure
+        hold on
+        
+        [frequency, f_series] = spect(sensor.data(75,:),1/sensor.kgrid.dt);
+        plot(frequency/1e6,f_series,'b')
+        
+        [frequency, f_series] = spect(sensor_data_filtered(75,:),1/sensor.kgrid.dt);
+        plot(frequency/1e6,f_series,'r--')
+        
+        [frequency, f_series] = spect(simu.source.p(750,:),1/simu.kgrid.dt);
+        plot(frequency/1e6,f_series,'k')
+        
+        xlim([0,100])
+        legend('sensor data - unfiltered','sensor data - filtered','source')
+        
+        % recon with narrowband data
+        reflection_image = reconstruct2dUSimage(sensor_data_filtered, sensor.params, c0);
+        
+        fig_image = figure;
+        imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,reflection_image')
+            axis image
+            title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt) ...
+                                   ' filter ' num2str(centre_freq/1e6) ' +/- ' num2str(bandwidth/1e6)])
+            xlabel('x position / mm')
+            ylabel('y position / mm')
+            colorbar
         
         %% plot image
         
