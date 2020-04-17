@@ -150,16 +150,22 @@ for idx_c = 5%1:length(c_ranges)
             legend('sensor data - unfiltered','sensor data - smooth edge','sensor data - filtered','source')
         
         % recon with narrowband data and show image
-        image_filtered = reconstruct2dUSimage(sensor_data_filtered, sensor.params, c0);
+        image_filtered.data = reconstruct2dUSimage(sensor_data_filtered, sensor.params, c0);
         
         figure
-        imagesc(image.kgrid.x_vec*1e3,image.t_array(150:end-150)*c0*1e3,image_filtered(:,150:end-150)')
+        imagesc(image.kgrid.x_vec*1e3,image.t_array(150:end-150)*c0*1e3,image_filtered.data(:,150:end-150)')
             axis image
             title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt) ',' ...
                                    ' freq ' num2str(centre_freq/1e6) ' +/- ' num2str(bandwidth/1e6)])
             xlabel('x position / mm')
             ylabel('y position / mm')
             colorbar
+        
+        % convert filtered image to struct for quality metric assessment
+        image_filtered.spacing = image.spacing;
+        image_filtered.kgrid   = image.kgrid;
+        image_filtered.t_array = image.t_array;
+        image_filtered.c0      = c0;
         
         
         %% plot image
@@ -175,7 +181,7 @@ for idx_c = 5%1:length(c_ranges)
         
         %% scattering distributions in hole & tmm, plot if wanted
         
-        plot_toggle = false;
+        plot_toggle = true;
         
         if plot_toggle == true
             fig_distr = figure;
@@ -185,8 +191,8 @@ for idx_c = 5%1:length(c_ranges)
                 ylabel('count')
         end
         
-        [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image, plot_toggle);
-        [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image, plot_toggle);
+        [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image_filtered, plot_toggle);
+        [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image_filtered, plot_toggle);
         
         if plot_toggle == true
             legend(gca,'show')
@@ -312,7 +318,7 @@ function plot_histogram_of_scattering_distr(ROI, legend_entry, varargin)
         end
     end
     
-    binwidth   = 10;    
+    binwidth   = max(ROI(:))/100;    
     binedges   = 0:binwidth:max(ROI(:))*1.1+binwidth;
     bincount   = histcounts(ROI,binedges);
     bincentres = 0.5*(binedges(2:end)+binedges(1:end-1));
