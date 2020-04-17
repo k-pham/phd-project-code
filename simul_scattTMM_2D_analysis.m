@@ -65,12 +65,13 @@ for idx_c = 5%1:length(c_ranges)
         
         %% look_at_central_sensor_data
         
-        % x_centre = round(sensor.params.Nx/2);
-        % 
-        % figure
-        % plot(sensor.t_array*1e6,sensor.data(x_centre,:)) % (50:end)
-        %     xlabel('time / \mus')
-        %     ylabel('acoustic pressure / Pa')
+        x_centre = round(sensor.params.Nx/2);
+        
+        figure
+        plot(sensor.t_array*1e6,sensor.data(x_centre,:)) % (50:end)
+            title('unfiltered central sensor data')
+            xlabel('time / \mus')
+            ylabel('acoustic pressure / Pa')
 
         % figure
         % imagesc(sensor.kgrid.x_vec*1e3,sensor.t_array(50:end)*1e6,sensor.data(:,50:end)')    
@@ -103,20 +104,40 @@ for idx_c = 5%1:length(c_ranges)
         %% narrowband data before recon
         
         centre_freq = 10e6;
-        bandwidth = 20e6;
+        bandwidth = 10e6;
         
         bandwidth_pc = bandwidth / centre_freq * 100;
         
-	    sensor_data_filtered = gaussianFilter(sensor.data,1/sensor.kgrid.dt,centre_freq,bandwidth_pc,false);
+        win = getWin(sensor.kgrid.Nt,'Tukey');
+        sensor_data_smoothedge = sensor.data .* win';
+        sensor_data_filtered = gaussianFilter(sensor_data_smoothedge,1/sensor.kgrid.dt,centre_freq,bandwidth_pc,false);
         
+        % plot filtered sensor data
+        x_centre = round(sensor.params.Nx/2);
+        figure
+        imagesc(sensor_data_smoothedge)
+            title('smooth-edged sensor data')
+        figure
+        imagesc(sensor_data_filtered)
+            title(['filtered ' num2str(centre_freq/1e6) ' bw ' num2str(bandwidth/1e6) ' central sensor data'])
+        figure
+        plot(sensor.t_array*1e6,sensor_data_filtered(x_centre,:)) % (50:end)
+            title(['filtered ' num2str(centre_freq/1e6) ' bw ' num2str(bandwidth/1e6) ' central sensor data'])
+            xlabel('time / \mus')
+            ylabel('acoustic pressure / Pa')
+        
+        % evaluate & plot frequency spectra of unfiltered/filtered sensor data & source
         figure
         hold on
         
         [frequency, f_series] = spect(sensor.data(75,:),1/sensor.kgrid.dt);
         plot(frequency/1e6,f_series,'b')
         
+        [frequency, f_series] = spect(sensor_data_smoothedge(75,:),1/sensor.kgrid.dt);
+        plot(frequency/1e6,f_series,'g')
+        
         [frequency, f_series] = spect(sensor_data_filtered(75,:),1/sensor.kgrid.dt);
-        plot(frequency/1e6,f_series,'r--')
+        plot(frequency/1e6,f_series,'r')
         
         [frequency, f_series] = spect(simu.source.p(750,:),1/simu.kgrid.dt);
         plot(frequency/1e6,f_series,'k')
@@ -126,13 +147,13 @@ for idx_c = 5%1:length(c_ranges)
             xlim([0,100])
             xlabel('frequency / MHz')
             ylabel('amplitude')
-            legend('sensor data - unfiltered','sensor data - filtered','source')
+            legend('sensor data - unfiltered','sensor data - smooth edge','sensor data - filtered','source')
         
-        % recon with narrowband data
-        reflection_image = reconstruct2dUSimage(sensor_data_filtered, sensor.params, c0);
+        % recon with narrowband data and show image
+        image_filtered = reconstruct2dUSimage(sensor_data_filtered, sensor.params, c0);
         
         figure
-        imagesc(image.kgrid.x_vec*1e3,image.t_array(150:end-150)*c0*1e3,reflection_image(:,150:end-150)')
+        imagesc(image.kgrid.x_vec*1e3,image.t_array(150:end-150)*c0*1e3,image_filtered(:,150:end-150)')
             axis image
             title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt) ',' ...
                                    ' freq ' num2str(centre_freq/1e6) ' +/- ' num2str(bandwidth/1e6)])
@@ -143,13 +164,13 @@ for idx_c = 5%1:length(c_ranges)
         
         %% plot image
         
-        % figure
-        % imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')
-        %     axis image
-        %     title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
-        %     xlabel('x position / mm')
-        %     ylabel('y position / mm')
-        %     colorbar
+        figure
+        imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')
+            axis image
+            title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
+            xlabel('x position / mm')
+            ylabel('y position / mm')
+            colorbar
         
         
         %% scattering distributions in hole & tmm, plot if wanted
