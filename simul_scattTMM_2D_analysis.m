@@ -13,6 +13,10 @@ rho0 = 1000;
 c_hole     = 1500;
 rho_hole   = 1000;
 
+        c_scatt   = c_ranges(5);
+        rho_scatt = rho_ranges(9);
+        
+
 %% loop starts
 % for idx_c = 5%1:length(c_ranges)
 %     for idx_r = 9%1:length(rho_ranges)
@@ -21,9 +25,6 @@ rho_hole   = 1000;
 %         
 %         c_scatt = c_ranges(idx_c);
 %         rho_scatt = rho_ranges(idx_r);
-        
-        c_scatt   = c_ranges(5);
-        rho_scatt = rho_ranges(9);
         
         
         %% load data from simu, sensor and recon
@@ -69,14 +70,14 @@ rho_hole   = 1000;
         
         %% look_at_central_sensor_data
         
-        x_centre = round(sensor.params.Nx/2);
-        
-        figure
-        plot(sensor.t_array*1e6,sensor.data(x_centre,:)) % (50:end)
-            title('unfiltered central sensor data')
-            xlabel('time / \mus')
-            ylabel('acoustic pressure / Pa')
-
+        % x_centre = round(sensor.params.Nx/2);
+        % 
+        % figure
+        % plot(sensor.t_array*1e6,sensor.data(x_centre,:)) % (50:end)
+        %     title('unfiltered central sensor data')
+        %     xlabel('time / \mus')
+        %     ylabel('acoustic pressure / Pa')
+        % 
         % figure
         % imagesc(sensor.kgrid.x_vec*1e3,sensor.t_array(50:end)*1e6,sensor.data(:,50:end)')    
         
@@ -105,47 +106,43 @@ rho_hole   = 1000;
         %     ylabel('acoustic pressure / Pa')
         
         
-        %% narrowband data before recon
+        %% frequency filter data before recon
         
         centre_freq = 10e6;
         bandwidth = 10e6;
-        
         bandwidth_pc = bandwidth / centre_freq * 100;
         
         win = getWin(sensor.kgrid.Nt,'Tukey');
-        sensor_data_smoothedge = sensor.data .* win';
-        sensor_data_filtered = gaussianFilter(sensor_data_smoothedge,1/sensor.kgrid.dt,centre_freq,bandwidth_pc,false);
+        sensor_smoothedge.data = sensor.data .* win';
+        sensor_filtered.data = gaussianFilter(sensor_smoothedge.data,1/sensor.kgrid.dt,centre_freq,bandwidth_pc,false);
         
-        % plot filtered sensor data
+        % plot central sensor data unfiltered/smoothedged/filtered
         x_centre = round(sensor.params.Nx/2);
         figure
-        imagesc(sensor_data_smoothedge)
-            title('smooth-edged sensor data')
-        figure
-        imagesc(sensor_data_filtered)
-            title(['filtered ' num2str(centre_freq/1e6) ' bw ' num2str(bandwidth/1e6) ' central sensor data'])
-        figure
-        plot(sensor.t_array*1e6,sensor_data_filtered(x_centre,:)) % (50:end)
-            title(['filtered ' num2str(centre_freq/1e6) ' bw ' num2str(bandwidth/1e6) ' central sensor data'])
+        hold on
+        plot(sensor.t_array*1e6,sensor.data(x_centre,:),'b')
+        plot(sensor.t_array*1e6,sensor_smoothedge.data(x_centre,:),'g')
+        plot(sensor.t_array*1e6,sensor_filtered.data(x_centre,:),'r')
+            title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt) ',' ...
+                                   ' freq ' num2str(centre_freq/1e6) ' +/- ' num2str(bandwidth/1e6)])
             xlabel('time / \mus')
             ylabel('acoustic pressure / Pa')
+            legend('sensor data - unfiltered','sensor data - smooth edge','sensor data - filtered')
+            axis([0,10.24,-0.5,0.5])
         
-        % evaluate & plot frequency spectra of unfiltered/filtered sensor data & source
+        % evaluate frequency spectra of unfiltered/filtered sensor data & source
+        [sensor.freq_axis,            sensor.freq_data            ] = spect(sensor.data(x_centre,:),            1/sensor.kgrid.dt);
+        [sensor_smoothedge.freq_axis, sensor_smoothedge.freq_data ] = spect(sensor_smoothedge.data(x_centre,:), 1/sensor.kgrid.dt);
+        [sensor_filtered.freq_axis,   sensor_filtered.freq_data   ] = spect(sensor_filtered.data(x_centre,:),   1/sensor.kgrid.dt);
+        [simu.source.freq_axis,       simu.source.freq_data       ] = spect(simu.source.p(750,:),               1/simu.kgrid.dt  );
+        
+        % plot frequency spectra of unfiltered/filtered sensor data & source
         figure
-        hold on
-        
-        [frequency, f_series] = spect(sensor.data(75,:),1/sensor.kgrid.dt);
-        plot(frequency/1e6,f_series,'b')
-        
-        [frequency, f_series] = spect(sensor_data_smoothedge(75,:),1/sensor.kgrid.dt);
-        plot(frequency/1e6,f_series,'g')
-        
-        [frequency, f_series] = spect(sensor_data_filtered(75,:),1/sensor.kgrid.dt);
-        plot(frequency/1e6,f_series,'r')
-        
-        [frequency, f_series] = spect(simu.source.p(750,:),1/simu.kgrid.dt);
-        plot(frequency/1e6,f_series,'k')
-        
+        hold on        
+        plot(sensor.freq_axis/1e6,            sensor.freq_data,            'b')
+        plot(sensor_smoothedge.freq_axis/1e6, sensor_smoothedge.freq_data, 'g')
+        plot(sensor_filtered.freq_axis/1e6,   sensor_filtered.freq_data,   'r')
+        plot(simu.source.freq_axis/1e6,       simu.source.freq_data,       'k')
             title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt) ',' ...
                                    ' freq ' num2str(centre_freq/1e6) ' +/- ' num2str(bandwidth/1e6)])
             xlim([0,100])
@@ -154,10 +151,10 @@ rho_hole   = 1000;
             legend('sensor data - unfiltered','sensor data - smooth edge','sensor data - filtered','source')
         
         % recon with narrowband data and show image
-        image_filtered.data = reconstruct2dUSimage(sensor_data_filtered, sensor.params, c0);
+        image_filtered.data = reconstruct2dUSimage(sensor_filtered.data, sensor.params, c0);
         
         figure
-        imagesc(image.kgrid.x_vec*1e3,image.t_array(150:end-150)*c0*1e3,image_filtered.data(:,150:end-150)')
+        imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image_filtered.data')
             axis image
             title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt) ',' ...
                                    ' freq ' num2str(centre_freq/1e6) ' +/- ' num2str(bandwidth/1e6)])
