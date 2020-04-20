@@ -108,8 +108,8 @@ rho_hole   = 1000;
         
         %% frequency filter data before recon
         
-        centre_freq = 10e6;
-        bandwidth = 10e6;
+        centre_freq = 1e6;
+        bandwidth = 2e6;
         bandwidth_pc = bandwidth / centre_freq * 100;
         
         win = getWin(sensor.kgrid.Nt,'Tukey');
@@ -124,7 +124,7 @@ rho_hole   = 1000;
         plot(sensor.t_array*1e6,sensor_smoothedge.data(x_centre,:),'g')
         plot(sensor.t_array*1e6,sensor_filtered.data(x_centre,:),'r')
             title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt) ',' ...
-                                   ' freq ' num2str(centre_freq/1e6) ' +/- ' num2str(bandwidth/1e6)])
+                                   ' freq ' num2str(centre_freq/1e6) ' bw ' num2str(bandwidth/1e6)])
             xlabel('time / \mus')
             ylabel('acoustic pressure / Pa')
             legend('sensor data - unfiltered','sensor data - smooth edge','sensor data - filtered')
@@ -144,7 +144,7 @@ rho_hole   = 1000;
         plot(sensor_filtered.freq_axis/1e6,   sensor_filtered.freq_data,   'r')
         plot(simu.source.freq_axis/1e6,       simu.source.freq_data,       'k')
             title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt) ',' ...
-                                   ' freq ' num2str(centre_freq/1e6) ' +/- ' num2str(bandwidth/1e6)])
+                                   ' freq ' num2str(centre_freq/1e6) ' bw ' num2str(bandwidth/1e6)])
             xlim([0,100])
             xlabel('frequency / MHz')
             ylabel('amplitude')
@@ -157,7 +157,7 @@ rho_hole   = 1000;
         imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image_filtered.data')
             axis image
             title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt) ',' ...
-                                   ' freq ' num2str(centre_freq/1e6) ' +/- ' num2str(bandwidth/1e6)])
+                                   ' freq ' num2str(centre_freq/1e6) ' bw ' num2str(bandwidth/1e6)])
             xlabel('x position / mm')
             ylabel('y position / mm')
             colorbar
