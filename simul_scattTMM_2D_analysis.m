@@ -17,7 +17,7 @@ rho_hole   = 1000;
         rho_scatt = rho_ranges(9);
         
 
-%% loop starts
+%% loop starts for c & rho
 % for idx_c = 5%1:length(c_ranges)
 %     for idx_r = 9%1:length(rho_ranges)
 %         
@@ -108,8 +108,11 @@ rho_hole   = 1000;
         
         %% frequency filter data before recon
         
-        centre_freq = 1e6;
-        bandwidth = 2e6;
+        for centre_freq = 1*1e6
+        for bandwidth = (15)*1e6
+            pause
+            disp(['FILTER ' num2str(centre_freq/1e6) ' bw ' num2str(bandwidth/1e6)])
+            
         bandwidth_pc = bandwidth / centre_freq * 100;
         
         win = getWin(sensor.kgrid.Nt,'Tukey');
@@ -118,7 +121,8 @@ rho_hole   = 1000;
         
         % plot central sensor data unfiltered/smoothedged/filtered
         x_centre = round(sensor.params.Nx/2);
-        figure
+        figure(1)
+        clf(1)
         hold on
         plot(sensor.t_array*1e6,sensor.data(x_centre,:),'b')
         plot(sensor.t_array*1e6,sensor_smoothedge.data(x_centre,:),'g')
@@ -137,7 +141,8 @@ rho_hole   = 1000;
         [simu.source.freq_axis,       simu.source.freq_data       ] = spect(simu.source.p(750,:),               1/simu.kgrid.dt  );
         
         % plot frequency spectra of unfiltered/filtered sensor data & source
-        figure
+        figure(2)
+        clf(2)
         hold on        
         plot(sensor.freq_axis/1e6,            sensor.freq_data,            'b')
         plot(sensor_smoothedge.freq_axis/1e6, sensor_smoothedge.freq_data, 'g')
@@ -153,7 +158,8 @@ rho_hole   = 1000;
         % recon with narrowband data and show image
         image_filtered.data = reconstruct2dUSimage(sensor_filtered.data, sensor.params, c0);
         
-        figure
+        fig_img = figure(3);
+        clf(3)
         imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image_filtered.data')
             axis image
             title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt) ',' ...
@@ -171,13 +177,13 @@ rho_hole   = 1000;
         
         %% plot image
         
-        figure
-        imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')
-            axis image
-            title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
-            xlabel('x position / mm')
-            ylabel('y position / mm')
-            colorbar
+        % figure
+        % imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')
+        %     axis image
+        %     title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
+        %     xlabel('x position / mm')
+        %     ylabel('y position / mm')
+        %     colorbar
         
         
         %% scattering distributions in hole & tmm, plot if wanted
@@ -185,7 +191,8 @@ rho_hole   = 1000;
         plot_toggle = true;
         
         if plot_toggle == true
-            fig_distr = figure;
+            fig_distr = figure(4);
+                clf(4)
                 title('scattering distributions')
                 hold on
                 xlabel('pixel intensity')
@@ -208,10 +215,10 @@ rho_hole   = 1000;
         disp('  scatSNR   scatCNR')
         disp([scatSNR,scatCNR])
         
-        % pause
-        
-        
-%% loop ends
+
+        end
+        end
+%% loop ends for c & rho
 %     end
 % end
 
@@ -242,7 +249,7 @@ plot(exp.t_array*1e6, squeeze(exp.data(round(exp.params.Nx/2),round(exp.params.N
     xlim([0,10])
     ylim([-0.3,0.2])
 
-[frequency, f_series] = spect(squeeze(exp.data(75,75,:)),1/exp.params.dt); % ,'Window','Tukey'
+[frequency, f_series] = spect(squeeze(exp.data(75,75,:)),1/exp.params.dt,'Window','Tukey'); 
 figure, plot(frequency/1e6,f_series,'b')
     xlim([0,100])
     ylim([0,0.05])
