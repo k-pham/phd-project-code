@@ -1,4 +1,4 @@
-%% load images
+%% parameters
 
 file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random with water hole\';
 file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
@@ -13,13 +13,17 @@ rho0 = 1000;
 c_hole     = 1500;
 rho_hole   = 1000;
 
-for idx_c = 5%1:length(c_ranges)
-    for idx_r = 9%1:length(rho_ranges)
+%% loop starts
+% for idx_c = 5%1:length(c_ranges)
+%     for idx_r = 9%1:length(rho_ranges)
+%         
+%         % close all
+%         
+%         c_scatt = c_ranges(idx_c);
+%         rho_scatt = rho_ranges(idx_r);
         
-        % close all
-        
-        c_scatt = c_ranges(idx_c);
-        rho_scatt = rho_ranges(idx_r);
+        c_scatt   = c_ranges(5);
+        rho_scatt = rho_ranges(9);
         
         
         %% load data from simu, sensor and recon
@@ -210,8 +214,9 @@ for idx_c = 5%1:length(c_ranges)
         % pause
         
         
-    end
-end
+%% loop ends
+%     end
+% end
 
 
 %% compare with experimental data
