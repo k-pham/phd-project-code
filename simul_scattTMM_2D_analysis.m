@@ -116,7 +116,7 @@ for idx_c = 1:length(c_ranges)
         %% frequency filter data before recon
         
         centre_freqs = 1*1e6;
-        bandwidths   = 20*1e6;
+        bandwidths   = 15*1e6;
         
         % set up arrays for saving results of COMPLETE F & BW TEST
         % scatter_hole_mean_ar = zeros(length(bandwidths),length(centre_freqs));
