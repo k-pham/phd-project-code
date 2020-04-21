@@ -107,14 +107,27 @@ rho_hole   = 1000;
         
         
         %% frequency filter data before recon
+        tic
+        centre_freqs = (1:1:35)*1e6;
+        bandwidths   = (1:1:40)*1e6;
         
-        for centre_freq = 1*1e6
-        for bandwidth = (15)*1e6
-            pause
-            disp(['FILTER ' num2str(centre_freq/1e6) ' bw ' num2str(bandwidth/1e6)])
-            
+        scatter_hole_mean_ar = zeros(length(bandwidths),length(centre_freqs));
+        scatter_hole_std_ar  = zeros(length(bandwidths),length(centre_freqs));
+        scatter_stmm_mean_ar = zeros(length(bandwidths),length(centre_freqs));
+        scatter_stmm_std_ar  = zeros(length(bandwidths),length(centre_freqs));
+        scatSNR_ar           = zeros(length(bandwidths),length(centre_freqs));
+        scatCNR_ar           = zeros(length(bandwidths),length(centre_freqs));
+        
+        for cf_index = 1:length(centre_freqs)
+        for bw_index = 1:length(bandwidths)
+        
+        centre_freq  = centre_freqs(cf_index);
+        bandwidth    = bandwidths(bw_index);
         bandwidth_pc = bandwidth / centre_freq * 100;
+        disp(['FILTER ' num2str(centre_freq/1e6) ' bw ' num2str(bandwidth/1e6)])
+            %pause
         
+        % apply frequency filter (smooth edges of time series first)
         win = getWin(sensor.kgrid.Nt,'Tukey');
         sensor_smoothedge.data = sensor.data .* win';
         sensor_filtered.data = gaussianFilter(sensor_smoothedge.data,1/sensor.kgrid.dt,centre_freq,bandwidth_pc,false);
@@ -158,6 +171,7 @@ rho_hole   = 1000;
         % recon with narrowband data and show image
         image_filtered.data = reconstruct2dUSimage(sensor_filtered.data, sensor.params, c0);
         
+        % plot filtered recon image
         fig_img = figure(3);
         clf(3)
         imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image_filtered.data')
@@ -186,7 +200,7 @@ rho_hole   = 1000;
         %     colorbar
         
         
-        %% scattering distributions in hole & tmm, plot if wanted
+        %% scattering distributions in hole & stmm, plot if wanted
         
         plot_toggle = true;
         
@@ -200,7 +214,7 @@ rho_hole   = 1000;
         end
         
         [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image_filtered, plot_toggle);
-        [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image_filtered, plot_toggle);
+        [scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_tmm(image_filtered, plot_toggle);
         
         if plot_toggle == true
             legend(gca,'show')
@@ -209,15 +223,37 @@ rho_hole   = 1000;
         
         %% image quality metrics
         
-        scatSNR = scatter_tmm_mean / scatter_hole_mean;
-        scatCNR = (scatter_tmm_mean - scatter_hole_mean) / (scatter_tmm_std + scatter_hole_std);
+        scatSNR = scatter_stmm_mean / scatter_hole_mean;
+        scatCNR = (scatter_stmm_mean - scatter_hole_mean) / (scatter_stmm_std + scatter_hole_std);
         
         disp('  scatSNR   scatCNR')
         disp([scatSNR,scatCNR])
         
+        
+        %% put scattering distribution properties and image qual metrics in array
+        
+        scatter_hole_mean_ar(bw_index,cf_index) = scatter_hole_mean;
+        scatter_hole_std_ar(bw_index,cf_index)  = scatter_hole_std;
+        scatter_stmm_mean_ar(bw_index,cf_index) = scatter_stmm_mean;
+        scatter_stmm_std_ar(bw_index,cf_index)  = scatter_stmm_std;
+        
+        scatSNR_ar(bw_index,cf_index) = scatSNR;
+        scatCNR_ar(bw_index,cf_index) = scatCNR;
+        
+        
+        %% save images & arrays
+        
+        saveas(fig_img  ,[file_dir_figs 'freq filtering complete f bw test/f' num2str(centre_freq/1e6) '_bw' num2str(bandwidth/1e6) '_image.jpg'])
+        saveas(fig_distr,[file_dir_figs 'freq filtering complete f bw test/f' num2str(centre_freq/1e6) '_bw' num2str(bandwidth/1e6) '_distr.jpg'])
+        
+        save([file_dir_figs 'freq filtering complete f bw test/random_c40_rho80_completeFBWtest.mat'], ...
+            'scatter_hole_mean_ar','scatter_hole_std_ar','scatter_stmm_mean_ar','scatter_stmm_std_ar', ...
+            'scatSNR_ar','scatCNR_ar')
+        
 
         end
         end
+        disp(['completed in ' scaleTime(toc)])
 %% loop ends for c & rho
 %     end
 % end
