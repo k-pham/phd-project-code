@@ -14,17 +14,17 @@ c_hole     = 1500;
 rho_hole   = 1000;
 
 % set up arrays for saving results of COMPLETE  C & RHO COMPARISON
-scatter_hole_mean_ar = zeros(length(rho_ranges),length(c_ranges));
-scatter_hole_std_ar  = zeros(length(rho_ranges),length(c_ranges));
-scatter_stmm_mean_ar = zeros(length(rho_ranges),length(c_ranges));
-scatter_stmm_std_ar  = zeros(length(rho_ranges),length(c_ranges));
-scatSNR_ar           = zeros(length(rho_ranges),length(c_ranges));
-scatCNR_ar           = zeros(length(rho_ranges),length(c_ranges));
+% scatter_hole_mean_ar = zeros(length(rho_ranges),length(c_ranges));
+% scatter_hole_std_ar  = zeros(length(rho_ranges),length(c_ranges));
+% scatter_stmm_mean_ar = zeros(length(rho_ranges),length(c_ranges));
+% scatter_stmm_std_ar  = zeros(length(rho_ranges),length(c_ranges));
+% scatSNR_ar           = zeros(length(rho_ranges),length(c_ranges));
+% scatCNR_ar           = zeros(length(rho_ranges),length(c_ranges));
 
 
 %% loop starts for c & rho
-for idx_c = 1:length(c_ranges)
-    for idx_r = 1:length(rho_ranges)
+for idx_c = 5 %1:length(c_ranges)
+    for idx_r = 9 %1:length(rho_ranges)
         
         % close all
         
@@ -115,16 +115,16 @@ for idx_c = 1:length(c_ranges)
         
         %% frequency filter data before recon
         
-        centre_freqs = 1*1e6;
-        bandwidths   = 15*1e6;
+        centre_freqs = (1:1:35)*1e6;
+        bandwidths   = (1:1:40)*1e6;
         
         % set up arrays for saving results of COMPLETE F & BW TEST
-        % scatter_hole_mean_ar = zeros(length(bandwidths),length(centre_freqs));
-        % scatter_hole_std_ar  = zeros(length(bandwidths),length(centre_freqs));
-        % scatter_stmm_mean_ar = zeros(length(bandwidths),length(centre_freqs));
-        % scatter_stmm_std_ar  = zeros(length(bandwidths),length(centre_freqs));
-        % scatSNR_ar           = zeros(length(bandwidths),length(centre_freqs));
-        % scatCNR_ar           = zeros(length(bandwidths),length(centre_freqs));
+        scatter_hole_mean_ar = zeros(length(bandwidths),length(centre_freqs));
+        scatter_hole_std_ar  = zeros(length(bandwidths),length(centre_freqs));
+        scatter_stmm_mean_ar = zeros(length(bandwidths),length(centre_freqs));
+        scatter_stmm_std_ar  = zeros(length(bandwidths),length(centre_freqs));
+        scatSNR_ar           = zeros(length(bandwidths),length(centre_freqs));
+        scatCNR_ar           = zeros(length(bandwidths),length(centre_freqs));
         
         for cf_index = 1:length(centre_freqs)
             for bw_index = 1:length(bandwidths)
@@ -240,19 +240,19 @@ for idx_c = 1:length(c_ranges)
                 
                 %% put scattering distribution properties and image qual metrics in array for COMPLETE F & BW TEST
                 
-                % scatter_hole_mean_ar(bw_index,cf_index) = scatter_hole_mean;
-                % scatter_hole_std_ar(bw_index,cf_index)  = scatter_hole_std;
-                % scatter_stmm_mean_ar(bw_index,cf_index) = scatter_stmm_mean;
-                % scatter_stmm_std_ar(bw_index,cf_index)  = scatter_stmm_std;
-                % 
-                % scatSNR_ar(bw_index,cf_index) = scatSNR;
-                % scatCNR_ar(bw_index,cf_index) = scatCNR;
+                scatter_hole_mean_ar(bw_index,cf_index) = scatter_hole_mean;
+                scatter_hole_std_ar(bw_index,cf_index)  = scatter_hole_std;
+                scatter_stmm_mean_ar(bw_index,cf_index) = scatter_stmm_mean;
+                scatter_stmm_std_ar(bw_index,cf_index)  = scatter_stmm_std;
+                
+                scatSNR_ar(bw_index,cf_index) = scatSNR;
+                scatCNR_ar(bw_index,cf_index) = scatCNR;
                 
                 
                 %% save images for COMPLETE F & BW TEST
                 
-                % saveas(fig_img  ,[file_dir_figs 'freq filtering complete f bw test/f' num2str(centre_freq/1e6) '_bw' num2str(bandwidth/1e6) '_image.jpg'])
-                % saveas(fig_distr,[file_dir_figs 'freq filtering complete f bw test/f' num2str(centre_freq/1e6) '_bw' num2str(bandwidth/1e6) '_distr.jpg'])
+                saveas(fig_img  ,[file_dir_figs 'freq filtering complete f bw test/f' num2str(centre_freq/1e6) '_bw' num2str(bandwidth/1e6) '_image.jpg'])
+                saveas(fig_distr,[file_dir_figs 'freq filtering complete f bw test/f' num2str(centre_freq/1e6) '_bw' num2str(bandwidth/1e6) '_distr.jpg'])
                 
                 
             end
@@ -260,26 +260,26 @@ for idx_c = 1:length(c_ranges)
         
         %% save results of COMPLETE F & BW TEST
         
-        % save([file_dir_figs 'freq filtering complete f bw test/random_c' num2str(c_scatt) '_rho ' num2str(rho_scatt) '_completeFBWtest.mat'], ...
-        %     'scatter_hole_mean_ar','scatter_hole_std_ar','scatter_stmm_mean_ar','scatter_stmm_std_ar', ...
-        %     'scatSNR_ar','scatCNR_ar')
+        save([file_dir_figs 'freq filtering complete f bw test/random_c' num2str(c_scatt) '_rho ' num2str(rho_scatt) '_completeFBWtest.mat'], ...
+            'scatter_hole_mean_ar','scatter_hole_std_ar','scatter_stmm_mean_ar','scatter_stmm_std_ar', ...
+            'scatSNR_ar','scatCNR_ar')
         
         
         %% put scattering distribution properties and image qual metrics in array for COMPLETE  C & RHO COMPARISON
         
-        scatter_hole_mean_ar(idx_r,idx_c) = scatter_hole_mean;
-        scatter_hole_std_ar(idx_r,idx_c)  = scatter_hole_std;
-        scatter_stmm_mean_ar(idx_r,idx_c) = scatter_stmm_mean;
-        scatter_stmm_std_ar(idx_r,idx_c)  = scatter_stmm_std;
-        
-        scatSNR_ar(idx_r,idx_c) = scatSNR;
-        scatCNR_ar(idx_r,idx_c) = scatCNR;
+        % scatter_hole_mean_ar(idx_r,idx_c) = scatter_hole_mean;
+        % scatter_hole_std_ar(idx_r,idx_c)  = scatter_hole_std;
+        % scatter_stmm_mean_ar(idx_r,idx_c) = scatter_stmm_mean;
+        % scatter_stmm_std_ar(idx_r,idx_c)  = scatter_stmm_std;
+        % 
+        % scatSNR_ar(idx_r,idx_c) = scatSNR;
+        % scatCNR_ar(idx_r,idx_c) = scatCNR;
         
         
         %% save images for COMPLETE  C & RHO COMPARISON
         
-        saveas(fig_img  ,[file_dir_figs 'complete c rho scattering comparison/c' num2str(c_scatt) '_rho' num2str(rho_scatt) '_image.jpg'])
-        saveas(fig_distr,[file_dir_figs 'complete c rho scattering comparison/c' num2str(c_scatt) '_rho' num2str(rho_scatt) '_distr.jpg'])
+        % saveas(fig_img  ,[file_dir_figs 'complete c rho scattering comparison/c' num2str(c_scatt) '_rho' num2str(rho_scatt) '_image.jpg'])
+        % saveas(fig_distr,[file_dir_figs 'complete c rho scattering comparison/c' num2str(c_scatt) '_rho' num2str(rho_scatt) '_distr.jpg'])
         
         
 %% loop ends for c & rho
@@ -288,9 +288,9 @@ end
 
 %% save results of COMPLETE  C & RHO COMPARISON
 
-save([file_dir_figs 'complete c rho scattering comparison/completeCRHOtest_f' num2str(centre_freq/1e6) '_bw' num2str(bandwidth/1e6) '.mat'], ...
-    'scatter_hole_mean_ar','scatter_hole_std_ar','scatter_stmm_mean_ar','scatter_stmm_std_ar', ...
-    'scatSNR_ar','scatCNR_ar')
+% save([file_dir_figs 'complete c rho scattering comparison/completeCRHOtest_f' num2str(centre_freq/1e6) '_bw' num2str(bandwidth/1e6) '.mat'], ...
+%     'scatter_hole_mean_ar','scatter_hole_std_ar','scatter_stmm_mean_ar','scatter_stmm_std_ar', ...
+%     'scatSNR_ar','scatCNR_ar')
 
 
 %% compare with experimental data
