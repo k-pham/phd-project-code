@@ -332,7 +332,7 @@ figure, plot(frequency/1e6,f_series,'b')
 function ROI = get_discROI_at_hole_in_image(image, fractional_radius)
 
     hole_x = 0;
-    hole_y = 2.5e-3;
+    hole_y = 2.35e-3;
     hole_radius = 0.5e-3;
     
     vec_x = image.kgrid.x_vec;
