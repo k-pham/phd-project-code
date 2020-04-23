@@ -319,10 +319,14 @@ plot(exp.t_array*1e6, squeeze(exp.data(round(exp.params.Nx/2),round(exp.params.N
     xlim([0,10])
     ylim([-0.3,0.2])
 
+figure
+hold on
+[frequency, f_series] = spect(squeeze(exp.data(75,75,:)),1/exp.params.dt);
+plot(frequency/1e6,f_series,'b')
 [frequency, f_series] = spect(squeeze(exp.data(75,75,:)),1/exp.params.dt,'Window','Tukey'); 
-figure, plot(frequency/1e6,f_series,'b')
-    xlim([0,100])
-    ylim([0,0.05])
+plot(frequency/1e6,f_series,'g')
+    xlim([0,60])
+    ylim([0,0.01])
     xlabel('frequency / MHz')
     ylabel('amplitude')
 
