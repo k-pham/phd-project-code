@@ -109,7 +109,7 @@ end
 
 % frequency band filtering data (to use for frequency compounding)
 if ~isempty(freqbandfilter_params)
-    sensor_data = freq_filtering(sensor_data, freqbandfilter_params);
+    sensor_data = freq_filtering_gaussian(sensor_data, freqbandfilter_params);
 end
 if ~isempty(freqlowfilter_params)
     sensor_data = freq_filtering_butter(sensor_data, freqlowfilter_params);
@@ -315,7 +315,7 @@ end
 
 
 %% frequency bandpass filtering data (for frequency compounding)
-function sensor_data_filtered = freq_filtering(sensor_data, freqfilter_params)
+function sensor_data_filtered = freq_filtering_gaussian(sensor_data, freqfilter_params)
 
     global Nx dt
     
