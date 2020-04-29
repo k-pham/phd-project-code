@@ -1,7 +1,7 @@
 %% parameters
 
-file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random with water hole\';
-file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
+file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\';
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\fine step size\';
 
 scattering_type = 'random';      % options: 'random', 'points'
 
@@ -141,13 +141,14 @@ for idx_c = 5 %1:length(c_ranges)
                 sensor_filtered.data = gaussianFilter(sensor_smoothedge.data,1/sensor.kgrid.dt,centre_freq,bandwidth_pc,false);
                 
                 % plot central sensor data unfiltered/smoothedged/filtered
-                x_centre = round(sensor.params.Nx/2);
+                x_centre_sensor = round(sensor.params.Nx/2);
+                x_centre_source = round(size(simu.source.p,1)/2);
                 figure(1)
                 clf(1)
                 hold on
-                plot(sensor.t_array*1e6,sensor.data(x_centre,:),'b')
-                plot(sensor.t_array*1e6,sensor_smoothedge.data(x_centre,:),'g')
-                plot(sensor.t_array*1e6,sensor_filtered.data(x_centre,:),'r')
+                plot(sensor.t_array*1e6,sensor.data(x_centre_sensor,:),'b')
+                plot(sensor.t_array*1e6,sensor_smoothedge.data(x_centre_sensor,:),'g')
+                plot(sensor.t_array*1e6,sensor_filtered.data(x_centre_sensor,:),'r')
                     title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt) ',' ...
                                            ' freq ' num2str(centre_freq/1e6) ' bw ' num2str(bandwidth/1e6)])
                     xlabel('time / \mus')
@@ -156,10 +157,10 @@ for idx_c = 5 %1:length(c_ranges)
                     axis([0,10.24,-0.5,0.5])
                 
                 % evaluate frequency spectra of unfiltered/filtered sensor data & source
-                [sensor.freq_axis,            sensor.freq_data            ] = spect(sensor.data(x_centre,:),            1/sensor.kgrid.dt);
-                [sensor_smoothedge.freq_axis, sensor_smoothedge.freq_data ] = spect(sensor_smoothedge.data(x_centre,:), 1/sensor.kgrid.dt);
-                [sensor_filtered.freq_axis,   sensor_filtered.freq_data   ] = spect(sensor_filtered.data(x_centre,:),   1/sensor.kgrid.dt);
-                [simu.source.freq_axis,       simu.source.freq_data       ] = spect(simu.source.p(750,:),               1/simu.kgrid.dt  );
+                [sensor.freq_axis,            sensor.freq_data            ] = spect(sensor.data(x_centre_sensor,:),            1/sensor.kgrid.dt);
+                [sensor_smoothedge.freq_axis, sensor_smoothedge.freq_data ] = spect(sensor_smoothedge.data(x_centre_sensor,:), 1/sensor.kgrid.dt);
+                [sensor_filtered.freq_axis,   sensor_filtered.freq_data   ] = spect(sensor_filtered.data(x_centre_sensor,:),   1/sensor.kgrid.dt);
+                [simu.source.freq_axis,       simu.source.freq_data       ] = spect(simu.source.p(x_centre_source,:),          1/simu.kgrid.dt  );
                 
                 % plot frequency spectra of unfiltered/filtered sensor data & source
                 figure(2)
