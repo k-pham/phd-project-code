@@ -5,8 +5,8 @@ global kgrid t_array
 
 %% loops for parameter search
 
-for c_range = [0,1,2,4,10,30,50,100,150,300]
-for rho_range = [0,1,2,4,10,30,50,100,200]
+% for c_range = [0,1,2,4,10,30,50,100,150,300]
+% for rho_range = [0,1,2,4,10,30,50,100,200]
 %% SET UP
 
 % clear all
@@ -39,8 +39,8 @@ rho0 = 1000;    % density [kg/m^3]
 scattering_type = 'random';      % options: 'random', 'points'
 
 % define scattering medium as random medium
-% c_range   = 0;
-% rho_range = 0;
+c_range   = 40;
+rho_range = 80;
 
 % define scattering medium as point scatterers
 c_pointscatt   = 1550;
@@ -176,7 +176,7 @@ volume_spacing = [kgrid.dx, 1, params.dt*c0];           % omit factor 1/2 in dz 
 %% SAVE FIGURES & SENSOR DATA & IMAGE DATA
 
 file_name = [scattering_type '_SCATT_c' num2str(c_scatt) '_rho' num2str(rho_scatt) ...
-                             '_SLAB_c' num2str(c_hole) '_rho' num2str(rho_hole) ];
+                             '_HOLE_c' num2str(c_hole) '_rho' num2str(rho_hole) ];
 
 % saveas(fig_medium,[file_dir_figs file_name '_medium.fig'])
 saveas(fig_medium,[file_dir_figs file_name '_medium.jpg'])
@@ -191,8 +191,8 @@ save([file_dir_data file_name '_image_data.mat'], 'volume_data', 'volume_spacing
 
 
 %% end of loops for parameter search
-end
-end
+% end
+% end
 
 %% FUNCTIONS
 
@@ -200,7 +200,7 @@ function medium = define_random_medium(Nx,Ny,c0,rho0,c_range,rho_range,c_hole,rh
 
     c_rand    = (rand(Nx,Ny)-0.5) * c_range;
     rho_rand  = (rand(Nx,Ny)-0.5) * rho_range;
-    holes = get_slab_location(Nx, Ny);
+    holes = get_hole_location(Nx, Ny);
     
     % define sound speed and density of medium
     medium.sound_speed = c0   * ones(Nx, Ny) + c_rand;
@@ -214,7 +214,7 @@ end
 function medium = define_pointscatt_medium(Nx,Ny,c0,rho0,c_pointscatt,rho_pointscatt,dx,dy,num_points_per_voxel,vox_size,c_hole,rho_hole)
 
     pointscatts = get_pointscatt_locations(Nx, Ny, dx, dy, num_points_per_voxel, vox_size);
-    holes = get_slab_location(Nx, Ny);
+    holes = get_hole_location(Nx, Ny);
     
     % define sound speed and density of medium
     medium.sound_speed = c0   * ones(Nx, Ny);
