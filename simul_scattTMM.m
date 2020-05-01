@@ -16,7 +16,7 @@ file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\';
 file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
 
 
-%% SET UP EXPERIMENT
+%% SET UP SIMULATION
 
 % create the computational grid
 dx = 10e-6;                 % grid point spacing in the x direction [m]
@@ -28,9 +28,6 @@ kgrid = kWaveGrid(Nx, dx, Ny, dy);
 % define the thickness of the PML [grid points]
 pml_size = 20;
 
-
-%% MEDIUM
-
 % background material properties (WATER)
 c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
@@ -39,30 +36,10 @@ rho0 = 1000;    % density [kg/m^3]
 scattering_type = 'random';      % options: 'random', 'points'
 
 [medium, c_scatt, rho_scatt] = set_medium(c0, rho0, scattering_type);
-fig_medium = plot_medium(medium, scattering_type, c_scatt, rho_scatt);
-
-
-%% TIME
-
 make_time(medium, c0, 0.75)
-
-
-%% SOURCE
-
 source = set_source(pml_size);
-
-
-%% SENSOR
-
 sensor = set_sensor(pml_size);
-
-
-%% INPUTS
-
 inputs = {'PMLSize', pml_size, 'PlotLayout', true, 'PlotSim', true};
-
-
-%% SAVE SIMULATION SETUP
 
 simu.kgrid  = kgrid;
 simu.medium = medium;
@@ -70,8 +47,10 @@ simu.source = source;
 simu.sensor = sensor;
 simu.inputs = inputs;
 
+fig_medium = plot_medium(medium, scattering_type, c_scatt, rho_scatt);
 
-%% SIMULATE EXPERIMENT
+
+%% RUN SIMULATION
 
 sensor_data = kspaceFirstOrder2DC(kgrid, medium, source, sensor, inputs{:});
 
@@ -87,9 +66,6 @@ imagesc(kgrid.x_vec*1e3,kgrid.t_array(50:end)*1e6,sensor_data(:,50:end)')
     ylabel('time / \mus')
     colorbar
 
-
-%% IMAGE FORMATION
-
 params.Nx = size(sensor_data,1);
 params.Ny = 1;
 params.dx = 10*dx;
@@ -100,6 +76,9 @@ params.trigger_delay        = 0;
 params.Nt_zero_pad_source   = 50;
 params.Nt_t0_correct        = -16;
 params.file_data            = '111111\scattTMM_simul';
+
+
+%% IMAGE FORMATION
 
 reflection_image = reconstruct2dUSimage(sensor_data, params, c0);
     % NOTE: kgrid and t_array UPDATED
@@ -300,27 +279,33 @@ function source = set_source(pml_size)
 
     global kgrid
     
-    source_width = 0.4;         % proportion of width Nx
     source_amplitude = 10;      % [Pa]
-
+    
+    source_width = 0.4;         % proportion of width Nx
+    apodisation = getWin(kgrid.Nx, 'Gaussian', 'Param', source_width);
+    
+    pulse_peak       = 20e-9;
+    pulse_width      = 16e-9;
+    pulse_variance   = (pulse_width / ( 2*sqrt(2*log(2)) ) )^2;
+    pressure = gaussian(kgrid.t_array,1,pulse_peak,pulse_variance);
+    
     source.p_mask = zeros(kgrid.Nx, kgrid.Ny);
     source.p_mask(:, pml_size + 1) = 1;
-    pressure = gaussian(kgrid.t_array,1,20e-9,(6.8e-9)^2);
-    apodisation = getWin(kgrid.Nx, 'Gaussian', 'Param', source_width);
+    
     source.p = source_amplitude * apodisation * pressure;
 
 end
 
 function sensor = set_sensor(pml_size)
+% sensor array co-aligned with the source
 
     global kgrid
     
-    % sensor array co-aligned with the source
-    sensor_positions_x = pml_size:10:(kgrid.Nx - pml_size);
+    sensor_spacing      = 100e-6;
+    sensor_spacing_grid = round(sensor_spacing / kgrid.dx);
+    sensor_positions_x = pml_size : sensor_spacing_grid : (kgrid.Nx - pml_size);
+    
     sensor.mask = zeros(kgrid.Nx, kgrid.Ny);
     sensor.mask(sensor_positions_x, pml_size+1) = 1;
-
-    % calculate the number of sensor elements used
-    % num_sensors = sum(sensor.mask(:));
 
 end
