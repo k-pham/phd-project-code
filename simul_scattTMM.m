@@ -185,8 +185,8 @@ function simu = set_medium(simu, c0, rho0)
     rho_object = 1000;        % [m/s]
     
     % make background medium
-    simu.medium.sound_speed = c0   * ones(Nx, Ny);
-    simu.medium.density     = rho0 * ones(Nx, Ny);
+    simu.medium.sound_speed = c0   * ones(simu.kgrid.Nx, simu.kgrid.Ny);
+    simu.medium.density     = rho0 * ones(simu.kgrid.Nx, simu.kgrid.Ny);
     
     % make scattering medium specified by scattering_type
     switch simu.medium.scattering_type
