@@ -97,7 +97,7 @@ volume_spacing = [kgrid.dx, 1, params.dt*c0];           % omit factor 1/2 in dz 
 %% SAVE FIGURES & SENSOR DATA & IMAGE DATA
 
 % file_name = [scattering_type '_SCATT_c' num2str(simu.medium.c_scatt) '_rho' num2str(simu.medium.rho_scatt) ...
-%                              '_HOLE_c' num2str(c_hole) '_rho' num2str(rho_hole) ];
+%                              '_HOLE_c' num2str(simu.medium.c_hole) '_rho' num2str(simu.medium.rho_hole) ];
 % 
 % % saveas(fig_medium,[file_dir_figs file_name '_medium.fig'])
 % saveas(fig_medium,[file_dir_figs file_name '_medium.jpg'])
@@ -221,13 +221,16 @@ function medium = set_medium(scattering_type, kgrid, c0, rho0)
     switch scattering_type
         case 'random'
             medium = define_random_medium(kgrid.Nx,kgrid.Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole);
-            medium.c_scatt = c_range;
+            medium.c_scatt   = c_range;
             medium.rho_scatt = rho_range;
         case 'points'
             medium = define_pointscatt_medium(kgrid.Nx,kgrid.Ny,c0,rho0,c_pointscatt,rho_pointscatt,dx,dy,num_points_per_voxel,vox_size,c_hole,rho_hole);
-            medium.c_scatt = c_pointscatt;
+            medium.c_scatt   = c_pointscatt;
             medium.rho_scatt = rho_pointscatt;
     end
+    
+    medium.c_hole   = c_hole;
+    medium.rho_hole = rho_hole;
 
 end
 
