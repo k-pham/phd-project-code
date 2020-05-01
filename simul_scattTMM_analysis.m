@@ -294,6 +294,30 @@ end
 %     'scatSNR_ar','scatCNR_ar')
 
 
+%% plot results of COMPLETE F & BW TEST
+
+centre_freqs = 1:1:35;
+bandwidths   = 1:1:40;
+figure('Position',[ 100,550,560,420]), imagesc(centre_freqs,bandwidths,scatter_hole_mean_ar), title('scatter hole mean'), xlabel('centre freq / MHz'), ylabel('bandwidth / MHz'), colorbar
+figure('Position',[ 100, 30,560,420]), imagesc(centre_freqs,bandwidths,scatter_hole_std_ar) , title('scatter hole std') , xlabel('centre freq / MHz'), ylabel('bandwidth / MHz'), colorbar
+figure('Position',[ 700,550,560,420]), imagesc(centre_freqs,bandwidths,scatter_stmm_mean_ar), title('scatter stmm mean'), xlabel('centre freq / MHz'), ylabel('bandwidth / MHz'), colorbar
+figure('Position',[ 700, 30,560,420]), imagesc(centre_freqs,bandwidths,scatter_stmm_std_ar) , title('scatter stmm std') , xlabel('centre freq / MHz'), ylabel('bandwidth / MHz'), colorbar
+figure('Position',[1300,550,560,420]), imagesc(centre_freqs,bandwidths,scatSNR_ar)          , title('scatSNR')          , xlabel('centre freq / MHz'), ylabel('bandwidth / MHz'), colorbar, caxis([1,3.3])
+figure('Position',[1300, 30,560,420]), imagesc(centre_freqs,bandwidths,scatCNR_ar)          , title('scatCNR')          , xlabel('centre freq / MHz'), ylabel('bandwidth / MHz'), colorbar, caxis([0,1.05])
+
+
+%% plot results of COMPLETE C & RHO COMPARISON
+
+c_ranges   = 0:10:150;
+rho_ranges = 0:10:100;
+figure('Position',[ 100,550,560,420]), imagesc(c_ranges,rho_ranges,scatter_hole_mean_ar), title('scatter hole mean'), xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
+figure('Position',[ 100, 30,560,420]), imagesc(c_ranges,rho_ranges,scatter_hole_std_ar) , title('scatter hole std') , xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
+figure('Position',[ 700,550,560,420]), imagesc(c_ranges,rho_ranges,scatter_stmm_mean_ar), title('scatter stmm mean'), xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
+figure('Position',[ 700, 30,560,420]), imagesc(c_ranges,rho_ranges,scatter_stmm_std_ar) , title('scatter stmm std') , xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
+figure('Position',[1300,550,560,420]), imagesc(c_ranges,rho_ranges,scatSNR_ar)          , title('scatSNR')          , xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
+figure('Position',[1300, 30,560,420]), imagesc(c_ranges,rho_ranges,scatCNR_ar)          , title('scatCNR')          , xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
+
+
 %% compare with experimental data
 % 181204 atmm with orgasol
 
