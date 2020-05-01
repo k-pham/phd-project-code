@@ -182,3 +182,37 @@ title('sensor frequency response (4*4 = 16 avg)')
 % title('sensor frequency response (4*1to1 = 4 avg)')
 set(gca,'FontSize',13)
 
+
+%% plot normalised sensor freq response
+
+figure
+set(gcf,'Position',[100 20 700 400])
+plot(frequency_BK31/1e6,sensor_freq_response_mean/max(sensor_freq_response_mean(1:100)),'k-'), ylim([1e-3 1.6])
+    set(gca,'YScale','log')
+    xlim([0,80])
+    ylim([0.04,1.2])
+    xlabel('frequency / MHz')
+    ylabel('signal amplitude / V')
+    hold on
+
+
+%% search for equivalent gaussian bandpass filter for simulation
+
+centre_freq = 1e6;      % [Hz]
+bandwidth   = 66e6;     % [Hz]
+f = frequency_BK31;     % [Hz]
+
+% copied from gaussianFilter (which is used for freq bandpass filtering in simul_scattTMM_analysis
+mean = centre_freq;
+variance = (bandwidth / (2 * sqrt(2 * log(2)))).^2;
+magnitude = 1;
+gauss_filter = max(gaussian(f, magnitude, mean, variance), gaussian(f, magnitude, -mean, variance));
+
+
+gcf
+hold on
+plot(f/1e6,gauss_filter)
+
+
+
+
