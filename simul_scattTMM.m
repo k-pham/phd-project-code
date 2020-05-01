@@ -143,32 +143,27 @@ function pointscatts = get_pointscatt_locations(Nx, Ny, dx, dy, num_points_per_v
 
 end
 
-function holes = get_hole_location(Nx, Ny)
+function hole = get_hole_location(Nx, Ny)
 
-    % num_holes   = 4;
-    num_holes   = 1;
-    hole_radius = 50;
-    % hole_xs     = round((1:1:num_holes)*Nx/(num_holes+1));
-    % hole_ys     = round((1:1:num_holes)*Ny/(num_holes+1));
-    hole_xs     = round(Nx/2);
-    hole_ys     = round(Ny/4);
-    holes = zeros(Nx,Ny);
-    for i = 1:num_holes
-        holes = holes + makeDisc(Nx,Ny,hole_xs(i),hole_ys(i),hole_radius);
-    end
+    hole_radius = 50;               % [grid points]
+    hole_x      = round(Nx/2);      % [grid points]
+    hole_y      = round(Ny/4);      % [grid points]
+    
+    hole = makeDisc(Nx,Ny,hole_x,hole_y,hole_radius);
     
 end
 
 function slab = get_slab_location(Nx, Ny)
 
-    slab_thickness = 100;
-    slab_y         = 250;
+    slab_thickness = 100;           % [grid points]
+    slab_y         = 250;           % [grid points]
     slab_yrange    = round(slab_y-slab_thickness/2+0.5 : slab_y+slab_thickness/2-0.5);
     
     slab = zeros(Nx,Ny);
     slab(:,slab_yrange) = 1;
     
 end
+
 
 %% METHODS FOR SIMU
 
