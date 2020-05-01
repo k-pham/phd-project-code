@@ -30,16 +30,16 @@ c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
 
 % choose option to represent scattering medium as
-scattering_type = 'random';      % options: 'random', 'points'
+simu.medium.scattering_type = 'random';      % options: 'random', 'points'
 
 simu.kgrid = kWaveGrid(Nx, dx, Ny, dy);
-simu.medium = set_medium(scattering_type, simu.kgrid, c0, rho0);
-simu.kgrid  = make_time(simu.kgrid, simu.medium, c0, 0.75);
-simu.source = set_source(simu.kgrid, pml_size);
-simu.sensor = set_sensor(simu.kgrid, pml_size);
+simu = set_medium(simu, c0, rho0);
+simu = make_time(simu, c0, 0.75);
+simu = set_source(simu, pml_size);
+simu = set_sensor(simu, pml_size);
 simu.inputs = {'PMLSize', pml_size, 'PlotLayout', true, 'PlotSim', true};
 
-fig_medium = plot_medium(simu.kgrid, simu.medium, scattering_type);
+fig_simu = plot_simu_medium(simu);
 
 
 %% RUN SIMULATION
@@ -117,35 +117,35 @@ volume_spacing = [kgrid.dx, 1, params.dt*c0];           % omit factor 1/2 in dz 
 
 %% FUNCTIONS
 
-function medium = define_random_medium(Nx,Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole)
+function [sound_speed, density] = define_c_rho_random_medium(Nx,Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole)
 
     c_rand    = (rand(Nx,Ny)-0.5) * c_range;
     rho_rand  = (rand(Nx,Ny)-0.5) * rho_range;
     holes = get_hole_location(Nx, Ny);
     
     % define sound speed and density of medium
-    medium.sound_speed = c0   * ones(Nx, Ny) + c_rand;
-    medium.density     = rho0 * ones(Nx, Ny) + rho_rand;
+    sound_speed = c0   * ones(Nx, Ny) + c_rand;
+    density     = rho0 * ones(Nx, Ny) + rho_rand;
 
-    medium.sound_speed(holes==1) = c_hole;
-    medium.density(holes==1)     = rho_hole;
+    sound_speed(holes==1) = c_hole;
+    density(holes==1)     = rho_hole;
 
 end
 
-function medium = define_pointscatt_medium(Nx,Ny,c0,rho0,c_pointscatt,rho_pointscatt,dx,dy,num_points_per_voxel,vox_size,c_hole,rho_hole)
+function [sound_speed, density] = define_c_rho_pointscatt_medium(Nx,Ny,c0,rho0,c_pointscatt,rho_pointscatt,dx,dy,num_points_per_voxel,vox_size,c_hole,rho_hole)
 
     pointscatts = get_pointscatt_locations(Nx, Ny, dx, dy, num_points_per_voxel, vox_size);
     holes = get_hole_location(Nx, Ny);
     
     % define sound speed and density of medium
-    medium.sound_speed = c0   * ones(Nx, Ny);
-    medium.density     = rho0 * ones(Nx, Ny);
+    sound_speed = c0   * ones(Nx, Ny);
+    density     = rho0 * ones(Nx, Ny);
 
-    medium.sound_speed(pointscatts==1) = c_pointscatt;
-    medium.density(pointscatts==1)     = rho_pointscatt;
+    sound_speed(pointscatts==1) = c_pointscatt;
+    density(pointscatts==1)     = rho_pointscatt;
 
-    medium.sound_speed(holes==1) = c_hole;
-    medium.density(holes==1)     = rho_hole;
+    sound_speed(holes==1) = c_hole;
+    density(holes==1)     = rho_hole;
 
 end
 
@@ -202,7 +202,7 @@ function slab = get_slab_location(Nx, Ny)
     
 end
 
-function medium = set_medium(scattering_type, kgrid, c0, rho0)
+function simu = set_medium(simu, c0, rho0)
 
     % define scattering medium as random medium
     c_range   = 40;
@@ -218,78 +218,78 @@ function medium = set_medium(scattering_type, kgrid, c0, rho0)
     c_hole      = 1500;
     rho_hole    = 1000;
 
-    switch scattering_type
+    switch simu.medium.scattering_type
         case 'random'
-            medium = define_random_medium(kgrid.Nx,kgrid.Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole);
-            medium.c_scatt   = c_range;
-            medium.rho_scatt = rho_range;
+            [simu.medium.sound_speed, simu.medium.density] = define_c_rho_random_medium(simu.kgrid.Nx,simu.kgrid.Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole);
+            simu.medium.c_scatt   = c_range;
+            simu.medium.rho_scatt = rho_range;
         case 'points'
-            medium = define_pointscatt_medium(kgrid.Nx,kgrid.Ny,c0,rho0,c_pointscatt,rho_pointscatt,dx,dy,num_points_per_voxel,vox_size,c_hole,rho_hole);
-            medium.c_scatt   = c_pointscatt;
-            medium.rho_scatt = rho_pointscatt;
+            [simu.medium.sound_speed, simu.medium.density] = define_c_rho_pointscatt_medium(simu.kgrid.Nx,simu.kgrid.Ny,c0,rho0,c_pointscatt,rho_pointscatt,simu.kgrid.dx,simu.kgrid.dy,num_points_per_voxel,vox_size,c_hole,rho_hole);
+            simu.medium.c_scatt   = c_pointscatt;
+            simu.medium.rho_scatt = rho_pointscatt;
     end
     
-    medium.c_hole   = c_hole;
-    medium.rho_hole = rho_hole;
+    simu.medium.c_hole   = c_hole;
+    simu.medium.rho_hole = rho_hole;
 
 end
 
-function fig_medium = plot_medium(kgrid, medium, scattering_type)
+function fig_simu = plot_simu_medium(simu)
 
     % plot medium sound speed and density
-    fig_medium = figure;
+    fig_simu = figure;
     set(gcf,'Position',[200,200,500,700])
     subplot(2,1,1)
-    imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,medium.sound_speed')
+    imagesc(simu.kgrid.x_vec*1e3,simu.kgrid.y_vec*1e3,simu.medium.sound_speed')
         axis image
-        title(['sound speed: ' scattering_type num2str(medium.c_scatt)])
+        title(['sound speed: ' simu.medium.scattering_type num2str(simu.medium.c_scatt)])
         xlabel('x position / mm')
         ylabel('y position / mm')
         colorbar
     subplot(2,1,2)
-    imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,medium.density')
+    imagesc(simu.kgrid.x_vec*1e3,simu.kgrid.y_vec*1e3,simu.medium.density')
         axis image
-        title(['density: ' scattering_type num2str(medium.rho_scatt)])
+        title(['density: ' simu.medium.scattering_type num2str(simu.medium.rho_scatt)])
         xlabel('x position / mm')
         ylabel('y position / mm')
         colorbar
 
 end
 
-function kgrid = make_time(kgrid, medium, c0, shorten_time)
+function simu = make_time(simu, c0, shorten_time)
 
     cfl = 0.2;              % CFL number
-    t_end = shorten_time*2*kgrid.Ny*kgrid.dy/c0;     % end time of the simulation [s]
-    kgrid.makeTime(medium.sound_speed,cfl,t_end);
+    t_end = shorten_time*2*simu.kgrid.Ny*simu.kgrid.dy/c0;     % end time of the simulation [s]
+    simu.kgrid.makeTime(simu.medium.sound_speed,cfl,t_end);
 
 end
 
-function source = set_source(kgrid, pml_size)
+function simu = set_source(simu, pml_size)
 
     source_amplitude = 10;      % [Pa]
     
     source_width = 0.4;         % proportion of width Nx
-    apodisation = getWin(kgrid.Nx, 'Gaussian', 'Param', source_width);
+    apodisation = getWin(simu.kgrid.Nx, 'Gaussian', 'Param', source_width);
     
     pulse_peak       = 20e-9;
     pulse_width      = 16e-9;
     pulse_variance   = (pulse_width / ( 2*sqrt(2*log(2)) ) )^2;
-    pressure = gaussian(kgrid.t_array,1,pulse_peak,pulse_variance);
+    pressure = gaussian(simu.kgrid.t_array,1,pulse_peak,pulse_variance);
     
-    source.p_mask = zeros(kgrid.Nx, kgrid.Ny);
-    source.p_mask(:, pml_size + 1) = 1;
+    simu.source.p_mask = zeros(simu.kgrid.Nx, simu.kgrid.Ny);
+    simu.source.p_mask(:, pml_size + 1) = 1;
     
-    source.p = source_amplitude * apodisation * pressure;
+    simu.source.p = source_amplitude * apodisation * pressure;
 
 end
 
-function sensor = set_sensor(kgrid, pml_size)
+function simu = set_sensor(simu, pml_size)
 
     sensor_spacing      = 100e-6;
-    sensor_spacing_grid = round(sensor_spacing / kgrid.dx);
-    sensor_positions_x = pml_size : sensor_spacing_grid : (kgrid.Nx - pml_size);
+    sensor_spacing_grid = round(sensor_spacing / simu.kgrid.dx);
+    sensor_positions_x = pml_size : sensor_spacing_grid : (simu.kgrid.Nx - pml_size);
     
-    sensor.mask = zeros(kgrid.Nx, kgrid.Ny);
-    sensor.mask(sensor_positions_x, pml_size+1) = 1;
+    simu.sensor.mask = zeros(simu.kgrid.Nx, simu.kgrid.Ny);
+    simu.sensor.mask(sensor_positions_x, pml_size+1) = 1;
 
 end
