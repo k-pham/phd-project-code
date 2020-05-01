@@ -30,7 +30,8 @@ c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
 
 % choose option to represent scattering medium as
-simu.medium.scattering_type = 'random';      % options: 'random', 'points'
+simu.medium.scattering_type = 'random';     % options: 'random', 'points'
+simu.medium.object_shape    = 'hole';       % options: 'hole', 'slab'
 
 simu.kgrid = kWaveGrid(Nx, dx, Ny, dy);
 simu = set_medium(simu, c0, rho0);
@@ -97,7 +98,7 @@ volume_spacing = [kgrid.dx, 1, params.dt*c0];           % omit factor 1/2 in dz 
 %% SAVE FIGURES & SENSOR DATA & IMAGE DATA
 
 % file_name = [scattering_type '_SCATT_c' num2str(simu.medium.c_scatt) '_rho' num2str(simu.medium.rho_scatt) ...
-%                              '_HOLE_c' num2str(simu.medium.c_hole) '_rho' num2str(simu.medium.rho_hole) ];
+%              object_shape    '_OBJECT_c' num2str(simu.medium.c_object) '_rho' num2str(simu.medium.rho_object) ];
 % 
 % % saveas(fig_medium,[file_dir_figs file_name '_medium.fig'])
 % saveas(fig_medium,[file_dir_figs file_name '_medium.jpg'])
@@ -179,9 +180,9 @@ function simu = set_medium(simu, c0, rho0)
         num_points_per_voxel = 2;
         vox_size = 100e-6;          % [m]
     
-    % define non-scattering holes / slab
-    c_hole   = 1500;        % [m/s]
-    rho_hole = 1000;        % [m/s]
+    % define non-scattering object (hole/slab)
+    c_object   = 1500;        % [m/s]
+    rho_object = 1000;        % [m/s]
     
     % make background medium
     simu.medium.sound_speed = c0   * ones(Nx, Ny);
@@ -210,14 +211,19 @@ function simu = set_medium(simu, c0, rho0)
             simu.medium.rho_scatt = rho_pointscatt;
     end
     
-    % make hole
-    hole = get_hole_location(Nx, Ny);
+    % make object specified by object_shape
+    switch simu.medium.object_shape
+        case 'hole'
+            object = get_hole_location(simu.kgrid.Nx, simu.kgrid.Ny);
+        case 'slab'
+            object = get_slab_location(simu.kgrid.Nx, simu.kgrid.Ny);
+    end
     
-    simu.medium.sound_speed(hole==1) = c_hole;
-    simu.medium.density(hole==1)     = rho_hole;
+    simu.medium.sound_speed(object==1) = c_object;
+    simu.medium.density(object==1)     = rho_object;
 	
-    simu.medium.c_hole   = c_hole;
-    simu.medium.rho_hole = rho_hole;
+    simu.medium.c_object   = c_object;
+    simu.medium.rho_object = rho_object;
 
 end
 
