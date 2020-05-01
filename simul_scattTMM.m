@@ -117,38 +117,6 @@ volume_spacing = [kgrid.dx, 1, params.dt*c0];           % omit factor 1/2 in dz 
 
 %% FUNCTIONS
 
-function [sound_speed, density] = define_c_rho_random_medium(Nx,Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole)
-
-    c_rand    = (rand(Nx,Ny)-0.5) * c_range;
-    rho_rand  = (rand(Nx,Ny)-0.5) * rho_range;
-    holes = get_hole_location(Nx, Ny);
-    
-    % define sound speed and density of medium
-    sound_speed = c0   * ones(Nx, Ny) + c_rand;
-    density     = rho0 * ones(Nx, Ny) + rho_rand;
-
-    sound_speed(holes==1) = c_hole;
-    density(holes==1)     = rho_hole;
-
-end
-
-function [sound_speed, density] = define_c_rho_pointscatt_medium(Nx,Ny,c0,rho0,c_pointscatt,rho_pointscatt,dx,dy,num_points_per_voxel,vox_size,c_hole,rho_hole)
-
-    pointscatts = get_pointscatt_locations(Nx, Ny, dx, dy, num_points_per_voxel, vox_size);
-    holes = get_hole_location(Nx, Ny);
-    
-    % define sound speed and density of medium
-    sound_speed = c0   * ones(Nx, Ny);
-    density     = rho0 * ones(Nx, Ny);
-
-    sound_speed(pointscatts==1) = c_pointscatt;
-    density(pointscatts==1)     = rho_pointscatt;
-
-    sound_speed(holes==1) = c_hole;
-    density(holes==1)     = rho_hole;
-
-end
-
 function pointscatts = get_pointscatt_locations(Nx, Ny, dx, dy, num_points_per_voxel, vox_size)
 
     num_vox_x = floor(Nx*dx/vox_size);
@@ -209,39 +177,50 @@ function simu = set_medium(simu, c0, rho0)
     % define random scattering medium
     c_range   = 40;         % [m/s]
     rho_range = 80;         % [m/s]
-
+    
     % define scattering medium with point scatterers
     c_pointscatt   = 1550;          % [m/s]
     rho_pointscatt = 1100;          % [m/s]
         num_points_per_voxel = 2;
         vox_size = 100e-6;          % [m]
-
+    
     % define non-scattering holes / slab
     c_hole   = 1500;        % [m/s]
     rho_hole = 1000;        % [m/s]
     
-    % define medium specified by scattering_type
+    % make background medium
+    simu.medium.sound_speed = c0   * ones(Nx, Ny);
+    simu.medium.density     = rho0 * ones(Nx, Ny);
+    
+    % make scattering medium specified by scattering_type
     switch simu.medium.scattering_type
         case 'random'
-            [simu.medium.sound_speed, simu.medium.density] = ...
-                    define_c_rho_random_medium(simu.kgrid.Nx,simu.kgrid.Ny, ...
-                                                c0, rho0, ...
-                                                c_range, rho_range, ...
-                                                c_hole, rho_hole);
+            c_rand    = ( rand(simu.kgrid.Nx,simu.kgrid.Ny) - 0.5 ) * c_range;
+            rho_rand  = ( rand(simu.kgrid.Nx,simu.kgrid.Ny) - 0.5 ) * rho_range;
+            
+            simu.medium.sound_speed = simu.medium.sound_speed + c_rand;
+            simu.medium.density     = simu.medium.density     + rho_rand;
+            
             simu.medium.c_scatt   = c_range;
             simu.medium.rho_scatt = rho_range;
         case 'points'
-            [simu.medium.sound_speed, simu.medium.density] = ...
-                    define_c_rho_pointscatt_medium(simu.kgrid.Nx,simu.kgrid.Ny,...
-                                                    c0, rho0, ...
-                                                    c_pointscatt, rho_pointscatt, ...
-                                                    simu.kgrid.dx, simu.kgrid.dy, ...
-                                                    num_points_per_voxel, vox_size, ...
-                                                    c_hole, rho_hole);
+            pointscatts = get_pointscatt_locations(simu.kgrid.Nx, simu.kgrid.Ny, ...
+                                                   simu.kgrid.dx, simu.kgrid.dy, ...
+                                                   num_points_per_voxel, vox_size);
+            
+            simu.medium.sound_speed(pointscatts==1) = c_pointscatt;
+            simu.medium.density(pointscatts==1)     = rho_pointscatt;
+            
             simu.medium.c_scatt   = c_pointscatt;
             simu.medium.rho_scatt = rho_pointscatt;
     end
     
+    % make hole
+    hole = get_hole_location(Nx, Ny);
+    
+    simu.medium.sound_speed(hole==1) = c_hole;
+    simu.medium.density(hole==1)     = rho_hole;
+	
     simu.medium.c_hole   = c_hole;
     simu.medium.rho_hole = rho_hole;
 
