@@ -207,18 +207,18 @@ end
 function simu = set_medium(simu, c0, rho0)
 
     % define random scattering medium
-    c_range   = 40;
-    rho_range = 80;
+    c_range   = 40;         % [m/s]
+    rho_range = 80;         % [m/s]
 
     % define scattering medium with point scatterers
-    c_pointscatt   = 1550;
-    rho_pointscatt = 1100;
+    c_pointscatt   = 1550;          % [m/s]
+    rho_pointscatt = 1100;          % [m/s]
         num_points_per_voxel = 2;
-        vox_size = 100e-6;
+        vox_size = 100e-6;          % [m]
 
     % define non-scattering holes / slab
-    c_hole      = 1500;
-    rho_hole    = 1000;
+    c_hole   = 1500;        % [m/s]
+    rho_hole = 1000;        % [m/s]
     
     % define medium specified by scattering_type
     switch simu.medium.scattering_type
@@ -258,26 +258,26 @@ end
 
 function simu = set_source(simu, pml_size)
 
-    source_amplitude = 10;      % [Pa]
+    amplitude = 10;             % [Pa]
     
-    source_width = 0.4;         % proportion of width Nx
-    apodisation = getWin(simu.kgrid.Nx, 'Gaussian', 'Param', source_width);
+    apodisation_width = 0.4;    % proportion of width Nx
+    apodisation = getWin(simu.kgrid.Nx, 'Gaussian', 'Param', apodisation_width);
     
-    pulse_peak       = 20e-9;   % time of pulse peak pressure [s]
+    pulse_tpeak      = 20e-9;   % time of pulse peak pressure [s]
     pulse_width      = 16e-9;   % FWHM-width of pulse [s]
     pulse_variance   = (pulse_width / ( 2*sqrt(2*log(2)) ) )^2;
-    pressure = gaussian(simu.kgrid.t_array, 1, pulse_peak, pulse_variance);
+    pulse = gaussian(simu.kgrid.t_array, 1, pulse_tpeak, pulse_variance);
     
     simu.source.p_mask = zeros(simu.kgrid.Nx, simu.kgrid.Ny);
     simu.source.p_mask(:, pml_size + 1) = 1;
     
-    simu.source.p = source_amplitude * apodisation * pressure;
+    simu.source.p = amplitude * apodisation * pulse;
 
 end
 
 function simu = set_sensor(simu, pml_size)
 
-    sensor_spacing      = 100e-6;
+    sensor_spacing      = 100e-6;   % [m]
     sensor_spacing_grid = round(sensor_spacing / simu.kgrid.dx);
     sensor_positions_x  = pml_size : sensor_spacing_grid : (simu.kgrid.Nx - pml_size);
     
