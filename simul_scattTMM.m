@@ -23,10 +23,7 @@ dx = 10e-6;                 % grid point spacing in the x direction [m]
 dy = dx;                    % grid point spacing in the y direction [m]
 Nx = 1536;                  % number of grid points in the x (row) direction
 Ny = 1024;                  % number of grid points in the y (column) direction
-kgrid = kWaveGrid(Nx, dx, Ny, dy);
-
-% define the thickness of the PML [grid points]
-pml_size = 20;
+pml_size = 20;              % thickness of the PML [grid points]
 
 % background material properties (WATER)
 c0 = 1500;      % sound speed [m/s]
@@ -35,24 +32,19 @@ rho0 = 1000;    % density [kg/m^3]
 % choose option to represent scattering medium as
 scattering_type = 'random';      % options: 'random', 'points'
 
-[medium, c_scatt, rho_scatt] = set_medium(c0, rho0, scattering_type);
-make_time(medium, c0, 0.75)
-source = set_source(pml_size);
-sensor = set_sensor(pml_size);
-inputs = {'PMLSize', pml_size, 'PlotLayout', true, 'PlotSim', true};
+simu.kgrid = kWaveGrid(Nx, dx, Ny, dy);
+[simu.medium, c_scatt, rho_scatt] = set_medium(scattering_type, simu.kgrid, c0, rho0);
+simu.kgrid  = make_time(simu.kgrid, simu.medium, c0, 0.75);
+simu.source = set_source(simu.kgrid, pml_size);
+simu.sensor = set_sensor(simu.kgrid, pml_size);
+simu.inputs = {'PMLSize', pml_size, 'PlotLayout', true, 'PlotSim', true};
 
-simu.kgrid  = kgrid;
-simu.medium = medium;
-simu.source = source;
-simu.sensor = sensor;
-simu.inputs = inputs;
-
-fig_medium = plot_medium(medium, scattering_type, c_scatt, rho_scatt);
+fig_medium = plot_medium(simu.kgrid, simu.medium, scattering_type, c_scatt, rho_scatt);
 
 
 %% RUN SIMULATION
 
-sensor_data = kspaceFirstOrder2DC(kgrid, medium, source, sensor, inputs{:});
+sensor_data = kspaceFirstOrder2DC(simu.kgrid, simu.medium, simu.source, simu.sensor, simu.inputs{:});
 
 % figure
 % imagesc(sensor_data(:,1:50)')
@@ -60,7 +52,7 @@ sensor_data = kspaceFirstOrder2DC(kgrid, medium, source, sensor, inputs{:});
 %     ylabel('time / dt')
 
 fig_data = figure;
-imagesc(kgrid.x_vec*1e3,kgrid.t_array(50:end)*1e6,sensor_data(:,50:end)')
+imagesc(simu.kgrid.x_vec*1e3,simu.kgrid.t_array(50:end)*1e6,sensor_data(:,50:end)')
     title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
     xlabel('x position / mm')
     ylabel('time / \mus')
@@ -70,12 +62,12 @@ params.Nx = size(sensor_data,1);
 params.Ny = 1;
 params.dx = 10*dx;
 params.dy = dy;
-params.dt = kgrid.dt;
+params.dt = simu.kgrid.dt;
 
-params.trigger_delay        = 0;
-params.Nt_zero_pad_source   = 50;
-params.Nt_t0_correct        = -16;
-params.file_data            = '111111\scattTMM_simul';
+params.trigger_delay      = 0;
+params.Nt_zero_pad_source = 50;
+params.Nt_t0_correct      = -16;
+params.file_data          = '111111\scattTMM_simul';
 
 
 %% IMAGE FORMATION
@@ -210,10 +202,8 @@ function slab = get_slab_location(Nx, Ny)
     
 end
 
-function [medium, c_scatt, rho_scatt] = set_medium(c0, rho0, scattering_type)
+function [medium, c_scatt, rho_scatt] = set_medium(scattering_type, kgrid, c0, rho0)
 
-    global kgrid
-    
     % define scattering medium as random medium
     c_range   = 40;
     rho_range = 80;
@@ -241,10 +231,8 @@ function [medium, c_scatt, rho_scatt] = set_medium(c0, rho0, scattering_type)
 
 end
 
-function fig_medium = plot_medium(medium, scattering_type, c_scatt, rho_scatt)
+function fig_medium = plot_medium(kgrid, medium, scattering_type, c_scatt, rho_scatt)
 
-    global kgrid
-    
     % plot medium sound speed and density
     fig_medium = figure;
     set(gcf,'Position',[200,200,500,700])
@@ -265,20 +253,16 @@ function fig_medium = plot_medium(medium, scattering_type, c_scatt, rho_scatt)
 
 end
 
-function make_time(medium, c0, shorten_time)
+function make_time(kgrid, medium, c0, shorten_time)
 
-    global kgrid
-    
     cfl = 0.2;              % CFL number
     t_end = shorten_time*2*kgrid.Ny*kgrid.dy/c0;     % end time of the simulation [s]
     kgrid.makeTime(medium.sound_speed,cfl,t_end);
 
 end
 
-function source = set_source(pml_size)
+function source = set_source(kgrid, pml_size)
 
-    global kgrid
-    
     source_amplitude = 10;      % [Pa]
     
     source_width = 0.4;         % proportion of width Nx
@@ -296,11 +280,8 @@ function source = set_source(pml_size)
 
 end
 
-function sensor = set_sensor(pml_size)
-% sensor array co-aligned with the source
+function sensor = set_sensor(kgrid, pml_size)
 
-    global kgrid
-    
     sensor_spacing      = 100e-6;
     sensor_spacing_grid = round(sensor_spacing / kgrid.dx);
     sensor_positions_x = pml_size : sensor_spacing_grid : (kgrid.Nx - pml_size);
