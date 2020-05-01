@@ -33,13 +33,13 @@ rho0 = 1000;    % density [kg/m^3]
 scattering_type = 'random';      % options: 'random', 'points'
 
 simu.kgrid = kWaveGrid(Nx, dx, Ny, dy);
-[simu.medium, c_scatt, rho_scatt] = set_medium(scattering_type, simu.kgrid, c0, rho0);
+simu.medium = set_medium(scattering_type, simu.kgrid, c0, rho0);
 simu.kgrid  = make_time(simu.kgrid, simu.medium, c0, 0.75);
 simu.source = set_source(simu.kgrid, pml_size);
 simu.sensor = set_sensor(simu.kgrid, pml_size);
 simu.inputs = {'PMLSize', pml_size, 'PlotLayout', true, 'PlotSim', true};
 
-fig_medium = plot_medium(simu.kgrid, simu.medium, scattering_type, c_scatt, rho_scatt);
+fig_medium = plot_medium(simu.kgrid, simu.medium, scattering_type);
 
 
 %% RUN SIMULATION
@@ -53,7 +53,7 @@ sensor_data = kspaceFirstOrder2DC(simu.kgrid, simu.medium, simu.source, simu.sen
 
 fig_data = figure;
 imagesc(simu.kgrid.x_vec*1e3,simu.kgrid.t_array(50:end)*1e6,sensor_data(:,50:end)')
-    title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
+    title([scattering_type ' c ' num2str(simu.medium.c_scatt) ' rho ' num2str(simu.medium.rho_scatt)])
     xlabel('x position / mm')
     ylabel('time / \mus')
     colorbar
@@ -83,7 +83,7 @@ fig_image = figure;
 imagesc(kgrid.x_vec*1e3,t_array*c0*1e3,reflection_image')
     % using updated kgrid and t_array from reconstruct2dUSimage
     axis image
-    title([scattering_type ' c ' num2str(c_scatt) ' rho ' num2str(rho_scatt)])
+    title([scattering_type ' c ' num2str(simu.medium.c_scatt) ' rho ' num2str(simu.medium.rho_scatt)])
     xlabel('x position / mm')
     ylabel('y position / mm')
     colorbar
@@ -96,7 +96,7 @@ volume_spacing = [kgrid.dx, 1, params.dt*c0];           % omit factor 1/2 in dz 
 
 %% SAVE FIGURES & SENSOR DATA & IMAGE DATA
 
-% file_name = [scattering_type '_SCATT_c' num2str(c_scatt) '_rho' num2str(rho_scatt) ...
+% file_name = [scattering_type '_SCATT_c' num2str(simu.medium.c_scatt) '_rho' num2str(simu.medium.rho_scatt) ...
 %                              '_HOLE_c' num2str(c_hole) '_rho' num2str(rho_hole) ];
 % 
 % % saveas(fig_medium,[file_dir_figs file_name '_medium.fig'])
@@ -202,7 +202,7 @@ function slab = get_slab_location(Nx, Ny)
     
 end
 
-function [medium, c_scatt, rho_scatt] = set_medium(scattering_type, kgrid, c0, rho0)
+function medium = set_medium(scattering_type, kgrid, c0, rho0)
 
     % define scattering medium as random medium
     c_range   = 40;
@@ -221,17 +221,17 @@ function [medium, c_scatt, rho_scatt] = set_medium(scattering_type, kgrid, c0, r
     switch scattering_type
         case 'random'
             medium = define_random_medium(kgrid.Nx,kgrid.Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole);
-            c_scatt = c_range;
-            rho_scatt = rho_range;
+            medium.c_scatt = c_range;
+            medium.rho_scatt = rho_range;
         case 'points'
             medium = define_pointscatt_medium(kgrid.Nx,kgrid.Ny,c0,rho0,c_pointscatt,rho_pointscatt,dx,dy,num_points_per_voxel,vox_size,c_hole,rho_hole);
-            c_scatt = c_pointscatt;
-            rho_scatt = rho_pointscatt;
+            medium.c_scatt = c_pointscatt;
+            medium.rho_scatt = rho_pointscatt;
     end
 
 end
 
-function fig_medium = plot_medium(kgrid, medium, scattering_type, c_scatt, rho_scatt)
+function fig_medium = plot_medium(kgrid, medium, scattering_type)
 
     % plot medium sound speed and density
     fig_medium = figure;
@@ -239,21 +239,21 @@ function fig_medium = plot_medium(kgrid, medium, scattering_type, c_scatt, rho_s
     subplot(2,1,1)
     imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,medium.sound_speed')
         axis image
-        title(['sound speed: ' scattering_type num2str(c_scatt)])
+        title(['sound speed: ' scattering_type num2str(medium.c_scatt)])
         xlabel('x position / mm')
         ylabel('y position / mm')
         colorbar
     subplot(2,1,2)
     imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,medium.density')
         axis image
-        title(['density: ' scattering_type num2str(rho_scatt)])
+        title(['density: ' scattering_type num2str(medium.rho_scatt)])
         xlabel('x position / mm')
         ylabel('y position / mm')
         colorbar
 
 end
 
-function make_time(kgrid, medium, c0, shorten_time)
+function kgrid = make_time(kgrid, medium, c0, shorten_time)
 
     cfl = 0.2;              % CFL number
     t_end = shorten_time*2*kgrid.Ny*kgrid.dy/c0;     % end time of the simulation [s]
