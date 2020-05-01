@@ -202,13 +202,15 @@ function slab = get_slab_location(Nx, Ny)
     
 end
 
+%% METHODS FOR SIMU
+
 function simu = set_medium(simu, c0, rho0)
 
-    % define scattering medium as random medium
+    % define random scattering medium
     c_range   = 40;
     rho_range = 80;
 
-    % define scattering medium as point scatterers
+    % define scattering medium with point scatterers
     c_pointscatt   = 1550;
     rho_pointscatt = 1100;
         num_points_per_voxel = 2;
@@ -217,14 +219,25 @@ function simu = set_medium(simu, c0, rho0)
     % define non-scattering holes / slab
     c_hole      = 1500;
     rho_hole    = 1000;
-
+    
+    % define medium specified by scattering_type
     switch simu.medium.scattering_type
         case 'random'
-            [simu.medium.sound_speed, simu.medium.density] = define_c_rho_random_medium(simu.kgrid.Nx,simu.kgrid.Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole);
+            [simu.medium.sound_speed, simu.medium.density] = ...
+                    define_c_rho_random_medium(simu.kgrid.Nx,simu.kgrid.Ny, ...
+                                                c0, rho0, ...
+                                                c_range, rho_range, ...
+                                                c_hole, rho_hole);
             simu.medium.c_scatt   = c_range;
             simu.medium.rho_scatt = rho_range;
         case 'points'
-            [simu.medium.sound_speed, simu.medium.density] = define_c_rho_pointscatt_medium(simu.kgrid.Nx,simu.kgrid.Ny,c0,rho0,c_pointscatt,rho_pointscatt,simu.kgrid.dx,simu.kgrid.dy,num_points_per_voxel,vox_size,c_hole,rho_hole);
+            [simu.medium.sound_speed, simu.medium.density] = ...
+                    define_c_rho_pointscatt_medium(simu.kgrid.Nx,simu.kgrid.Ny,...
+                                                    c0, rho0, ...
+                                                    c_pointscatt, rho_pointscatt, ...
+                                                    simu.kgrid.dx, simu.kgrid.dy, ...
+                                                    num_points_per_voxel, vox_size, ...
+                                                    c_hole, rho_hole);
             simu.medium.c_scatt   = c_pointscatt;
             simu.medium.rho_scatt = rho_pointscatt;
     end
@@ -234,9 +247,47 @@ function simu = set_medium(simu, c0, rho0)
 
 end
 
+function simu = make_time(simu, c0, shorten_time)
+
+    cfl = 0.2;
+    t_end = shorten_time*2*simu.kgrid.Ny*simu.kgrid.dy/c0;      % [s]
+    
+    simu.kgrid.makeTime(simu.medium.sound_speed,cfl,t_end);
+
+end
+
+function simu = set_source(simu, pml_size)
+
+    source_amplitude = 10;      % [Pa]
+    
+    source_width = 0.4;         % proportion of width Nx
+    apodisation = getWin(simu.kgrid.Nx, 'Gaussian', 'Param', source_width);
+    
+    pulse_peak       = 20e-9;   % time of pulse peak pressure [s]
+    pulse_width      = 16e-9;   % FWHM-width of pulse [s]
+    pulse_variance   = (pulse_width / ( 2*sqrt(2*log(2)) ) )^2;
+    pressure = gaussian(simu.kgrid.t_array, 1, pulse_peak, pulse_variance);
+    
+    simu.source.p_mask = zeros(simu.kgrid.Nx, simu.kgrid.Ny);
+    simu.source.p_mask(:, pml_size + 1) = 1;
+    
+    simu.source.p = source_amplitude * apodisation * pressure;
+
+end
+
+function simu = set_sensor(simu, pml_size)
+
+    sensor_spacing      = 100e-6;
+    sensor_spacing_grid = round(sensor_spacing / simu.kgrid.dx);
+    sensor_positions_x  = pml_size : sensor_spacing_grid : (simu.kgrid.Nx - pml_size);
+    
+    simu.sensor.mask = zeros(simu.kgrid.Nx, simu.kgrid.Ny);
+    simu.sensor.mask(sensor_positions_x, pml_size+1) = 1;
+
+end
+
 function fig_simu = plot_simu_medium(simu)
 
-    % plot medium sound speed and density
     fig_simu = figure;
     set(gcf,'Position',[200,200,500,700])
     subplot(2,1,1)
@@ -256,40 +307,3 @@ function fig_simu = plot_simu_medium(simu)
 
 end
 
-function simu = make_time(simu, c0, shorten_time)
-
-    cfl = 0.2;              % CFL number
-    t_end = shorten_time*2*simu.kgrid.Ny*simu.kgrid.dy/c0;     % end time of the simulation [s]
-    simu.kgrid.makeTime(simu.medium.sound_speed,cfl,t_end);
-
-end
-
-function simu = set_source(simu, pml_size)
-
-    source_amplitude = 10;      % [Pa]
-    
-    source_width = 0.4;         % proportion of width Nx
-    apodisation = getWin(simu.kgrid.Nx, 'Gaussian', 'Param', source_width);
-    
-    pulse_peak       = 20e-9;
-    pulse_width      = 16e-9;
-    pulse_variance   = (pulse_width / ( 2*sqrt(2*log(2)) ) )^2;
-    pressure = gaussian(simu.kgrid.t_array,1,pulse_peak,pulse_variance);
-    
-    simu.source.p_mask = zeros(simu.kgrid.Nx, simu.kgrid.Ny);
-    simu.source.p_mask(:, pml_size + 1) = 1;
-    
-    simu.source.p = source_amplitude * apodisation * pressure;
-
-end
-
-function simu = set_sensor(simu, pml_size)
-
-    sensor_spacing      = 100e-6;
-    sensor_spacing_grid = round(sensor_spacing / simu.kgrid.dx);
-    sensor_positions_x = pml_size : sensor_spacing_grid : (simu.kgrid.Nx - pml_size);
-    
-    simu.sensor.mask = zeros(simu.kgrid.Nx, simu.kgrid.Ny);
-    simu.sensor.mask(sensor_positions_x, pml_size+1) = 1;
-
-end
