@@ -38,92 +38,42 @@ rho0 = 1000;    % density [kg/m^3]
 % choose option to represent scattering medium as
 scattering_type = 'random';      % options: 'random', 'points'
 
-% define scattering medium as random medium
-c_range   = 40;
-rho_range = 80;
-
-% define scattering medium as point scatterers
-c_pointscatt   = 1550;
-rho_pointscatt = 1100;
-    num_points_per_voxel = 2;
-    vox_size = 100e-6;
-
-% define non-scattering holes / slab
-c_hole      = 1500;
-rho_hole    = 1000;
-
-switch scattering_type
-    case 'random'
-        medium = define_random_medium(Nx,Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole);
-        c_scatt = c_range;
-        rho_scatt = rho_range;
-    case 'points'
-        medium = define_pointscatt_medium(Nx,Ny,c0,rho0,c_pointscatt,rho_pointscatt,dx,dy,num_points_per_voxel,vox_size,c_hole,rho_hole);
-        c_scatt = c_pointscatt;
-        rho_scatt = rho_pointscatt;
-end
-
-% plot medium sound speed and density
-fig_medium = figure;
-set(gcf,'Position',[200,200,500,700])
-subplot(2,1,1)
-imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,medium.sound_speed')
-    axis image
-    title(['sound speed: ' scattering_type num2str(c_scatt)])
-    xlabel('x position / mm')
-    ylabel('y position / mm')
-    colorbar
-subplot(2,1,2)
-imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,medium.density')
-    axis image
-    title(['density: ' scattering_type num2str(rho_scatt)])
-    xlabel('x position / mm')
-    ylabel('y position / mm')
-    colorbar
+[medium, c_scatt, rho_scatt] = set_medium(c0, rho0, scattering_type);
+fig_medium = plot_medium(medium, scattering_type, c_scatt, rho_scatt);
 
 
 %% TIME
 
-cfl = 0.2;              % CFL number
-% t_end = 2*Ny*dy/c0;     % end time of the simulation [s]
-t_end = 1.5*Ny*dy/c0;     % end time of the simulation [s]
-kgrid.makeTime(medium.sound_speed,cfl,t_end);
+make_time(medium, c0, 0.75)
 
 
 %% SOURCE
 
-source_width = 0.4;         % proportion of width Nx
-source_amplitude = 10;      % [Pa}
-
-source.p_mask = zeros(Nx, Ny);
-source.p_mask(:, pml_size + 1) = 1;
-pressure = gaussian(kgrid.t_array,1,20e-9,(6.8e-9)^2);
-apodisation = getWin(Nx, 'Gaussian', 'Param', source_width);
-source.p = source_amplitude * apodisation * pressure;
+source = set_source(pml_size);
 
 
 %% SENSOR
 
-% sensor array co-aligned with the source
-sensor_positions_x = pml_size:10:(Nx - pml_size);
-sensor.mask = zeros(Nx, Ny);
-sensor.mask(sensor_positions_x, pml_size+1) = 1;
-
-% calculate the number of sensor elements used
-num_sensors = sum(sensor.mask(:));
+sensor = set_sensor(pml_size);
 
 
-%% SIMULATE EXPERIMENT
+%% INPUTS
 
 inputs = {'PMLSize', pml_size, 'PlotLayout', true, 'PlotSim', true};
-sensor_data = kspaceFirstOrder2DC(kgrid, medium, source, sensor, inputs{:});
 
-% save simulation set-up
+
+%% SAVE SIMULATION SETUP
+
 simu.kgrid  = kgrid;
 simu.medium = medium;
 simu.source = source;
 simu.sensor = sensor;
 simu.inputs = inputs;
+
+
+%% SIMULATE EXPERIMENT
+
+sensor_data = kspaceFirstOrder2DC(kgrid, medium, source, sensor, inputs{:});
 
 % figure
 % imagesc(sensor_data(:,1:50)')
@@ -175,19 +125,19 @@ volume_spacing = [kgrid.dx, 1, params.dt*c0];           % omit factor 1/2 in dz 
 
 %% SAVE FIGURES & SENSOR DATA & IMAGE DATA
 
-file_name = [scattering_type '_SCATT_c' num2str(c_scatt) '_rho' num2str(rho_scatt) ...
-                             '_HOLE_c' num2str(c_hole) '_rho' num2str(rho_hole) ];
-
-% saveas(fig_medium,[file_dir_figs file_name '_medium.fig'])
-saveas(fig_medium,[file_dir_figs file_name '_medium.jpg'])
-% saveas(fig_data,  [file_dir_figs file_name '_data.fig'])
-saveas(fig_data,  [file_dir_figs file_name '_data.jpg'])
-% saveas(fig_image, [file_dir_figs file_name '_image.fig'])
-saveas(fig_image, [file_dir_figs file_name '_image.jpg'])
-
-save([file_dir_data file_name '_sensor_data'], 'sensor_data', 'params', 'simu')
-
-save([file_dir_data file_name '_image_data.mat'], 'volume_data', 'volume_spacing', 'kgrid', 't_array', '-v7.3')
+% file_name = [scattering_type '_SCATT_c' num2str(c_scatt) '_rho' num2str(rho_scatt) ...
+%                              '_HOLE_c' num2str(c_hole) '_rho' num2str(rho_hole) ];
+% 
+% % saveas(fig_medium,[file_dir_figs file_name '_medium.fig'])
+% saveas(fig_medium,[file_dir_figs file_name '_medium.jpg'])
+% % saveas(fig_data,  [file_dir_figs file_name '_data.fig'])
+% saveas(fig_data,  [file_dir_figs file_name '_data.jpg'])
+% % saveas(fig_image, [file_dir_figs file_name '_image.fig'])
+% saveas(fig_image, [file_dir_figs file_name '_image.jpg'])
+% 
+% save([file_dir_data file_name '_sensor_data'], 'sensor_data', 'params', 'simu')
+% 
+% save([file_dir_data file_name '_image_data.mat'], 'volume_data', 'volume_spacing', 'kgrid', 't_array', '-v7.3')
 
 
 %% end of loops for parameter search
@@ -279,4 +229,98 @@ function slab = get_slab_location(Nx, Ny)
     slab = zeros(Nx,Ny);
     slab(:,slab_yrange) = 1;
     
+end
+
+function [medium, c_scatt, rho_scatt] = set_medium(c0, rho0, scattering_type)
+
+    global kgrid
+    
+    % define scattering medium as random medium
+    c_range   = 40;
+    rho_range = 80;
+
+    % define scattering medium as point scatterers
+    c_pointscatt   = 1550;
+    rho_pointscatt = 1100;
+        num_points_per_voxel = 2;
+        vox_size = 100e-6;
+
+    % define non-scattering holes / slab
+    c_hole      = 1500;
+    rho_hole    = 1000;
+
+    switch scattering_type
+        case 'random'
+            medium = define_random_medium(kgrid.Nx,kgrid.Ny,c0,rho0,c_range,rho_range,c_hole,rho_hole);
+            c_scatt = c_range;
+            rho_scatt = rho_range;
+        case 'points'
+            medium = define_pointscatt_medium(kgrid.Nx,kgrid.Ny,c0,rho0,c_pointscatt,rho_pointscatt,dx,dy,num_points_per_voxel,vox_size,c_hole,rho_hole);
+            c_scatt = c_pointscatt;
+            rho_scatt = rho_pointscatt;
+    end
+
+end
+
+function fig_medium = plot_medium(medium, scattering_type, c_scatt, rho_scatt)
+
+    global kgrid
+    
+    % plot medium sound speed and density
+    fig_medium = figure;
+    set(gcf,'Position',[200,200,500,700])
+    subplot(2,1,1)
+    imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,medium.sound_speed')
+        axis image
+        title(['sound speed: ' scattering_type num2str(c_scatt)])
+        xlabel('x position / mm')
+        ylabel('y position / mm')
+        colorbar
+    subplot(2,1,2)
+    imagesc(kgrid.x_vec*1e3,kgrid.y_vec*1e3,medium.density')
+        axis image
+        title(['density: ' scattering_type num2str(rho_scatt)])
+        xlabel('x position / mm')
+        ylabel('y position / mm')
+        colorbar
+
+end
+
+function make_time(medium, c0, shorten_time)
+
+    global kgrid
+    
+    cfl = 0.2;              % CFL number
+    t_end = shorten_time*2*kgrid.Ny*kgrid.dy/c0;     % end time of the simulation [s]
+    kgrid.makeTime(medium.sound_speed,cfl,t_end);
+
+end
+
+function source = set_source(pml_size)
+
+    global kgrid
+    
+    source_width = 0.4;         % proportion of width Nx
+    source_amplitude = 10;      % [Pa]
+
+    source.p_mask = zeros(kgrid.Nx, kgrid.Ny);
+    source.p_mask(:, pml_size + 1) = 1;
+    pressure = gaussian(kgrid.t_array,1,20e-9,(6.8e-9)^2);
+    apodisation = getWin(kgrid.Nx, 'Gaussian', 'Param', source_width);
+    source.p = source_amplitude * apodisation * pressure;
+
+end
+
+function sensor = set_sensor(pml_size)
+
+    global kgrid
+    
+    % sensor array co-aligned with the source
+    sensor_positions_x = pml_size:10:(kgrid.Nx - pml_size);
+    sensor.mask = zeros(kgrid.Nx, kgrid.Ny);
+    sensor.mask(sensor_positions_x, pml_size+1) = 1;
+
+    % calculate the number of sensor elements used
+    % num_sensors = sum(sensor.mask(:));
+
 end
