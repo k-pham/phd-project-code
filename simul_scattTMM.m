@@ -18,13 +18,6 @@ file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
 
 %% SET UP SIMULATION -> struct SIMU
 
-% create the computational grid
-dx = 10e-6;                 % grid point spacing in the x direction [m]
-dy = dx;                    % grid point spacing in the y direction [m]
-Nx = 1536;                  % number of grid points in the x (row) direction
-Ny = 1024;                  % number of grid points in the y (column) direction
-pml_size = 20;              % thickness of the PML [grid points]
-
 % background material properties (WATER)
 c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
@@ -33,11 +26,12 @@ rho0 = 1000;    % density [kg/m^3]
 simu.medium.scattering_type = 'random';     % options: 'random', 'points'
 simu.medium.object_shape    = 'hole';       % options: 'hole', 'slab'
 
-simu.kgrid = kWaveGrid(Nx, dx, Ny, dy);
+simu = set_kgrid(simu);
+simu = set_pml(simu);
 simu = set_medium(simu, c0, rho0);
 simu = make_time(simu, c0, 0.75);
-simu = set_source(simu, pml_size);
-simu = set_sensor(simu, pml_size);
+simu = set_source(simu);
+simu = set_sensor(simu);
 simu.inputs = {'PMLSize', pml_size, 'PlotLayout', true, 'PlotSim', true};
 
 fig_simu = plot_simu_medium(simu);
@@ -150,6 +144,23 @@ end
 
 %% METHODS FOR SIMU
 
+function simu = set_kgrid(simu)
+
+    dx = 10e-6;                 % grid point spacing in the x direction [m]
+    dy = dx;                    % grid point spacing in the y direction [m]
+    Nx = 1536;                  % number of grid points in the x (row) direction
+    Ny = 1024;                  % number of grid points in the y (column) direction
+    
+    simu.kgrid = kWaveGrid(Nx, dx, Ny, dy);
+
+end
+
+function simu = set_pml(simu)
+
+    simu.pml_size = 20;              % thickness of the PML [grid points]
+
+end
+
 function simu = set_medium(simu, c0, rho0)
 
     % define random scattering medium
@@ -218,7 +229,7 @@ function simu = make_time(simu, c0, shorten_time)
 
 end
 
-function simu = set_source(simu, pml_size)
+function simu = set_source(simu)
 
     amplitude = 10;             % [Pa]
     
@@ -231,20 +242,20 @@ function simu = set_source(simu, pml_size)
     pulse = gaussian(simu.kgrid.t_array, 1, pulse_tpeak, pulse_variance);
     
     simu.source.p_mask = zeros(simu.kgrid.Nx, simu.kgrid.Ny);
-    simu.source.p_mask(:, pml_size + 1) = 1;
+    simu.source.p_mask(:, simu.pml_size + 1) = 1;
     
     simu.source.p = amplitude * apodisation * pulse;
 
 end
 
-function simu = set_sensor(simu, pml_size)
+function simu = set_sensor(simu)
 
     sensor_spacing      = 100e-6;   % [m]
     sensor_spacing_grid = round(sensor_spacing / simu.kgrid.dx);
-    sensor_positions_x  = pml_size : sensor_spacing_grid : (simu.kgrid.Nx - pml_size);
+    sensor_positions_x  = simu.pml_size : sensor_spacing_grid : (simu.kgrid.Nx - simu.pml_size);
     
     simu.sensor.mask = zeros(simu.kgrid.Nx, simu.kgrid.Ny);
-    simu.sensor.mask(sensor_positions_x, pml_size+1) = 1;
+    simu.sensor.mask(sensor_positions_x, simu.pml_size+1) = 1;
     
     simu.sensor.spacing_grid = sensor_spacing_grid;
 
