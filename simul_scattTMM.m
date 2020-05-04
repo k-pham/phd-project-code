@@ -26,9 +26,9 @@ simu.params.scattering_type = 'random';     % options: 'random', 'points'
 simu.params.object_shape    = 'hole';       % options: 'hole', 'slab'
 
 simu = set_simu_kgrid(simu);
-simu = set_pml(simu);
 simu = set_medium(simu, c0, rho0);
 simu = make_time(simu, c0);
+simu = set_pml(simu);
 simu = set_source(simu);
 simu = set_sensor(simu);
 simu = set_inputs(simu);
@@ -151,12 +151,6 @@ function simu = set_simu_kgrid(simu)
 
 end
 
-function simu = set_pml(simu)
-
-    simu.pml_size = 20;              % thickness of the PML [grid points]
-
-end
-
 function simu = set_medium(simu, c0, rho0)
 
     % define random scattering medium
@@ -226,6 +220,12 @@ function simu = make_time(simu, c0)
 
 end
 
+function simu = set_pml(simu)
+
+    simu.params.pml_size = 20;              % thickness of the PML [grid points]
+
+end
+
 function simu = set_source(simu)
 
     amplitude = 10;             % [Pa]
@@ -239,7 +239,7 @@ function simu = set_source(simu)
     pulse = gaussian(simu.kgrid.t_array, 1, pulse_tpeak, pulse_variance);
     
     simu.source.p_mask = zeros(simu.kgrid.Nx, simu.kgrid.Ny);
-    simu.source.p_mask(:, simu.pml_size + 1) = 1;
+    simu.source.p_mask(:, simu.params.pml_size + 1) = 1;
     
     simu.source.p = amplitude * apodisation * pulse;
 
@@ -249,10 +249,10 @@ function simu = set_sensor(simu)
 
     sensor_spacing      = 100e-6;                                   % [m]
     sensor_spacing_grid = round(sensor_spacing / simu.kgrid.dx);    % [grid points]
-    sensor_positions_x  = simu.pml_size : sensor_spacing_grid : (simu.kgrid.Nx - simu.pml_size);
+    sensor_positions_x  = simu.params.pml_size : sensor_spacing_grid : (simu.kgrid.Nx - simu.params.pml_size);
     
     simu.sensor.mask = zeros(simu.kgrid.Nx, simu.kgrid.Ny);
-    simu.sensor.mask(sensor_positions_x, simu.pml_size+1) = 1;
+    simu.sensor.mask(sensor_positions_x, simu.params.pml_size+1) = 1;
     
     simu.params.sensor_spacing_grid = sensor_spacing_grid;
 
@@ -260,7 +260,7 @@ end
 
 function simu = set_inputs(simu)
 
-    simu.inputs = {'PMLSize', simu.pml_size, 'PlotLayout', true, 'PlotSim', true};
+    simu.inputs = {'PMLSize', simu.params.pml_size, 'PlotLayout', true, 'PlotSim', true};
 
 end
 
