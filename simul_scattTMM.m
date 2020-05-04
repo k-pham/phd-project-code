@@ -26,7 +26,7 @@ rho0 = 1000;    % density [kg/m^3]
 simu.medium.scattering_type = 'random';     % options: 'random', 'points'
 simu.medium.object_shape    = 'hole';       % options: 'hole', 'slab'
 
-simu = set_kgrid(simu);
+simu = set_simu_kgrid(simu);
 simu = set_pml(simu);
 simu = set_medium(simu, c0, rho0);
 simu = make_time(simu, c0);
@@ -42,7 +42,8 @@ fig_simu = plot_simu_medium(simu);
 sensor.data = kspaceFirstOrder2DC(simu.kgrid, simu.medium, simu.source, simu.sensor, simu.inputs{:});
 
 sensor = set_params(sensor, simu);
-sensor = set_kgrid_tarray(sensor, simu);
+sensor = set_sensor_kgrid(sensor, simu);
+sensor = set_sensor_tarray(sensor, simu);
 
 fig_sens = plot_sensor_data(sensor, simu);
 
@@ -144,7 +145,7 @@ end
 
 %% METHODS FOR SIMU
 
-function simu = set_kgrid(simu)
+function simu = set_simu_kgrid(simu)
 
     dx = 10e-6;                 % grid point spacing in the x direction [m]
     dy = dx;                    % grid point spacing in the y direction [m]
@@ -307,12 +308,16 @@ function sensor = set_params(sensor, simu)
 
 end
 
-function sensor = set_kgrid_tarray(sensor,simu)
+function sensor = set_sensor_kgrid(sensor, simu)
 
     sensor.kgrid    = kWaveGrid(sensor.params.Nx, sensor.params.dx, sensor.params.Ny, sensor.params.dy);
     sensor.kgrid.dt = simu.kgrid.dt;
     sensor.kgrid.Nt = simu.kgrid.Nt;
-    
+
+end
+
+function sensor = set_sensor_tarray(sensor, simu)
+
     sensor.t_array  = simu.kgrid.t_array;
 
 end
