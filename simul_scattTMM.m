@@ -63,19 +63,18 @@ save_image_for_sliceViewer(image, sensor);
 
 %% SAVE FIGURES & SENSOR DATA & IMAGE DATA
 
-% file_name = [scattering_type '_SCATT_c' num2str(simu.medium.c_scatt) '_rho' num2str(simu.medium.rho_scatt) ...
-%              object_shape    '_OBJECT_c' num2str(simu.medium.c_object) '_rho' num2str(simu.medium.rho_object) ];
-% 
-% % saveas(fig_medium,[file_dir_figs file_name '_medium.fig'])
-% saveas(fig_medium,[file_dir_figs file_name '_medium.jpg'])
-% % saveas(fig_data,  [file_dir_figs file_name '_data.fig'])
-% saveas(fig_data,  [file_dir_figs file_name '_data.jpg'])
-% % saveas(fig_image, [file_dir_figs file_name '_image.fig'])
-% saveas(fig_image, [file_dir_figs file_name '_image.jpg'])
-% 
-% save([file_dir_data file_name '_sensor_data'], 'sensor_data', 'params', 'simu')
-% 
-% save([file_dir_data file_name '_image_data.mat'], 'volume_data', 'volume_spacing', 'kgrid', 't_array', '-v7.3')
+file_name = get_file_name(simu);
+
+% saveas(fig_medium,[file_dir_figs file_name '_medium.fig'])
+saveas(fig_medium,[file_dir_figs file_name '_medium.jpg'])
+% saveas(fig_data,  [file_dir_figs file_name '_data.fig'])
+saveas(fig_data,  [file_dir_figs file_name '_data.jpg'])
+% saveas(fig_image, [file_dir_figs file_name '_image.fig'])
+saveas(fig_image, [file_dir_figs file_name '_image.jpg'])
+
+save([file_dir_data file_name '_simu']  , 'simu'  , '-v7.3')
+save([file_dir_data file_name '_sensor'], 'sensor', '-v7.3')
+save([file_dir_data file_name '_image'] , 'image' , '-v7.3')
 
 
 %% end of loops for parameter search
