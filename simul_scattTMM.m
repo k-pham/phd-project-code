@@ -18,16 +18,16 @@ file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
 %% SET UP SIMULATION -> struct SIMU
 
 % background material properties (WATER)
-c0 = 1500;      % sound speed [m/s]
-rho0 = 1000;    % density [kg/m^3]
+simu.params.c0   = 1500;    % sound speed [m/s]
+simu.params.rho0 = 1000;    % density [kg/m^3]
 
 % choose option to represent scattering medium as
 simu.params.scattering_type = 'random';     % options: 'random', 'points'
 simu.params.object_shape    = 'hole';       % options: 'hole', 'slab'
 
 simu = set_simu_kgrid(simu);
-simu = set_medium(simu, c0, rho0);
-simu = make_time(simu, c0);
+simu = set_medium(simu);
+simu = make_time(simu);
 simu = set_pml(simu);
 simu = set_source(simu);
 simu = set_sensor(simu);
@@ -49,16 +49,14 @@ fig_sens = plot_sensor_data(sensor, simu);
 
 %% RECONSTRUCTION -> struct IMAGE
 
-image.data = reconstruct2dUSimage(sensor.data, sensor.params, c0);
+image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0);
     % NOTE: kgrid and t_array UPDATED
     global kgrid t_array
 
 image.kgrid   = kgrid;
 image.t_array = t_array;
 
-fig_imag = plot_image_data(image, simu, c0);
-
-save_image_for_sliceViewer(image, sensor, simu, file_dir_data, c0)
+fig_imag = plot_image_data(image, simu);
 
 
 %% SAVE FIGURES & SIMU DATA & SENSOR DATA & IMAGE DATA
@@ -75,6 +73,8 @@ saveas(fig_imag, [file_dir_figs file_name '_image.jpg'])
 save([file_dir_data file_name '_simu']  , 'simu'  , '-v7.3')
 save([file_dir_data file_name '_sensor'], 'sensor', '-v7.3')
 save([file_dir_data file_name '_image'] , 'image' , '-v7.3')
+
+save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
 
 
 %% end of loops for parameter search
@@ -151,7 +151,7 @@ function simu = set_simu_kgrid(simu)
 
 end
 
-function simu = set_medium(simu, c0, rho0)
+function simu = set_medium(simu)
 
     % define random scattering medium
     c_range   = 40;         % [m/s]
@@ -168,8 +168,8 @@ function simu = set_medium(simu, c0, rho0)
     rho_object = 1000;        % [m/s]
     
     % make background medium
-    simu.medium.sound_speed = c0   * ones(simu.kgrid.Nx, simu.kgrid.Ny);
-    simu.medium.density     = rho0 * ones(simu.kgrid.Nx, simu.kgrid.Ny);
+    simu.medium.sound_speed = simu.params.c0   * ones(simu.kgrid.Nx, simu.kgrid.Ny);
+    simu.medium.density     = simu.params.rho0 * ones(simu.kgrid.Nx, simu.kgrid.Ny);
     
     % make scattering medium specified by scattering_type
     switch simu.params.scattering_type
@@ -210,11 +210,11 @@ function simu = set_medium(simu, c0, rho0)
 
 end
 
-function simu = make_time(simu, c0)
+function simu = make_time(simu)
 
     cfl = 0.2;                  % clf number
     shorten_time = 0.75;        % fraction by which to shorten acquisition length
-    t_end = shorten_time * 2 * simu.kgrid.Ny * simu.kgrid.dy / c0;      % [s]
+    t_end = shorten_time * 2 * simu.kgrid.Ny * simu.kgrid.dy / simu.params.c0;      % [s]
     
     simu.kgrid.makeTime(simu.medium.sound_speed, cfl, t_end);
 
@@ -336,10 +336,11 @@ end
 
 %% METHODS FOR IMAGE
 
-function fig_imag = plot_image_data(image, simu, c0)
+function fig_imag = plot_image_data(image, simu)
 
     fig_imag = figure;
-    imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')     % omit factor 1/2 in depth because of doubled depth bug
+    imagesc(image.kgrid.x_vec*1e3, image.t_array*simu.params.c0*1e3, image.data')
+    % omit factor 1/2 in depth because of doubled depth bug
         axis image
         title([simu.params.scattering_type ' c ' num2str(simu.params.c_scatt) ' rho ' num2str(simu.params.rho_scatt)])
         xlabel('x position / mm')
@@ -348,11 +349,11 @@ function fig_imag = plot_image_data(image, simu, c0)
 
 end
 
-function save_image_for_sliceViewer(image, sensor, simu, file_dir_data, c0)
+function save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
 
     [Nx_image, Ny_image] = size(image.data);
     volume_data = reshape(image.data, Nx_image, 1, Ny_image);
-    volume_spacing = [image.kgrid.dx, 1, sensor.params.dt*c0];	% omit factor 1/2 in dz because of doubled depth bug
+    volume_spacing = [image.kgrid.dx, 1, sensor.params.dt*simu.params.c0];	% omit factor 1/2 in dz because of doubled depth bug
     
     file_name = get_file_name(simu);
     
