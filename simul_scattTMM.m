@@ -141,6 +141,8 @@ end
 %% METHODS FOR SIMU
 
 function simu = set_simu_kgrid(simu)
+% makes:    simu.kgrid
+% requires: nothing
 
     dx = 10e-6;                 % grid point spacing in the x direction [m]
     dy = dx;                    % grid point spacing in the y direction [m]
@@ -152,6 +154,11 @@ function simu = set_simu_kgrid(simu)
 end
 
 function simu = set_medium(simu)
+% makes:    simu.medium.sound_speed/density
+% requires: simu.kgrid                  - for size
+%           simu.params.c0/rho0         - for background medium
+%           simu.params.scattering_type - for type of scattering medium
+%           simu.params.object_shape    - for shape of object
 
     % define random scattering medium
     c_range   = 40;         % [m/s]
@@ -211,6 +218,9 @@ function simu = set_medium(simu)
 end
 
 function simu = make_time(simu)
+% makes:    simu.kgrid.t_array
+% requires: simu.kgrid  - for length of acquisition
+%           simu.medium - for max sound speed (to determine dt)
 
     cfl = 0.2;                  % clf number
     shorten_time = 0.75;        % fraction by which to shorten acquisition length
@@ -221,12 +231,17 @@ function simu = make_time(simu)
 end
 
 function simu = set_pml(simu)
+% makes:    simu.params.pml_size
+% requires: nothing
 
     simu.params.pml_size = 20;              % thickness of the PML [grid points]
 
 end
 
 function simu = set_source(simu)
+% makes:    simu.source
+% requires: simu.kgrid           - for size
+%           simu.params.pml_size - for position of source
 
     amplitude = 10;             % [Pa]
     
@@ -246,6 +261,9 @@ function simu = set_source(simu)
 end
 
 function simu = set_sensor(simu)
+% makes:    simu.sensor
+% requires: simu.kgrid           - for size
+%           simu.params.pml_size - for position of sensor
 
     sensor_spacing      = 100e-6;                                   % [m]
     sensor_spacing_grid = round(sensor_spacing / simu.kgrid.dx);    % [grid points]
@@ -259,12 +277,18 @@ function simu = set_sensor(simu)
 end
 
 function simu = set_inputs(simu)
+% makes:    simu.inputs
+% requires: simu.params.pml_size
 
     simu.inputs = {'PMLSize', simu.params.pml_size, 'PlotLayout', true, 'PlotSim', true};
 
 end
 
 function fig_simu = plot_simu_medium(simu)
+% plots:    simu.medium.sound_speed/density
+% requires: simu.medium
+%           simu.kgrid  - for axes
+%           simu.params - for titles
 
     fig_simu = figure;
     set(gcf,'Position',[200,200,500,700])
@@ -289,6 +313,10 @@ end
 %% METHODS FOR SENSOR
 
 function sensor = set_params(sensor, simu)
+% makes:    sensor.params
+% requires: sensor.data - for size
+%           simu.params - for sensor spacing
+%           simu.kgrid  - for grid size, dt
 
     sensor.params.Nx = size(sensor.data,1);
     sensor.params.Ny = 1;
@@ -304,6 +332,9 @@ function sensor = set_params(sensor, simu)
 end
 
 function sensor = set_sensor_kgrid(sensor, simu)
+% makes:    sensor.kgrid
+% requires: sensor.params - for kWaveGrid
+%           simu.kgrid    - dt, Nt
 
     sensor.kgrid    = kWaveGrid(sensor.params.Nx, sensor.params.dx, sensor.params.Ny, sensor.params.dy);
     sensor.kgrid.dt = simu.kgrid.dt;
@@ -312,12 +343,19 @@ function sensor = set_sensor_kgrid(sensor, simu)
 end
 
 function sensor = set_sensor_tarray(sensor, simu)
+% makes:    sensor.t_array
+% requires: simu.kgrid.t_array
 
     sensor.t_array  = simu.kgrid.t_array;
 
 end
 
 function fig_sens = plot_sensor_data(sensor, simu)
+% plots:    sensor.data
+% requires: sensor.data
+%           sensor.kgrid   - for axes
+%           sensor.t_array - for axes
+%           simu.params    - for titles
 
     % figure
     % imagesc(sensor_data(:,1:50)')
@@ -337,10 +375,15 @@ end
 %% METHODS FOR IMAGE
 
 function fig_imag = plot_image_data(image, simu)
+% plots:    image.data
+% requires: image.data
+%           image.kgrid   - for axes
+%           image.t_array - for axes
+%           simu.params   - for c0, titles
 
     fig_imag = figure;
     imagesc(image.kgrid.x_vec*1e3, image.t_array*simu.params.c0*1e3, image.data')
-    % omit factor 1/2 in depth because of doubled depth bug
+                     % omit factor 1/2 in depth because of doubled depth bug
         axis image
         title([simu.params.scattering_type ' c ' num2str(simu.params.c_scatt) ' rho ' num2str(simu.params.rho_scatt)])
         xlabel('x position / mm')
@@ -350,10 +393,16 @@ function fig_imag = plot_image_data(image, simu)
 end
 
 function save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
+% saves:    image.data reshaped to 3D
+% requires: image.data
+%           image.kgrid   - for volume spacing
+%           sensor.params - for dt
+%           simu.params   - for c0, file name
 
     [Nx_image, Ny_image] = size(image.data);
     volume_data = reshape(image.data, Nx_image, 1, Ny_image);
-    volume_spacing = [image.kgrid.dx, 1, sensor.params.dt*simu.params.c0];	% omit factor 1/2 in dz because of doubled depth bug
+    volume_spacing = [image.kgrid.dx, 1, sensor.params.dt*simu.params.c0];
+                     % omit factor 1/2 in dz because of doubled depth bug
     
     file_name = get_file_name(simu);
     
