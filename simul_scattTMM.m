@@ -1,7 +1,6 @@
 % Pulse-echo plane-wave US imaging - scattering TMM with holes (simulate agarTMM)
 % combine _rand and _points scripts into one
 
-global kgrid t_array
 
 %% loops for parameter search
 
@@ -50,26 +49,25 @@ fig_sens = plot_sensor_data(sensor, simu);
 
 %% IMAGE FORMATION
 
-reflection_image = reconstruct2dUSimage(sensor_data, params, c0);
+image.data = reconstruct2dUSimage(sensor.data, sensor.params, c0);
     % NOTE: kgrid and t_array UPDATED
+    global kgrid t_array
 
-fig_image = figure;
-% imagesc(kgrid.x_vec*1e3,kgrid.t_array*c0/2*1e3,reflection_image')
-%     % can use kgrid.x_vec here, even though spacing is different in image,
-%     % because only care about end points of sensor; kgrid.t_array is
-%     % correct to use with c0/2 scaling
-imagesc(kgrid.x_vec*1e3,t_array*c0*1e3,reflection_image')
-    % using updated kgrid and t_array from reconstruct2dUSimage
+image.kgrid   = kgrid;
+image.t_array = t_array;
+
+fig_imag = figure;
+imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')
     axis image
-    title([scattering_type ' c ' num2str(simu.medium.c_scatt) ' rho ' num2str(simu.medium.rho_scatt)])
+    title([simu.medium.scattering_type ' c ' num2str(simu.medium.c_scatt) ' rho ' num2str(simu.medium.rho_scatt)])
     xlabel('x position / mm')
     ylabel('y position / mm')
     colorbar
 
 % prepare for saving
-[Nx_image, Ny_image] = size(reflection_image);
-volume_data = reshape(reflection_image,Nx_image,1,Ny_image);
-volume_spacing = [kgrid.dx, 1, params.dt*c0];           % omit factor 1/2 in dz because of doubled depth bug
+[Nx_image, Ny_image] = size(image.data);
+volume_data = reshape(image.data,Nx_image,1,Ny_image);
+volume_spacing = [image.kgrid.dx, 1, sensor.params.dt*c0];           % omit factor 1/2 in dz because of doubled depth bug
 
 
 %% SAVE FIGURES & SENSOR DATA & IMAGE DATA
