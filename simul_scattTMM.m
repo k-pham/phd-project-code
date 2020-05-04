@@ -22,8 +22,8 @@ c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
 
 % choose option to represent scattering medium as
-simu.medium.scattering_type = 'random';     % options: 'random', 'points'
-simu.medium.object_shape    = 'hole';       % options: 'hole', 'slab'
+simu.params.scattering_type = 'random';     % options: 'random', 'points'
+simu.params.object_shape    = 'hole';       % options: 'hole', 'slab'
 
 simu = set_simu_kgrid(simu);
 simu = set_pml(simu);
@@ -47,7 +47,7 @@ sensor = set_sensor_tarray(sensor, simu);
 fig_sens = plot_sensor_data(sensor, simu);
 
 
-%% IMAGE FORMATION
+%% RECONSTRUCTION -> struct IMAGE
 
 image.data = reconstruct2dUSimage(sensor.data, sensor.params, c0);
     % NOTE: kgrid and t_array UPDATED
@@ -61,7 +61,7 @@ fig_imag = plot_image_data(image, simu);
 save_image_for_sliceViewer(image, sensor);
 
 
-%% SAVE FIGURES & SENSOR DATA & IMAGE DATA
+%% SAVE FIGURES & SIMU DATA & SENSOR DATA & IMAGE DATA
 
 file_name = get_file_name(simu);
 
@@ -132,8 +132,8 @@ end
 
 function file_name = get_file_name(simu)
 
-    file_name = [simu.medium.scattering_type '_SCATT_c'  num2str(simu.medium.c_scatt)  '_rho' num2str(simu.medium.rho_scatt) ...
-                 simu.medium.object_shape    '_OBJECT_c' num2str(simu.medium.c_object) '_rho' num2str(simu.medium.rho_object) ];
+    file_name = [simu.params.scattering_type '_SCATT_c'  num2str(simu.params.c_scatt)  '_rho' num2str(simu.params.rho_scatt) ...
+                 simu.params.object_shape    '_OBJECT_c' num2str(simu.params.c_object) '_rho' num2str(simu.params.rho_object) ];
 
 end
 
@@ -178,7 +178,7 @@ function simu = set_medium(simu, c0, rho0)
     simu.medium.density     = rho0 * ones(simu.kgrid.Nx, simu.kgrid.Ny);
     
     % make scattering medium specified by scattering_type
-    switch simu.medium.scattering_type
+    switch simu.params.scattering_type
         case 'random'
             c_rand    = ( rand(simu.kgrid.Nx,simu.kgrid.Ny) - 0.5 ) * c_range;
             rho_rand  = ( rand(simu.kgrid.Nx,simu.kgrid.Ny) - 0.5 ) * rho_range;
@@ -186,8 +186,8 @@ function simu = set_medium(simu, c0, rho0)
             simu.medium.sound_speed = simu.medium.sound_speed + c_rand;
             simu.medium.density     = simu.medium.density     + rho_rand;
             
-            simu.medium.c_scatt   = c_range;
-            simu.medium.rho_scatt = rho_range;
+            simu.params.c_scatt   = c_range;
+            simu.params.rho_scatt = rho_range;
         case 'points'
             pointscatts = get_pointscatt_locations(simu.kgrid.Nx, simu.kgrid.Ny, ...
                                                    simu.kgrid.dx, simu.kgrid.dy, ...
@@ -196,12 +196,12 @@ function simu = set_medium(simu, c0, rho0)
             simu.medium.sound_speed(pointscatts==1) = c_pointscatt;
             simu.medium.density(pointscatts==1)     = rho_pointscatt;
             
-            simu.medium.c_scatt   = c_pointscatt;
-            simu.medium.rho_scatt = rho_pointscatt;
+            simu.params.c_scatt   = c_pointscatt;
+            simu.params.rho_scatt = rho_pointscatt;
     end
     
     % make object specified by object_shape
-    switch simu.medium.object_shape
+    switch simu.params.object_shape
         case 'hole'
             object = get_hole_location(simu.kgrid.Nx, simu.kgrid.Ny);
         case 'slab'
@@ -211,8 +211,8 @@ function simu = set_medium(simu, c0, rho0)
     simu.medium.sound_speed(object==1) = c_object;
     simu.medium.density(object==1)     = rho_object;
 	
-    simu.medium.c_object   = c_object;
-    simu.medium.rho_object = rho_object;
+    simu.params.c_object   = c_object;
+    simu.params.rho_object = rho_object;
 
 end
 
@@ -247,14 +247,14 @@ end
 
 function simu = set_sensor(simu)
 
-    sensor_spacing      = 100e-6;   % [m]
-    sensor_spacing_grid = round(sensor_spacing / simu.kgrid.dx);
+    sensor_spacing      = 100e-6;                                   % [m]
+    sensor_spacing_grid = round(sensor_spacing / simu.kgrid.dx);    % [grid points]
     sensor_positions_x  = simu.pml_size : sensor_spacing_grid : (simu.kgrid.Nx - simu.pml_size);
     
     simu.sensor.mask = zeros(simu.kgrid.Nx, simu.kgrid.Ny);
     simu.sensor.mask(sensor_positions_x, simu.pml_size+1) = 1;
     
-    simu.sensor.spacing_grid = sensor_spacing_grid;
+    simu.params.sensor_spacing_grid = sensor_spacing_grid;
 
 end
 
@@ -271,14 +271,14 @@ function fig_simu = plot_simu_medium(simu)
     subplot(2,1,1)
     imagesc(simu.kgrid.x_vec*1e3,simu.kgrid.y_vec*1e3,simu.medium.sound_speed')
         axis image
-        title(['sound speed: ' simu.medium.scattering_type num2str(simu.medium.c_scatt)])
+        title(['sound speed: ' simu.params.scattering_type num2str(simu.params.c_scatt)])
         xlabel('x position / mm')
         ylabel('y position / mm')
         colorbar
     subplot(2,1,2)
     imagesc(simu.kgrid.x_vec*1e3,simu.kgrid.y_vec*1e3,simu.medium.density')
         axis image
-        title(['density: ' simu.medium.scattering_type num2str(simu.medium.rho_scatt)])
+        title(['density: ' simu.params.scattering_type num2str(simu.params.rho_scatt)])
         xlabel('x position / mm')
         ylabel('y position / mm')
         colorbar
@@ -292,7 +292,7 @@ function sensor = set_params(sensor, simu)
 
     sensor.params.Nx = size(sensor.data,1);
     sensor.params.Ny = 1;
-    sensor.params.dx = simu.sensor.spacing_grid * simu.kgrid.dx;
+    sensor.params.dx = simu.params.sensor_spacing_grid * simu.kgrid.dx;
     sensor.params.dy = simu.kgrid.dy;
     sensor.params.dt = simu.kgrid.dt;
     
@@ -326,7 +326,7 @@ function fig_sens = plot_sensor_data(sensor, simu)
     
     fig_sens = figure;
     imagesc(sensor.kgrid.x_vec*1e3,sensor.t_array(50:end)*1e6,sensor.data(:,50:end)')
-        title([simu.medium.scattering_type ' c ' num2str(simu.medium.c_scatt) ' rho ' num2str(simu.medium.rho_scatt)])
+        title([simu.params.scattering_type ' c ' num2str(simu.parmas.c_scatt) ' rho ' num2str(simu.params.rho_scatt)])
         xlabel('x position / mm')
         ylabel('time / \mus')
         colorbar
@@ -341,7 +341,7 @@ function fig_imag = plot_image_data(image, simu)
     fig_imag = figure;
     imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')     % omit factor 1/2 in depth because of doubled depth bug
         axis image
-        title([simu.medium.scattering_type ' c ' num2str(simu.medium.c_scatt) ' rho ' num2str(simu.medium.rho_scatt)])
+        title([simu.params.scattering_type ' c ' num2str(simu.params.c_scatt) ' rho ' num2str(simu.params.rho_scatt)])
         xlabel('x position / mm')
         ylabel('y position / mm')
         colorbar
