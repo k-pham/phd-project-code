@@ -56,21 +56,21 @@ image.data = reconstruct2dUSimage(sensor.data, sensor.params, c0);
 image.kgrid   = kgrid;
 image.t_array = t_array;
 
-fig_imag = plot_image_data(image, simu);
+fig_imag = plot_image_data(image, simu, c0);
 
-save_image_for_sliceViewer(image, sensor);
+save_image_for_sliceViewer(image, sensor, simu, file_dir_data, c0)
 
 
 %% SAVE FIGURES & SIMU DATA & SENSOR DATA & IMAGE DATA
 
 file_name = get_file_name(simu);
 
-% saveas(fig_medium,[file_dir_figs file_name '_medium.fig'])
-saveas(fig_medium,[file_dir_figs file_name '_medium.jpg'])
-% saveas(fig_data,  [file_dir_figs file_name '_data.fig'])
-saveas(fig_data,  [file_dir_figs file_name '_data.jpg'])
-% saveas(fig_image, [file_dir_figs file_name '_image.fig'])
-saveas(fig_image, [file_dir_figs file_name '_image.jpg'])
+% saveas(fig_simu,[file_dir_figs file_name '_medium.fig'])
+saveas(fig_simu,[file_dir_figs file_name '_medium.jpg'])
+% saveas(fig_sens,  [file_dir_figs file_name '_data.fig'])
+saveas(fig_sens,  [file_dir_figs file_name '_data.jpg'])
+% saveas(fig_imag, [file_dir_figs file_name '_image.fig'])
+saveas(fig_imag, [file_dir_figs file_name '_image.jpg'])
 
 save([file_dir_data file_name '_simu']  , 'simu'  , '-v7.3')
 save([file_dir_data file_name '_sensor'], 'sensor', '-v7.3')
@@ -132,7 +132,7 @@ end
 
 function file_name = get_file_name(simu)
 
-    file_name = [simu.params.scattering_type '_SCATT_c'  num2str(simu.params.c_scatt)  '_rho' num2str(simu.params.rho_scatt) ...
+    file_name = [simu.params.scattering_type '_SCATT_c'  num2str(simu.params.c_scatt)  '_rho' num2str(simu.params.rho_scatt) '_' ...
                  simu.params.object_shape    '_OBJECT_c' num2str(simu.params.c_object) '_rho' num2str(simu.params.rho_object) ];
 
 end
@@ -326,7 +326,7 @@ function fig_sens = plot_sensor_data(sensor, simu)
     
     fig_sens = figure;
     imagesc(sensor.kgrid.x_vec*1e3,sensor.t_array(50:end)*1e6,sensor.data(:,50:end)')
-        title([simu.params.scattering_type ' c ' num2str(simu.parmas.c_scatt) ' rho ' num2str(simu.params.rho_scatt)])
+        title([simu.params.scattering_type ' c ' num2str(simu.params.c_scatt) ' rho ' num2str(simu.params.rho_scatt)])
         xlabel('x position / mm')
         ylabel('time / \mus')
         colorbar
@@ -336,7 +336,7 @@ end
 
 %% METHODS FOR IMAGE
 
-function fig_imag = plot_image_data(image, simu)
+function fig_imag = plot_image_data(image, simu, c0)
 
     fig_imag = figure;
     imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')     % omit factor 1/2 in depth because of doubled depth bug
@@ -348,7 +348,7 @@ function fig_imag = plot_image_data(image, simu)
 
 end
 
-function save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
+function save_image_for_sliceViewer(image, sensor, simu, file_dir_data, c0)
 
     [Nx_image, Ny_image] = size(image.data);
     volume_data = reshape(image.data, Nx_image, 1, Ny_image);
