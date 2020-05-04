@@ -56,18 +56,9 @@ image.data = reconstruct2dUSimage(sensor.data, sensor.params, c0);
 image.kgrid   = kgrid;
 image.t_array = t_array;
 
-fig_imag = figure;
-imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')
-    axis image
-    title([simu.medium.scattering_type ' c ' num2str(simu.medium.c_scatt) ' rho ' num2str(simu.medium.rho_scatt)])
-    xlabel('x position / mm')
-    ylabel('y position / mm')
-    colorbar
+fig_imag = plot_image_data(image, simu);
 
-% prepare for saving
-[Nx_image, Ny_image] = size(image.data);
-volume_data = reshape(image.data,Nx_image,1,Ny_image);
-volume_spacing = [image.kgrid.dx, 1, sensor.params.dt*c0];           % omit factor 1/2 in dz because of doubled depth bug
+save_image_for_sliceViewer(image, sensor);
 
 
 %% SAVE FIGURES & SENSOR DATA & IMAGE DATA
@@ -138,6 +129,13 @@ function slab = get_slab_location(Nx, Ny)
     slab = zeros(Nx,Ny);
     slab(:,slab_yrange) = 1;
     
+end
+
+function file_name = get_file_name(simu)
+
+    file_name = [simu.medium.scattering_type '_SCATT_c'  num2str(simu.medium.c_scatt)  '_rho' num2str(simu.medium.rho_scatt) ...
+                 simu.medium.object_shape    '_OBJECT_c' num2str(simu.medium.c_object) '_rho' num2str(simu.medium.rho_object) ];
+
 end
 
 
@@ -333,6 +331,33 @@ function fig_sens = plot_sensor_data(sensor, simu)
         xlabel('x position / mm')
         ylabel('time / \mus')
         colorbar
+
+end
+
+
+%% METHODS FOR IMAGE
+
+function fig_imag = plot_image_data(image, simu)
+
+    fig_imag = figure;
+    imagesc(image.kgrid.x_vec*1e3,image.t_array*c0*1e3,image.data')     % omit factor 1/2 in depth because of doubled depth bug
+        axis image
+        title([simu.medium.scattering_type ' c ' num2str(simu.medium.c_scatt) ' rho ' num2str(simu.medium.rho_scatt)])
+        xlabel('x position / mm')
+        ylabel('y position / mm')
+        colorbar
+
+end
+
+function save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
+
+    [Nx_image, Ny_image] = size(image.data);
+    volume_data = reshape(image.data, Nx_image, 1, Ny_image);
+    volume_spacing = [image.kgrid.dx, 1, sensor.params.dt*c0];	% omit factor 1/2 in dz because of doubled depth bug
+    
+    file_name = get_file_name(simu);
+    
+    save([file_dir_data file_name '_image_4sliceViewer.mat'], 'volume_data', 'volume_spacing', '-v7.3')
 
 end
 
