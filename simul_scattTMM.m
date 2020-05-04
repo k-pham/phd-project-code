@@ -29,10 +29,10 @@ simu.medium.object_shape    = 'hole';       % options: 'hole', 'slab'
 simu = set_kgrid(simu);
 simu = set_pml(simu);
 simu = set_medium(simu, c0, rho0);
-simu = make_time(simu, c0, 0.75);
+simu = make_time(simu, c0);
 simu = set_source(simu);
 simu = set_sensor(simu);
-simu.inputs = {'PMLSize', pml_size, 'PlotLayout', true, 'PlotSim', true};
+simu = set_inputs(simu);
 
 fig_simu = plot_simu_medium(simu);
 
@@ -220,12 +220,13 @@ function simu = set_medium(simu, c0, rho0)
 
 end
 
-function simu = make_time(simu, c0, shorten_time)
+function simu = make_time(simu, c0)
 
-    cfl = 0.2;
-    t_end = shorten_time*2*simu.kgrid.Ny*simu.kgrid.dy/c0;      % [s]
+    cfl = 0.2;                  % clf number
+    shorten_time = 0.75;        % fraction by which to shorten acquisition length
+    t_end = shorten_time * 2 * simu.kgrid.Ny * simu.kgrid.dy / c0;      % [s]
     
-    simu.kgrid.makeTime(simu.medium.sound_speed,cfl,t_end);
+    simu.kgrid.makeTime(simu.medium.sound_speed, cfl, t_end);
 
 end
 
@@ -258,6 +259,12 @@ function simu = set_sensor(simu)
     simu.sensor.mask(sensor_positions_x, simu.pml_size+1) = 1;
     
     simu.sensor.spacing_grid = sensor_spacing_grid;
+
+end
+
+function simu = set_inputs(simu)
+
+    simu.inputs = {'PMLSize', simu.pml_size, 'PlotLayout', true, 'PlotSim', true};
 
 end
 
