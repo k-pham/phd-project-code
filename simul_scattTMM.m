@@ -159,6 +159,7 @@ function simu = set_medium(simu)
 %           simu.params.c0/rho0         - for background medium
 %           simu.params.scattering_type - for type of scattering medium
 %           simu.params.object_shape    - for shape of object
+% TO DO : make c/rho inputs optional (so that can run batches with variation)
 
     % define random scattering medium
     c_range   = 40;         % [m/s]
@@ -217,10 +218,13 @@ function simu = set_medium(simu)
 
 end
 
+% TO DO: make function to implement medium attenuation
+
 function simu = make_time(simu)
 % makes:    simu.kgrid.t_array
 % requires: simu.kgrid  - for length of acquisition
 %           simu.medium - for max sound speed (to determine dt)
+% TO DO: make shorten time fraction an optional input
 
     cfl = 0.2;                  % clf number
     shorten_time = 0.75;        % fraction by which to shorten acquisition length
@@ -233,6 +237,7 @@ end
 function simu = set_pml(simu)
 % makes:    simu.params.pml_size
 % requires: nothing
+% TO DO: make optional pml size input
 
     simu.params.pml_size = 20;              % thickness of the PML [grid points]
 
@@ -317,6 +322,7 @@ function sensor = set_params(sensor, simu)
 % requires: sensor.data - for size
 %           simu.params - for sensor spacing
 %           simu.kgrid  - for grid size, dt
+% TO DO: find t0 correction automatically
 
     sensor.params.Nx = size(sensor.data,1);
     sensor.params.Ny = 1;
@@ -349,6 +355,10 @@ function sensor = set_sensor_tarray(sensor, simu)
     sensor.t_array  = simu.kgrid.t_array;
 
 end
+
+% TO DO: make function to filter (for sensor response and/or pre-recon filter
+
+% TO DO: make function to introduce instrument noise
 
 function fig_sens = plot_sensor_data(sensor, simu)
 % plots:    sensor.data
