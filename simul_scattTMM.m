@@ -47,33 +47,10 @@ fig_simu = plot_simu_medium(simu);
 
 sensor.data = kspaceFirstOrder2DC(simu.kgrid, simu.medium, simu.source, simu.sensor, simu.inputs{:});
 
-sensor.params.Nx = size(sensor.data,1);
-sensor.params.Ny = 1;
-sensor.params.dx = simu.sensor.spacing_grid * simu.kgrid.dx;
-sensor.params.dy = dy;
-sensor.params.dt = simu.kgrid.dt;
+sensor = set_params(sensor, simu);
+sensor = set_kgrid_tarray(sensor, simu);
 
-sensor.params.trigger_delay      = 0;
-sensor.params.Nt_zero_pad_source = 50;
-sensor.params.Nt_t0_correct      = -16;
-sensor.params.file_data          = '111111\scattTMM_simul';
-
-sensor.kgrid    = kWaveGrid(sensor.params.Nx, sensor.params.dx, sensor.params.Ny, sensor.params.dy);
-sensor.kgrid.dt = simu.kgrid.dt;
-sensor.kgrid.Nt = simu.kgrid.Nt;
-sensor.t_array  = simu.kgrid.t_array;
-
-% figure
-% imagesc(sensor_data(:,1:50)')
-%     xlabel('x position / dx')
-%     ylabel('time / dt')
-
-fig_sens = figure;
-imagesc(simu.kgrid.x_vec*1e3,simu.kgrid.t_array(50:end)*1e6,sensor.data(:,50:end)')
-    title([scattering_type ' c ' num2str(simu.medium.c_scatt) ' rho ' num2str(simu.medium.rho_scatt)])
-    xlabel('x position / mm')
-    ylabel('time / \mus')
-    colorbar
+fig_sens = plot_sensor_data(sensor, simu);
 
 
 %% IMAGE FORMATION
@@ -290,6 +267,50 @@ function fig_simu = plot_simu_medium(simu)
         title(['density: ' simu.medium.scattering_type num2str(simu.medium.rho_scatt)])
         xlabel('x position / mm')
         ylabel('y position / mm')
+        colorbar
+
+end
+
+
+%% METHODS FOR SENSOR
+
+function sensor = set_params(sensor, simu)
+
+    sensor.params.Nx = size(sensor.data,1);
+    sensor.params.Ny = 1;
+    sensor.params.dx = simu.sensor.spacing_grid * simu.kgrid.dx;
+    sensor.params.dy = simu.kgrid.dy;
+    sensor.params.dt = simu.kgrid.dt;
+    
+    sensor.params.trigger_delay      = 0;
+    sensor.params.Nt_zero_pad_source = 50;
+    sensor.params.Nt_t0_correct      = -16;
+    sensor.params.file_data          = '111111\scattTMM_simul';
+
+end
+
+function sensor = set_kgrid_tarray(sensor,simu)
+
+    sensor.kgrid    = kWaveGrid(sensor.params.Nx, sensor.params.dx, sensor.params.Ny, sensor.params.dy);
+    sensor.kgrid.dt = simu.kgrid.dt;
+    sensor.kgrid.Nt = simu.kgrid.Nt;
+    
+    sensor.t_array  = simu.kgrid.t_array;
+
+end
+
+function fig_sens = plot_sensor_data(sensor, simu)
+
+    % figure
+    % imagesc(sensor_data(:,1:50)')
+    %     xlabel('x position / dx')
+    %     ylabel('time / dt')
+    
+    fig_sens = figure;
+    imagesc(sensor.kgrid.x_vec*1e3,sensor.t_array(50:end)*1e6,sensor.data(:,50:end)')
+        title([simu.medium.scattering_type ' c ' num2str(simu.medium.c_scatt) ' rho ' num2str(simu.medium.rho_scatt)])
+        xlabel('x position / mm')
+        ylabel('time / \mus')
         colorbar
 
 end
