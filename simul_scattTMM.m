@@ -26,6 +26,13 @@ simu.params.rho_scatt  = 80;        % [kg/m^3]
 simu.params.c_object   = 1500;      % [m/s]
 simu.params.rho_object = 1000;      % [kg/m^3]
 
+% make medium attenuating (or not)
+simu.params.attenuating = true;
+if simu.params.attenuation
+    simu.params.medium_attenuation_coeff = 0.0022;
+    simu.params.medium_attenuation_power = 2;
+end
+
 simu_file_path = [file_dir_data file_name(simu.params) '_simu.mat'];
 
 if exist(simu_file_path, 'file')
@@ -151,6 +158,7 @@ function simu = make_new_simu(simu)
 
     simu = make_simu_kgrid(simu);
     simu = make_medium(simu);
+    simu = maybe_set_medium_attenuation(simu);
     simu = make_time(simu);
     simu = set_pml(simu);
     simu = make_source(simu);
@@ -217,7 +225,14 @@ function simu = make_medium(simu)
 
 end
 
-% TO DO: make function to implement medium attenuation
+function simu = maybe_set_medium_attenuation(simu)
+
+    if simu.params.attenuating
+        simu.medium.alpha_coeff = simu.params.medium_attenuation_coeff;
+        simu.medium.alpha_power = simu.params.medium_attenuation_power;
+    end
+
+end
 
 function simu = make_time(simu)
 % makes:    simu.kgrid.t_array
