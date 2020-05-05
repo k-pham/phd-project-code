@@ -132,6 +132,15 @@ function filename = file_name(simu)
 
 end
 
+function t0_correct = find_t0_correct(data)
+
+    MIP_t = mean(data(:,1:50),1);
+    [~,idx] = max(MIP_t);
+    
+    t0_correct = -idx +1;
+
+end
+
 
 %% METHODS FOR SIMU
 
@@ -322,6 +331,8 @@ function sensor = set_params(sensor, simu)
     sensor.params.Nt_zero_pad_source = 50;
     sensor.params.Nt_t0_correct      = -16;
     sensor.params.file_data          = '111111\scattTMM_simul';
+    
+    assert(sensor.params.Nt_t0_correct == find_t0_correct(sensor.data))
 
 end
 
@@ -356,7 +367,7 @@ function fig_sens = plot_sensor_data(sensor, simu)
 %           simu.params    - for titles
 
     % figure
-    % imagesc(sensor_data(:,1:50)')
+    % imagesc(sensor.data(:,1:50)')
     %     xlabel('x position / dx')
     %     ylabel('time / dt')
     
