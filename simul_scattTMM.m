@@ -85,6 +85,17 @@ fig_sens = plot_sensor_data(sensor, simu);
     % saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.jpg'])
 
 
+%% OPTION: frequency filter before reconstruction (sensor frequency response / pre-recon filter)
+
+simu.params.sensor_frequency_filtered = true;
+
+
+
+%% OPTION: add noise to sensor data before reconstruction
+
+simu.params.sensor_noisy = true;
+
+
 %% RECONSTRUCTION -> struct IMAGE
 
 image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0);
