@@ -20,15 +20,36 @@ simu.params.rho0 = 1000;    % density [kg/m^3]
 simu.params.scattering_type = 'random';     % options: 'random', 'points'
 simu.params.object_shape    = 'hole';       % options: 'hole', 'slab'
 
-simu = set_simu_kgrid(simu);
-simu = set_medium(simu);
-simu = make_time(simu);
-simu = set_pml(simu);
-simu = set_source(simu);
-simu = set_sensor(simu);
-simu = set_inputs(simu);
+simu.params.c_scatt    = 40;
+simu.params.rho_scatt  = 80;
+simu.params.c_object   = 1500;
+simu.params.rho_object = 1000;
 
-save([file_dir_data file_name(simu) '_simu']  , 'simu'  , '-v7.3')
+simu_file_path = [file_dir_data file_name(simu) '_simu.mat'];
+
+if exist(simu_file_path, 'file')
+    disp('Loading existing simulation with specified params..')
+    
+    tic
+    load(simu_file_path, 'simu');
+    disp(['  completed in ' scaleTime(toc)])
+    
+else
+    disp('Making new simulation with specified params..')
+    
+    tic
+    simu = set_simu_kgrid(simu);
+    simu = set_medium(simu);
+    simu = make_time(simu);
+    simu = set_pml(simu);
+    simu = set_source(simu);
+    simu = set_sensor(simu);
+    simu = set_inputs(simu);
+    
+    save(simu_file_path, 'simu'  , '-v7.3')
+    disp(['  completed in ' scaleTime(toc)])
+    
+end
 
 fig_simu = plot_simu_medium(simu);
     % saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.fig'])
@@ -43,7 +64,7 @@ sensor = set_params(sensor, simu);
 sensor = set_sensor_kgrid(sensor, simu);
 sensor = set_sensor_tarray(sensor, simu);
 
-save([file_dir_data file_name(simu) '_sensor'], 'sensor', '-v7.3')
+save([file_dir_data file_name(simu) '_sensor.mat'], 'sensor', '-v7.3')
 
 fig_sens = plot_sensor_data(sensor, simu);
     % saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.fig'])
@@ -59,7 +80,7 @@ image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0);
 image.kgrid   = kgrid;
 image.t_array = t_array;
 
-save([file_dir_data file_name(simu) '_image'] , 'image' , '-v7.3')
+save([file_dir_data file_name(simu) '_image.mat'], 'image' , '-v7.3')
 save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
 
 fig_imag = plot_image_data(image, simu);
@@ -117,16 +138,16 @@ function slab = get_slab_location(Nx, Ny)
 end
 
 function filename = file_name(simu)
+% makes:    file name stem
+% requires: simu.params - for scattering medium and object specs
 
     filename = [simu.params.scattering_type '_SCATT_c'  num2str(simu.params.c_scatt)  '_rho' num2str(simu.params.rho_scatt) '_' ...
-                 simu.params.object_shape    '_OBJECT_c' num2str(simu.params.c_object) '_rho' num2str(simu.params.rho_object) ];
+                simu.params.object_shape    '_OBJECT_c' num2str(simu.params.c_object) '_rho' num2str(simu.params.rho_object) ];
 
 end
 
 
 %% METHODS FOR SIMU
-
-% TO DO: make function to load previous simu setup
 
 function simu = set_simu_kgrid(simu)
 % makes:    simu.kgrid
