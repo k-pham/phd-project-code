@@ -26,7 +26,7 @@ simu.params.rho_scatt  = 80;        % [kg/m^3]
 simu.params.c_object   = 1500;      % [m/s]
 simu.params.rho_object = 1000;      % [kg/m^3]
 
-simu_file_path = [file_dir_data file_name(simu) '_simu.mat'];
+simu_file_path = [file_dir_data file_name(simu.params) '_simu.mat'];
 
 if exist(simu_file_path, 'file')
     disp('Loading existing simulation with specified params..')
@@ -50,7 +50,7 @@ sensor = set_sensor_params(sensor, simu);
 sensor = make_sensor_kgrid(sensor, simu);
 sensor = make_sensor_tarray(sensor, simu);
 
-save([file_dir_data file_name(simu) '_sensor.mat'], 'sensor', '-v7.3')
+save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
 
 fig_sens = plot_sensor_data(sensor, simu);
     % saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.fig'])
@@ -66,7 +66,7 @@ image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0);
 image.kgrid   = kgrid;
 image.t_array = t_array;
 
-save([file_dir_data file_name(simu) '_image.mat'], 'image' , '-v7.3')
+save([file_dir_data file_name(simu.params) '_image.mat'], 'image' , '-v7.3')
 save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
 
 fig_imag = plot_image_data(image, simu);
@@ -123,18 +123,18 @@ function slab = get_slab_location(Nx, Ny)
     
 end
 
-function filename = file_name(simu)
+function filename = file_name(params)
 % makes:    file name stem
 % requires: simu.params - for scattering medium and object specs
 
-    filename = [simu.params.scattering_type '_SCATT_c'  num2str(simu.params.c_scatt)  '_rho' num2str(simu.params.rho_scatt) '_' ...
-                simu.params.object_shape    '_OBJECT_c' num2str(simu.params.c_object) '_rho' num2str(simu.params.rho_object) ];
+    filename = [params.scattering_type '_SCATT_c'  num2str(params.c_scatt)  '_rho' num2str(params.rho_scatt) '_' ...
+                params.object_shape    '_OBJECT_c' num2str(params.c_object) '_rho' num2str(params.rho_object) ];
 
 end
 
-function t0_correct = find_t0_correct(data)
+function t0_correct = find_t0_correct(sensordata)
 
-    MIP_t = mean(data(:,1:50),1);
+    MIP_t   = mean(sensordata(:,1:50),1);
     [~,idx] = max(MIP_t);
     
     t0_correct = -idx +1;
@@ -319,7 +319,6 @@ function sensor = set_sensor_params(sensor, simu)
 % requires: sensor.data - for size
 %           simu.params - for sensor spacing
 %           simu.kgrid  - for grid size, dt
-% TO DO: find t0 correction automatically
 
     sensor.params.Nx = size(sensor.data,1);
     sensor.params.Ny = 1;
