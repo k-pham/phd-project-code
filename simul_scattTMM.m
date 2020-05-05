@@ -33,6 +33,7 @@ if simu.params.attenuation
     simu.params.medium_attenuation_power = 2;
 end
 
+% check for existing simulation set up with params as specified - if not make new one
 simu_file_path = [file_dir_data file_name(simu.params) '_simu.mat'];
 
 if exist(simu_file_path, 'file')
@@ -47,6 +48,13 @@ end
 fig_simu = plot_simu_medium(simu);
     % saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.fig'])
     % saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.jpg'])
+
+% make existing medium attenuating
+% simu.params.attenuating = true;
+% if simu.params.attenuation
+%     simu.params.medium_attenuation_coeff = 0.0022;
+%     simu.params.medium_attenuation_power = 2;
+% end
 
 
 %% RUN SIMULATION -> struct SENSOR
@@ -136,6 +144,10 @@ function filename = file_name(params)
 
     filename = [params.scattering_type '_SCATT_c'  num2str(params.c_scatt)  '_rho' num2str(params.rho_scatt) '_' ...
                 params.object_shape    '_OBJECT_c' num2str(params.c_object) '_rho' num2str(params.rho_object) ];
+	
+    if params.attenuating
+        filename = [filename '_ATTEN_alp' num2str(params.medium_attenuation_coeff) '_pow' num2str(params.medium_attenuation_power) ];
+    end
 
 end
 
