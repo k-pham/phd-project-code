@@ -20,10 +20,10 @@ simu.params.rho0 = 1000;    % density [kg/m^3]
 simu.params.scattering_type = 'random';     % options: 'random', 'points'
 simu.params.object_shape    = 'hole';       % options: 'hole', 'slab'
 
-simu.params.c_scatt    = 40;
-simu.params.rho_scatt  = 80;
-simu.params.c_object   = 1500;
-simu.params.rho_object = 1000;
+simu.params.c_scatt    = 40;        % [m/s]
+simu.params.rho_scatt  = 80;        % [kg/m^3]
+simu.params.c_object   = 1500;      % [m/s]
+simu.params.rho_object = 1000;      % [kg/m^3]
 
 simu_file_path = [file_dir_data file_name(simu) '_simu.mat'];
 
@@ -166,24 +166,11 @@ function simu = set_medium(simu)
 % makes:    simu.medium.sound_speed/density
 % requires: simu.kgrid                  - for size
 %           simu.params.c0/rho0         - for background medium
-%           simu.params.scattering_type - for type of scattering medium
+%           simu.params.scattering_type - for type  of scattering medium
+%           simu.params.c/rho_scatt     - for c/rho of scattering medium
 %           simu.params.object_shape    - for shape of object
-% TO DO : make c/rho inputs optional (so that can run batches with variation)
+%           simu.params.c/rho_object    - for c/rho of object
 
-    % define random scattering medium
-    c_range   = 40;         % [m/s]
-    rho_range = 80;         % [m/s]
-    
-    % define scattering medium with point scatterers
-    c_pointscatt   = 1550;          % [m/s]
-    rho_pointscatt = 1100;          % [m/s]
-        num_points_per_voxel = 2;
-        vox_size = 100e-6;          % [m]
-    
-    % define non-scattering object (hole/slab)
-    c_object   = 1500;        % [m/s]
-    rho_object = 1000;        % [m/s]
-    
     % make background medium
     simu.medium.sound_speed = simu.params.c0   * ones(simu.kgrid.Nx, simu.kgrid.Ny);
     simu.medium.density     = simu.params.rho0 * ones(simu.kgrid.Nx, simu.kgrid.Ny);
@@ -191,24 +178,20 @@ function simu = set_medium(simu)
     % make scattering medium specified by scattering_type
     switch simu.params.scattering_type
         case 'random'
-            c_rand    = ( rand(simu.kgrid.Nx,simu.kgrid.Ny) - 0.5 ) * c_range;
-            rho_rand  = ( rand(simu.kgrid.Nx,simu.kgrid.Ny) - 0.5 ) * rho_range;
+            c_rand    = ( rand(simu.kgrid.Nx,simu.kgrid.Ny) - 0.5 ) * simu.params.c_scatt;
+            rho_rand  = ( rand(simu.kgrid.Nx,simu.kgrid.Ny) - 0.5 ) * simu.params.rho_scatt;
             
             simu.medium.sound_speed = simu.medium.sound_speed + c_rand;
             simu.medium.density     = simu.medium.density     + rho_rand;
-            
-            simu.params.c_scatt   = c_range;
-            simu.params.rho_scatt = rho_range;
         case 'points'
+            num_points_per_voxel = 2;
+            vox_size = 100e-6;          % [m]
             pointscatts = get_pointscatt_locations(simu.kgrid.Nx, simu.kgrid.Ny, ...
                                                    simu.kgrid.dx, simu.kgrid.dy, ...
                                                    num_points_per_voxel, vox_size);
             
-            simu.medium.sound_speed(pointscatts==1) = c_pointscatt;
-            simu.medium.density(pointscatts==1)     = rho_pointscatt;
-            
-            simu.params.c_scatt   = c_pointscatt;
-            simu.params.rho_scatt = rho_pointscatt;
+            simu.medium.sound_speed(pointscatts==1) = simu.params.c_scatt;
+            simu.medium.density(pointscatts==1)     = simu.params.rho_scatt;
     end
     
     % make object specified by object_shape
@@ -219,11 +202,8 @@ function simu = set_medium(simu)
             object = get_slab_location(simu.kgrid.Nx, simu.kgrid.Ny);
     end
     
-    simu.medium.sound_speed(object==1) = c_object;
-    simu.medium.density(object==1)     = rho_object;
-	
-    simu.params.c_object   = c_object;
-    simu.params.rho_object = rho_object;
+    simu.medium.sound_speed(object==1) = simu.params.c_object;
+    simu.medium.density(object==1)     = simu.params.rho_object;
 
 end
 
