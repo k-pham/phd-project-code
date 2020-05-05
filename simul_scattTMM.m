@@ -10,7 +10,7 @@ file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\';
 file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
 
 
-%% LOAD/SET UP SIMULATION -> struct SIMU
+%% SPECIFY SIMULATION PARAMS -> struct SIMU.PARAMS
 
 % background material properties (WATER)
 simu.params.c0   = 1500;    % sound speed [m/s]
@@ -33,7 +33,9 @@ if simu.params.attenuating
     simu.params.medium_attenuation_power = 2;
 end
 
-% check for existing simulation set up with params as specified - if not make new one
+
+%% LOAD/MAKE NEW SIMULATION -> struct SIMU
+
 simu_file_path = [file_dir_data file_name(simu.params) '_simu.mat'];
 
 if exist(simu_file_path, 'file')
@@ -50,7 +52,7 @@ fig_simu = plot_simu_medium(simu);
     % saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.jpg'])
 
 
-%% make *existing* non-attenuating medium attenuating
+%% OPTION: make *existing* non-attenuating medium attenuating
 
 if simu.params.attenuating == false
     simu.params.attenuating = true;
@@ -64,13 +66,19 @@ end
 
 %% RUN SIMULATION -> struct SENSOR
 
-sensor.data = kspaceFirstOrder2DC(simu.kgrid, simu.medium, simu.source, simu.sensor, simu.inputs{:});
+sensor_file_path = [file_dir_data file_name(simu.params) '_sensor.mat'];
 
-sensor = set_sensor_params(sensor, simu);
-sensor = make_sensor_kgrid(sensor, simu);
-sensor = make_sensor_tarray(sensor, simu);
-
-save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
+if exist(sensor_file_path, 'file')
+    disp('Loading existing sensor data with specified params..')
+    load(sensor_file_path, 'sensor');
+else
+    disp('Generating new sensor data with specified params..')
+    sensor.data = kspaceFirstOrder2DC(simu.kgrid, simu.medium, simu.source, simu.sensor, simu.inputs{:});
+    sensor = set_sensor_params(sensor, simu);
+    sensor = make_sensor_kgrid(sensor, simu);
+    sensor = make_sensor_tarray(sensor, simu);
+    save(sensor_file_path, 'sensor', '-v7.3')
+end
 
 fig_sens = plot_sensor_data(sensor, simu);
     % saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.fig'])
