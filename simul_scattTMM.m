@@ -16,10 +16,11 @@ file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
 simu.params.c0   = 1500;    % sound speed [m/s]
 simu.params.rho0 = 1000;    % density [kg/m^3]
 
-% choose option to represent scattering medium as
+% choose option to represent scattering medium and object shape
 simu.params.scattering_type = 'random';     % options: 'random', 'points'
 simu.params.object_shape    = 'hole';       % options: 'hole', 'slab'
 
+% define c/rho for scattering medium and object
 simu.params.c_scatt    = 40;        % [m/s]
 simu.params.rho_scatt  = 80;        % [kg/m^3]
 simu.params.c_object   = 1500;      % [m/s]
@@ -29,26 +30,11 @@ simu_file_path = [file_dir_data file_name(simu) '_simu.mat'];
 
 if exist(simu_file_path, 'file')
     disp('Loading existing simulation with specified params..')
-    
-    tic
     load(simu_file_path, 'simu');
-    disp(['  completed in ' scaleTime(toc)])
-    
 else
     disp('Making new simulation with specified params..')
-    
-    tic
-    simu = set_simu_kgrid(simu);
-    simu = set_medium(simu);
-    simu = make_time(simu);
-    simu = set_pml(simu);
-    simu = set_source(simu);
-    simu = set_sensor(simu);
-    simu = set_inputs(simu);
-    
-    save(simu_file_path, 'simu'  , '-v7.3')
-    disp(['  completed in ' scaleTime(toc)])
-    
+    simu = make_new_simu(simu);
+    save(simu_file_path, 'simu', '-v7.3')
 end
 
 fig_simu = plot_simu_medium(simu);
@@ -149,6 +135,21 @@ end
 
 %% METHODS FOR SIMU
 
+function simu = make_new_simu(simu)
+% makes:    new simu with kgrid, medium, source, sensor, inputs
+% requires: simu.params - for medium properties
+% NOTE:     order of function calls important due to dependencies
+
+    simu = set_simu_kgrid(simu);
+    simu = set_medium(simu);
+    simu = make_time(simu);
+    simu = set_pml(simu);
+    simu = set_source(simu);
+    simu = set_sensor(simu);
+    simu = set_inputs(simu);
+
+end
+
 function simu = set_simu_kgrid(simu)
 % makes:    simu.kgrid
 % requires: nothing
@@ -213,7 +214,6 @@ function simu = make_time(simu)
 % makes:    simu.kgrid.t_array
 % requires: simu.kgrid  - for length of acquisition
 %           simu.medium - for max sound speed (to determine dt)
-% TO DO: make shorten time fraction an optional input
 
     cfl = 0.2;                  % clf number
     shorten_time = 0.75;        % fraction by which to shorten acquisition length
@@ -226,7 +226,6 @@ end
 function simu = set_pml(simu)
 % makes:    simu.params.pml_size
 % requires: nothing
-% TO DO: make optional pml size input
 
     simu.params.pml_size = 20;              % thickness of the PML [grid points]
 
