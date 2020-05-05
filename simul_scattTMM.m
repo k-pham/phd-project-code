@@ -1,5 +1,5 @@
-% Pulse-echo plane-wave US imaging - scattering TMM with holes (simulate agarTMM)
-% combine _rand and _points scripts into one
+% Pulse-echo plane-wave US imaging - scattering TMM with non-scattering object
+% modified to make class-like structures
 
 
 %% loops for parameter search
@@ -139,6 +139,8 @@ end
 
 
 %% METHODS FOR SIMU
+
+% TO DO: make function to load previous simu setup
 
 function simu = set_simu_kgrid(simu)
 % makes:    simu.kgrid
