@@ -46,9 +46,9 @@ fig_simu = plot_simu_medium(simu);
 
 sensor.data = kspaceFirstOrder2DC(simu.kgrid, simu.medium, simu.source, simu.sensor, simu.inputs{:});
 
-sensor = set_params(sensor, simu);
-sensor = set_sensor_kgrid(sensor, simu);
-sensor = set_sensor_tarray(sensor, simu);
+sensor = set_sensor_params(sensor, simu);
+sensor = make_sensor_kgrid(sensor, simu);
+sensor = make_sensor_tarray(sensor, simu);
 
 save([file_dir_data file_name(simu) '_sensor.mat'], 'sensor', '-v7.3')
 
@@ -149,17 +149,17 @@ function simu = make_new_simu(simu)
 % requires: simu.params - for medium properties
 % NOTE:     order of function calls important due to dependencies
 
-    simu = set_simu_kgrid(simu);
-    simu = set_medium(simu);
+    simu = make_simu_kgrid(simu);
+    simu = make_medium(simu);
     simu = make_time(simu);
     simu = set_pml(simu);
-    simu = set_source(simu);
-    simu = set_sensor(simu);
+    simu = make_source(simu);
+    simu = make_sensor(simu);
     simu = set_inputs(simu);
 
 end
 
-function simu = set_simu_kgrid(simu)
+function simu = make_simu_kgrid(simu)
 % makes:    simu.kgrid
 % requires: nothing
 
@@ -172,7 +172,7 @@ function simu = set_simu_kgrid(simu)
 
 end
 
-function simu = set_medium(simu)
+function simu = make_medium(simu)
 % makes:    simu.medium.sound_speed/density
 % requires: simu.kgrid                  - for size
 %           simu.params.c0/rho0         - for background medium
@@ -240,7 +240,7 @@ function simu = set_pml(simu)
 
 end
 
-function simu = set_source(simu)
+function simu = make_source(simu)
 % makes:    simu.source
 % requires: simu.kgrid           - for size
 %           simu.params.pml_size - for position of source
@@ -262,7 +262,7 @@ function simu = set_source(simu)
 
 end
 
-function simu = set_sensor(simu)
+function simu = make_sensor(simu)
 % makes:    simu.sensor
 % requires: simu.kgrid           - for size
 %           simu.params.pml_size - for position of sensor
@@ -314,7 +314,7 @@ end
 
 %% METHODS FOR SENSOR
 
-function sensor = set_params(sensor, simu)
+function sensor = set_sensor_params(sensor, simu)
 % makes:    sensor.params
 % requires: sensor.data - for size
 %           simu.params - for sensor spacing
@@ -336,7 +336,7 @@ function sensor = set_params(sensor, simu)
 
 end
 
-function sensor = set_sensor_kgrid(sensor, simu)
+function sensor = make_sensor_kgrid(sensor, simu)
 % makes:    sensor.kgrid
 % requires: sensor.params - for kWaveGrid
 %           simu.kgrid    - dt, Nt
@@ -347,7 +347,7 @@ function sensor = set_sensor_kgrid(sensor, simu)
 
 end
 
-function sensor = set_sensor_tarray(sensor, simu)
+function sensor = make_sensor_tarray(sensor, simu)
 % makes:    sensor.t_array
 % requires: simu.kgrid.t_array
 
