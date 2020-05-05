@@ -1,12 +1,7 @@
 % Pulse-echo plane-wave US imaging - scattering TMM with non-scattering object
 % modified to make class-like structures
 
-
-%% loops for parameter search
-
-% for c_range = [0,1,2,4,10,30,50,100,150,300]
-% for rho_range = [0,1,2,4,10,30,50,100,200]
-%% SET UP
+%% FILE PATHS
 
 % clear all
 close all
@@ -33,7 +28,11 @@ simu = set_source(simu);
 simu = set_sensor(simu);
 simu = set_inputs(simu);
 
+save([file_dir_data file_name(simu) '_simu']  , 'simu'  , '-v7.3')
+
 fig_simu = plot_simu_medium(simu);
+    % saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.fig'])
+    % saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.jpg'])
 
 
 %% RUN SIMULATION -> struct SENSOR
@@ -44,7 +43,11 @@ sensor = set_params(sensor, simu);
 sensor = set_sensor_kgrid(sensor, simu);
 sensor = set_sensor_tarray(sensor, simu);
 
+save([file_dir_data file_name(simu) '_sensor'], 'sensor', '-v7.3')
+
 fig_sens = plot_sensor_data(sensor, simu);
+    % saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.fig'])
+    % saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.jpg'])
 
 
 %% RECONSTRUCTION -> struct IMAGE
@@ -56,30 +59,13 @@ image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0);
 image.kgrid   = kgrid;
 image.t_array = t_array;
 
-fig_imag = plot_image_data(image, simu);
-
-
-%% SAVE FIGURES & SIMU DATA & SENSOR DATA & IMAGE DATA
-
-file_name = get_file_name(simu);
-
-% saveas(fig_simu,[file_dir_figs file_name '_medium.fig'])
-saveas(fig_simu,[file_dir_figs file_name '_medium.jpg'])
-% saveas(fig_sens,  [file_dir_figs file_name '_data.fig'])
-saveas(fig_sens,  [file_dir_figs file_name '_data.jpg'])
-% saveas(fig_imag, [file_dir_figs file_name '_image.fig'])
-saveas(fig_imag, [file_dir_figs file_name '_image.jpg'])
-
-save([file_dir_data file_name '_simu']  , 'simu'  , '-v7.3')
-save([file_dir_data file_name '_sensor'], 'sensor', '-v7.3')
-save([file_dir_data file_name '_image'] , 'image' , '-v7.3')
-
+save([file_dir_data file_name(simu) '_image'] , 'image' , '-v7.3')
 save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
 
+fig_imag = plot_image_data(image, simu);
+    % saveas(fig_imag, [file_dir_figs file_name(simu) '_image.fig'])
+    % saveas(fig_imag, [file_dir_figs file_name(simu) '_image.jpg'])
 
-%% end of loops for parameter search
-% end
-% end
 
 %% FUNCTIONS
 
@@ -130,9 +116,9 @@ function slab = get_slab_location(Nx, Ny)
     
 end
 
-function file_name = get_file_name(simu)
+function filename = file_name(simu)
 
-    file_name = [simu.params.scattering_type '_SCATT_c'  num2str(simu.params.c_scatt)  '_rho' num2str(simu.params.rho_scatt) '_' ...
+    filename = [simu.params.scattering_type '_SCATT_c'  num2str(simu.params.c_scatt)  '_rho' num2str(simu.params.rho_scatt) '_' ...
                  simu.params.object_shape    '_OBJECT_c' num2str(simu.params.c_object) '_rho' num2str(simu.params.rho_object) ];
 
 end
@@ -416,9 +402,7 @@ function save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
     volume_spacing = [image.kgrid.dx, 1, sensor.params.dt*simu.params.c0];
                      % omit factor 1/2 in dz because of doubled depth bug
     
-    file_name = get_file_name(simu);
-    
-    save([file_dir_data file_name '_image_4sliceViewer.mat'], 'volume_data', 'volume_spacing', '-v7.3')
+    save([file_dir_data file_name(simu) '_image_4sliceViewer.mat'], 'volume_data', 'volume_spacing', '-v7.3')
 
 end
 
