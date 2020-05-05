@@ -10,7 +10,7 @@ file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\';
 file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
 
 
-%% SET UP SIMULATION -> struct SIMU
+%% LOAD/SET UP SIMULATION -> struct SIMU
 
 % background material properties (WATER)
 simu.params.c0   = 1500;    % sound speed [m/s]
@@ -27,8 +27,8 @@ simu.params.c_object   = 1500;      % [m/s]
 simu.params.rho_object = 1000;      % [kg/m^3]
 
 % make medium attenuating (or not)
-simu.params.attenuating = true;
-if simu.params.attenuation
+simu.params.attenuating = false;
+if simu.params.attenuating
     simu.params.medium_attenuation_coeff = 0.0022;
     simu.params.medium_attenuation_power = 2;
 end
@@ -49,12 +49,17 @@ fig_simu = plot_simu_medium(simu);
     % saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.fig'])
     % saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.jpg'])
 
-% make existing medium attenuating
-% simu.params.attenuating = true;
-% if simu.params.attenuation
-%     simu.params.medium_attenuation_coeff = 0.0022;
-%     simu.params.medium_attenuation_power = 2;
-% end
+
+%% make *existing* non-attenuating medium attenuating
+
+if simu.params.attenuating == false
+    simu.params.attenuating = true;
+    simu.params.medium_attenuation_coeff = 0.0022;
+    simu.params.medium_attenuation_power = 2;
+    simu = maybe_set_medium_attenuation(simu);
+    
+    save([file_dir_data file_name(simu.params) '_simu.mat'], 'simu', '-v7.3')
+end
 
 
 %% RUN SIMULATION -> struct SENSOR
