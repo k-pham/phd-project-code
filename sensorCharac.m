@@ -196,6 +196,14 @@ plot(frequency_BK31/1e6,sensor_freq_response_mean/max(sensor_freq_response_mean(
     hold on
 
 
+%% save normalised sensor freq response
+
+frequency = frequency_BK31;
+sensor_freq_response_mean_norm = sensor_freq_response_mean/max(sensor_freq_response_mean(1:100));
+
+save('D:\PROJECT\data\sensorCharac\BK31\191209\sensor_frequency_response.mat', 'frequency', 'sensor_freq_response_mean_norm')
+
+
 %% search for equivalent gaussian bandpass filter for simulation
 
 centre_freq = 1e6;      % [Hz]
