@@ -27,7 +27,7 @@ simu.params.c_object   = 1500;      % [m/s]
 simu.params.rho_object = 1000;      % [kg/m^3]
 
 % make medium attenuating (or not)
-simu.params.attenuating = false;    % TOGGLE
+simu.params.attenuating = true;    % TOGGLE
 if simu.params.attenuating
     simu.params.medium_attenuation_coeff = 0.0022;      % [dB MHz^-pow cm^-1]
     simu.params.medium_attenuation_power = 2;           % between 1..3
@@ -72,7 +72,7 @@ end
 %% SPECIFY SIMULATION PARAMS FOR SENSOR -> struct SIMU.PARAMS
 
 % filter with sensor frequency response (or not)
-simu.params.sensor_freq_filtered = false;       % TOGGLE
+simu.params.sensor_freq_filtered = true;       % TOGGLE
 
 % filter with gaussian frequency filter (or not)
 simu.params.gaussian_freq_filtered = false;     % TOGGLE
@@ -80,6 +80,9 @@ if simu.params.gaussian_freq_filtered
     simu.params.freq_filter_cf = 1e6;               % [Hz]
     simu.params.freq_filter_bw = 10e6;              % [Hz]
 end
+
+% add noise to sensor data
+simu.params.sensor_noisy = false;                % TOGGLE
 
 
 %% LOAD/GENERATE NEW SENSOR DATA -> struct SENSOR
@@ -95,8 +98,8 @@ else
     sensor = set_sensor_params(sensor, simu);
     sensor = make_sensor_kgrid(sensor, simu);
     sensor = make_sensor_tarray(sensor, simu);
-    sensor = maybe_sensor_freq_filter(sensor);
-    sensor = maybe_gaussian_freq_filter(sensor);
+    sensor = maybe_sensor_freq_filter(sensor, simu);
+    sensor = maybe_gaussian_freq_filter(sensor, simu);
     save(sensor_file_path, 'sensor', '-v7.3')
 end
 
@@ -109,7 +112,7 @@ fig_sens = plot_sensor_data(sensor, simu);
 
 if simu.params.sensor_freq_filtered == false
     simu.params.sensor_freq_filtered = true;    % TOGGLE
-    sensor = maybe_sensor_freq_filter(sensor);
+    sensor = maybe_sensor_freq_filter(sensor, simu);
     
     save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
 end
@@ -120,8 +123,8 @@ end
 if simu.params.gaussian_freq_filtered == false
     simu.params.gaussian_freq_filtered = true;  % TOGGLE
     simu.params.freq_filter_cf = 1e6;               % [Hz]
-    simu.params.freq_filter_bw = 10e6;              % [Hz]
-    sensor = maybe_gaussian_freq_filter(sensor);
+    simu.params.freq_filter_bw = 20e6;              % [Hz]
+    sensor = maybe_gaussian_freq_filter(sensor, simu);
     
     save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
 end
@@ -214,7 +217,7 @@ function filename = file_name(params)
     end
     
     if params.gaussian_freq_filtered
-        filename = [filename '_FILTER_cf' num2str(params.freq_filter_cf/1e6) '_bw' num2str(params.freq_filter_bw/1e6) ];
+        filename = [filename '_FILTER_f' num2str(params.freq_filter_cf/1e6) '_bw' num2str(params.freq_filter_bw/1e6) ];
     end
 
 end
@@ -449,13 +452,45 @@ function sensor = make_sensor_tarray(sensor, simu)
 
 end
 
-function sensor = maybe_sensor_freq_filter(sensor)
+function sensor = maybe_sensor_freq_filter(sensor, simu)
 
-
+    if simu.params.sensor_freq_filtered
+        
+        % compute the double-sided frequency axis
+        Nt = sensor.kgrid.Nt;
+        Fs = 1/sensor.kgrid.dt;
+        if mod(Nt,2) == 0
+            f = (-Nt/2:Nt/2-1) * Fs/Nt;
+        else
+            f = (-(Nt-1)/2:(Nt-1)/2) * Fs/Nt;
+        end
+        
+        % load sensor frequency response
+        data     = load('D:\PROJECT\data\sensorCharac\BK31\191209\sensor_frequency_response.mat');
+        f_data   = data.frequency;
+        sfr_data = data.sensor_freq_response_mean_norm;
+        
+        % make sensor frequency response double-sided
+        f_data   = [-fliplr(f_data)   f_data(2:end)  ];
+        sfr_data = [ fliplr(sfr_data) sfr_data(2:end)];
+        
+        % resample sfr at f
+        sfr = interp1(f_data, sfr_data, f);
+        
+        % zeropad above 80 MHz to remove noisy sfr & NaNs from resampling
+        sfr(abs(f)>80e6) = 0;
+        
+        % apply filter with zero-phase
+        sensor.data = real(ifft(ifftshift( ...
+                        bsxfun(@times, sfr, ...
+                            fftshift(fft(sensor.data, [], 2), 2) ...
+                        ) ...
+                      , 2), [], 2));
+    end
 
 end
 
-function sensor = maybe_gaussian_freq_filter(sensor)
+function sensor = maybe_gaussian_freq_filter(sensor, simu)
 
     if simu.params.gaussian_freq_filtered
         cf = simu.params.freq_filter_cf;
