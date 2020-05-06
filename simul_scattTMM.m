@@ -94,12 +94,7 @@ if exist(sensor_file_path, 'file')
     load(sensor_file_path, 'sensor');
 else
     disp('Generating new sensor data with specified params..')
-    sensor.data = kspaceFirstOrder2DC(simu.kgrid, simu.medium, simu.source, simu.sensor, simu.inputs{:});
-    sensor = set_sensor_params(sensor, simu);
-    sensor = make_sensor_kgrid(sensor, simu);
-    sensor = make_sensor_tarray(sensor, simu);
-    sensor = maybe_sensor_freq_filter(sensor, simu);
-    sensor = maybe_gaussian_freq_filter(sensor, simu);
+    sensor = generate_new_sensordata(simu);
     save(sensor_file_path, 'sensor', '-v7.3')
 end
 
@@ -411,6 +406,20 @@ end
 
 
 %% METHODS FOR SENSOR
+
+function sensor = generate_new_sensordata(simu)
+% makes:    new sensor with data, params, kgrid, t_array
+% requires: simu
+% NOTE:     order of function calls important due to dependencies
+
+    sensor.data = kspaceFirstOrder2DC(simu.kgrid, simu.medium, simu.source, simu.sensor, simu.inputs{:});
+    sensor = set_sensor_params(sensor, simu);
+    sensor = make_sensor_kgrid(sensor, simu);
+    sensor = make_sensor_tarray(sensor, simu);
+    sensor = maybe_sensor_freq_filter(sensor, simu);
+    sensor = maybe_gaussian_freq_filter(sensor, simu);
+
+end
 
 function sensor = set_sensor_params(sensor, simu)
 % makes:    sensor.params
