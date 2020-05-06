@@ -72,7 +72,7 @@ end
 %% SPECIFY SIMULATION PARAMS FOR SENSOR -> struct SIMU.PARAMS
 
 % filter with sensor frequency response (or not)
-simu.params.sensor_freq_filtered = true;       % TOGGLE
+simu.params.sensor_freq_filtered = false;       % TOGGLE
 
 % filter with gaussian frequency filter (or not)
 simu.params.gaussian_freq_filtered = false;     % TOGGLE
@@ -434,7 +434,7 @@ function sensor = set_sensor_params(sensor, simu)
     sensor.params.dt = simu.kgrid.dt;
     
     sensor.params.trigger_delay      = 0;
-    sensor.params.Nt_zero_pad_source = 50;
+    sensor.params.Nt_zero_pad_source = 100;
     sensor.params.Nt_t0_correct      = -16;
     sensor.params.file_data          = '111111\scattTMM_simul';
     
@@ -572,7 +572,7 @@ function save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
     volume_spacing = [image.kgrid.dx, 1, sensor.params.dt*simu.params.c0];
                      % omit factor 1/2 in dz because of doubled depth bug
     
-    save([file_dir_data file_name(simu) '_image_4sliceViewer.mat'], 'volume_data', 'volume_spacing', '-v7.3')
+    save([file_dir_data file_name(simu.params) '_image_4sliceViewer.mat'], 'volume_data', 'volume_spacing', '-v7.3')
 
 end
 
