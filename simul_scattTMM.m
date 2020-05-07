@@ -27,7 +27,7 @@ simu.params.c_object   = 1500;      % [m/s]
 simu.params.rho_object = 1000;      % [kg/m^3]
 
 % make medium attenuating (or not)
-simu.params.attenuating = true;    % TOGGLE
+simu.params.attenuating = false;    % TOGGLE
 if simu.params.attenuating
     simu.params.medium_attenuation_coeff = 0.0022;      % [dB MHz^-pow cm^-1]
     simu.params.medium_attenuation_power = 2;           % between 1..3
@@ -44,10 +44,10 @@ simu.params.sensor_noisy = false;
 simu_file_path = [file_dir_data file_name(simu.params) '_simu.mat'];
 
 if exist(simu_file_path, 'file')
-    disp('Loading existing simulation with specified params..')
+    disp(['Loading existing simulation: ' file_name(simu.params)])
     load(simu_file_path, 'simu');
 else
-    disp('Making new simulation with specified params..')
+    disp(['Making new simulation: ' file_name(simu.params)])
     simu = make_new_simu(simu);
     save(simu_file_path, 'simu', '-v7.3')
 end
@@ -90,10 +90,10 @@ simu.params.sensor_noisy = false;                % TOGGLE
 sensor_file_path = [file_dir_data file_name(simu.params) '_sensor.mat'];
 
 if exist(sensor_file_path, 'file')
-    disp('Loading existing sensor data with specified params..')
+    disp(['Loading existing sensor data: ' file_name(simu.params)])
     load(sensor_file_path, 'sensor');
 else
-    disp('Generating new sensor data with specified params..')
+    disp(['Generating new sensor data: ' file_name(simu.params)])
     sensor = generate_new_sensordata(simu);
     save(sensor_file_path, 'sensor', '-v7.3')
 end
