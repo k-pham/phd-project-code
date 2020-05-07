@@ -1,7 +1,7 @@
 % Pulse-echo plane-wave US imaging - scattering TMM with non-scattering object
 % modified to make class-like structures
 
-%% FILE PATHS
+%% (0) FILE PATHS
 
 % clear all
 close all
@@ -10,7 +10,7 @@ file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\';
 file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
 
 
-%% SPECIFY SIMULATION PARAMS -> struct SIMU.PARAMS
+%% (1) SPECIFY SIMULATION PARAMS -> struct SIMU.PARAMS
 
 % background material properties (WATER)
 simu.params.c0   = 1500;    % sound speed [m/s]
@@ -39,7 +39,7 @@ simu.params.gaussian_freq_filtered = false;
 simu.params.sensor_noisy = false;
 
 
-%% LOAD/MAKE NEW SIMULATION -> struct SIMU
+%% (1) LOAD/MAKE NEW SIMULATION -> struct SIMU
 
 simu_file_path = [file_dir_data file_name(simu.params) '_simu.mat'];
 
@@ -57,7 +57,7 @@ fig_simu = plot_simu_medium(simu);
     saveas(fig_simu,[file_dir_figs file_name(simu.params) '_medium.jpg'])
 
 
-%% OPTION: make *existing* non-attenuating medium attenuating & save simu
+%% (1) OPTION: make *existing* non-attenuating medium attenuating & save simu
 
 if simu.params.attenuating == false
     simu.params.attenuating = true;     % TOGGLE
@@ -69,7 +69,7 @@ if simu.params.attenuating == false
 end
 
 
-%% SPECIFY SIMULATION PARAMS FOR SENSOR -> struct SIMU.PARAMS
+%% (2) SPECIFY SIMULATION PARAMS FOR SENSOR -> struct SIMU.PARAMS
 
 % filter with sensor frequency response (or not)
 simu.params.sensor_freq_filtered = false;       % TOGGLE
@@ -85,7 +85,7 @@ end
 simu.params.sensor_noisy = false;                % TOGGLE
 
 
-%% LOAD/GENERATE NEW SENSOR DATA -> struct SENSOR
+%% (2) LOAD/GENERATE NEW SENSOR DATA -> struct SENSOR
 
 sensor_file_path = [file_dir_data file_name(simu.params) '_sensor.mat'];
 
@@ -103,7 +103,7 @@ fig_sens = plot_sensor_data(sensor, simu);
     saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data.jpg'])
 
 
-%% OPTION: filter *existing* unfiltered sensor data with sensor frequency response & save sensor
+%% (2) OPTION: filter *existing* unfiltered sensor data with sensor frequency response & save sensor
 
 if simu.params.sensor_freq_filtered == false
     simu.params.sensor_freq_filtered = true;    % TOGGLE
@@ -113,7 +113,7 @@ if simu.params.sensor_freq_filtered == false
 end
 
 
-%%  OPTION: filter *existing* unfiltered sensor data with gaussian bandpass filter & save sensor
+%% (2) OPTION: filter *existing* unfiltered sensor data with gaussian bandpass filter & save sensor
 
 if simu.params.gaussian_freq_filtered == false
     simu.params.gaussian_freq_filtered = true;  % TOGGLE
@@ -125,12 +125,17 @@ if simu.params.gaussian_freq_filtered == false
 end
 
 
-%% OPTION: add noise to sensor data before reconstruction
+%% (2) OPTION: add noise to *existing* non-noisy sensor data before reconstruction & save sensor
 
-simu.params.sensor_noisy = true;    % TOGGLE
+if simu.params.sensor_noisy == false
+    simu.params.sensor_noisy = true;    % TOGGLE
+    sensor = maybe_make_sensor_noisy(sensor, simu);
+    
+    save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
+end
 
 
-%% RECONSTRUCT NEW IMAGE -> struct IMAGE
+%% (3) RECONSTRUCT NEW IMAGE -> struct IMAGE
 
 image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0);
     % NOTE: kgrid and t_array UPDATED
@@ -147,7 +152,7 @@ fig_imag = plot_image_data(image, simu);
     saveas(fig_imag, [file_dir_figs file_name(simu.params) '_image.jpg'])
 
 
-%% scattering distributions in hole & stmm, plot if wanted
+%% (4) ANALYSE IMAGE: scattering distributions in hole & stmm, plot if wanted
 
 image.c0 = simu.params.c0;
 
@@ -171,7 +176,7 @@ if plot_toggle == true
 end
 
 
-%% image quality metrics
+%% (4) ANALYSE IMAGE: image quality metrics
 
 scatSNR = scatter_stmm_mean / scatter_hole_mean;
 scatCNR = (scatter_stmm_mean - scatter_hole_mean) / (scatter_stmm_std + scatter_hole_std);
@@ -549,7 +554,11 @@ function sensor = maybe_gaussian_freq_filter(sensor, simu)
 
 end
 
-% TO DO: make function to introduce instrument noise
+function sensor = maybe_make_sensor_noisy(sensor, simu)
+
+
+
+end
 
 function fig_sens = plot_sensor_data(sensor, simu)
 % plots:    sensor.data
