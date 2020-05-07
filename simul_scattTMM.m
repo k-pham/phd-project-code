@@ -53,8 +53,6 @@ else
 end
 
 fig_simu = plot_simu_medium(simu);
-    % saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.fig'])
-    % saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.jpg'])
 
 
 %% OPTION: make *existing* non-attenuating medium attenuating & save simu
@@ -99,8 +97,6 @@ else
 end
 
 fig_sens = plot_sensor_data(sensor, simu);
-    % saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.fig'])
-    % saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.jpg'])
 
 
 %% OPTION: filter *existing* unfiltered sensor data with sensor frequency response & save sensor
@@ -143,8 +139,6 @@ save([file_dir_data file_name(simu.params) '_image.mat'], 'image' , '-v7.3')
 save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
 
 fig_imag = plot_image_data(image, simu);
-    % saveas(fig_imag, [file_dir_figs file_name(simu) '_image.fig'])
-    % saveas(fig_imag, [file_dir_figs file_name(simu) '_image.jpg'])
 
 
 %% FUNCTIONS
@@ -401,7 +395,10 @@ function fig_simu = plot_simu_medium(simu)
         xlabel('x position / mm')
         ylabel('y position / mm')
         colorbar
-
+    
+	% saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.fig'])
+    % saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.jpg'])
+    
 end
 
 
@@ -536,7 +533,10 @@ function fig_sens = plot_sensor_data(sensor, simu)
         xlabel('x position / mm')
         ylabel('time / \mus')
         colorbar
-
+    
+    % saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.fig'])
+    % saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.jpg'])
+    
 end
 
 
@@ -557,6 +557,9 @@ function fig_imag = plot_image_data(image, simu)
         xlabel('x position / mm')
         ylabel('y position / mm')
         colorbar
+    
+	% saveas(fig_imag, [file_dir_figs file_name(simu) '_image.fig'])
+    % saveas(fig_imag, [file_dir_figs file_name(simu) '_image.jpg'])
 
 end
 
