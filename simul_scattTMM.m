@@ -126,7 +126,7 @@ end
 simu.params.sensor_noisy = true;    % TOGGLE
 
 
-%% RECONSTRUCTION -> struct IMAGE
+%% RECONSTRUCT NEW IMAGE -> struct IMAGE
 
 image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0);
     % NOTE: kgrid and t_array UPDATED
@@ -139,6 +139,38 @@ save([file_dir_data file_name(simu.params) '_image.mat'], 'image' , '-v7.3')
 save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
 
 fig_imag = plot_image_data(image, simu);
+
+
+%% scattering distributions in hole & stmm, plot if wanted
+
+image.c0 = simu.params.c0;
+
+plot_toggle = true;
+
+if plot_toggle == true
+    fig_distr = figure(4);
+        clf(4)
+        title('scattering distributions')
+        hold on
+        xlabel('pixel intensity')
+        ylabel('count')
+end
+
+[scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image, plot_toggle);
+[scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_tmm(image, plot_toggle);
+
+if plot_toggle == true
+    legend(gca,'show')
+end
+
+
+%% image quality metrics
+
+scatSNR = scatter_stmm_mean / scatter_hole_mean;
+scatCNR = (scatter_stmm_mean - scatter_hole_mean) / (scatter_stmm_std + scatter_hole_std);
+
+disp('  scatSNR   scatCNR')
+disp([scatSNR,scatCNR])
 
 
 %% FUNCTIONS
@@ -397,7 +429,7 @@ function fig_simu = plot_simu_medium(simu)
         colorbar
     
 	% saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.fig'])
-    % saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.jpg'])
+    saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.jpg'])
     
 end
 
@@ -535,7 +567,7 @@ function fig_sens = plot_sensor_data(sensor, simu)
         colorbar
     
     % saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.fig'])
-    % saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.jpg'])
+    saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.jpg'])
     
 end
 
@@ -559,7 +591,7 @@ function fig_imag = plot_image_data(image, simu)
         colorbar
     
 	% saveas(fig_imag, [file_dir_figs file_name(simu) '_image.fig'])
-    % saveas(fig_imag, [file_dir_figs file_name(simu) '_image.jpg'])
+    saveas(fig_imag, [file_dir_figs file_name(simu) '_image.jpg'])
 
 end
 
@@ -577,5 +609,91 @@ function save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
     
     save([file_dir_data file_name(simu.params) '_image_4sliceViewer.mat'], 'volume_data', 'volume_spacing', '-v7.3')
 
+end
+
+
+%% IMAGE QUAL FUNCTIONS
+
+function ROI = get_discROI_at_hole_in_image(image, fractional_radius)
+
+    hole_x = 0;
+    hole_y = 2.35e-3;
+    hole_radius = 0.5e-3;
+    
+    vec_x = image.kgrid.x_vec;
+    vec_y = image.t_array*image.c0;
+    
+    distance = sqrt((vec_x - hole_x).^2 + (vec_y - hole_y).^2);
+    
+    ROI = distance < hole_radius * fractional_radius;
+    
+end
+
+function [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image, plot_toggle)
+
+    mask = get_discROI_at_hole_in_image(image, 0.9);
+    
+    ROI = image.data(mask);
+    
+    scatter_hole_mean = mean(ROI(:));
+    scatter_hole_std  = std(ROI(:));
+    
+    if plot_toggle == true
+        plot_histogram_of_scattering_distr(ROI, 'scatter hole', 'Normalise', true)
+    end
+    
+end
+
+function [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image, plot_toggle)
+
+    hole_notoutside = get_discROI_at_hole_in_image(image, 1.1);
+    hole_outside    = not(hole_notoutside);
+    large_hole      = get_discROI_at_hole_in_image(image, 2);
+    
+    mask = and(hole_outside,large_hole);
+    
+    ROI = image.data(mask);
+    
+    scatter_tmm_mean = mean(ROI(:));
+    scatter_tmm_std  = std(ROI(:));
+    
+    if plot_toggle == true
+        plot_histogram_of_scattering_distr(ROI, 'scatter tmm', 'Normalise', true)
+    end
+    
+end
+
+function plot_histogram_of_scattering_distr(ROI, legend_entry, varargin)
+
+    % set default
+    num_req_input_variables = 2;
+    toNormalise = false;
+    
+    if nargin < num_req_input_variables
+        error('Incorrect number of inputs.');
+    elseif ~isempty(varargin)
+        for input_index = 1:2:length(varargin)
+            switch varargin{input_index}
+                case 'Normalise'
+                    toNormalise = varargin{input_index + 1};
+                otherwise
+                    error('Unknown optional input.');
+            end
+        end
+    end
+    
+    binwidth   = max(ROI(:))/100;    
+    binedges   = 0:binwidth:max(ROI(:))*1.1+binwidth;
+    bincount   = histcounts(ROI,binedges);
+    bincentres = 0.5*(binedges(2:end)+binedges(1:end-1));
+	
+    if toNormalise
+        bincount = bincount / max(bincount);
+    end
+    
+    figure(gcf)
+    % histogram(ROI,'BinWidth',10,'DisplayStyle','stairs','DisplayName',legend_entry)
+    plot(bincentres,bincount,'DisplayName',legend_entry)
+    
 end
 
