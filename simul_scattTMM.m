@@ -27,7 +27,7 @@ simu.params.c_object   = 1500;      % [m/s]
 simu.params.rho_object = 1000;      % [kg/m^3]
 
 % make medium attenuating (or not)
-simu.params.attenuating = false;    % TOGGLE
+simu.params.attenuating = true;    % TOGGLE
 if simu.params.attenuating
     simu.params.medium_attenuation_coeff = 0.0022;      % [dB MHz^-pow cm^-1]
     simu.params.medium_attenuation_power = 2;           % between 1..3
@@ -53,6 +53,8 @@ else
 end
 
 fig_simu = plot_simu_medium(simu);
+	% saveas(fig_simu,[file_dir_figs file_name(simu.params) '_medium.fig'])
+    saveas(fig_simu,[file_dir_figs file_name(simu.params) '_medium.jpg'])
 
 
 %% OPTION: make *existing* non-attenuating medium attenuating & save simu
@@ -97,6 +99,8 @@ else
 end
 
 fig_sens = plot_sensor_data(sensor, simu);
+    % saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data.fig'])
+    saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data.jpg'])
 
 
 %% OPTION: filter *existing* unfiltered sensor data with sensor frequency response & save sensor
@@ -139,6 +143,8 @@ save([file_dir_data file_name(simu.params) '_image.mat'], 'image' , '-v7.3')
 save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
 
 fig_imag = plot_image_data(image, simu);
+	% saveas(fig_imag, [file_dir_figs file_name(simu.params) '_image.fig'])
+    saveas(fig_imag, [file_dir_figs file_name(simu.params) '_image.jpg'])
 
 
 %% scattering distributions in hole & stmm, plot if wanted
@@ -161,6 +167,7 @@ end
 
 if plot_toggle == true
     legend(gca,'show')
+    saveas(fig_distr, [file_dir_figs file_name(simu.params) '_image_distr.jpg'])
 end
 
 
@@ -428,9 +435,6 @@ function fig_simu = plot_simu_medium(simu)
         ylabel('y position / mm')
         colorbar
     
-	% saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.fig'])
-    saveas(fig_simu,[file_dir_figs file_name(simu) '_medium.jpg'])
-    
 end
 
 
@@ -566,9 +570,6 @@ function fig_sens = plot_sensor_data(sensor, simu)
         ylabel('time / \mus')
         colorbar
     
-    % saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.fig'])
-    saveas(fig_sens,  [file_dir_figs file_name(simu) '_data.jpg'])
-    
 end
 
 
@@ -590,9 +591,6 @@ function fig_imag = plot_image_data(image, simu)
         ylabel('y position / mm')
         colorbar
     
-	% saveas(fig_imag, [file_dir_figs file_name(simu) '_image.fig'])
-    saveas(fig_imag, [file_dir_figs file_name(simu) '_image.jpg'])
-
 end
 
 function save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
