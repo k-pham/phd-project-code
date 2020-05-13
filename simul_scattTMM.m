@@ -50,11 +50,11 @@ else
     disp(['Making new simulation: ' file_name(simu.params)])
     simu = make_new_simu(simu);
     save(simu_file_path, 'simu', '-v7.3')
+    
+    fig_simu = plot_simu_medium(simu);
+        % saveas(fig_simu,[file_dir_figs file_name(simu.params) '_medium.fig'])
+        saveas(fig_simu,[file_dir_figs file_name(simu.params) '_medium.jpg'])
 end
-
-fig_simu = plot_simu_medium(simu);
-	% saveas(fig_simu,[file_dir_figs file_name(simu.params) '_medium.fig'])
-    saveas(fig_simu,[file_dir_figs file_name(simu.params) '_medium.jpg'])
 
 
 %% (1) OPTION: make *existing* non-attenuating medium attenuating & save simu
@@ -96,11 +96,11 @@ else
     disp(['Generating new sensor data: ' file_name(simu.params)])
     sensor = generate_new_sensordata(simu);
     save(sensor_file_path, 'sensor', '-v7.3')
+    
+    fig_sens = plot_sensor_data(sensor, simu);
+        % saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data.fig'])
+        saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data.jpg'])
 end
-
-fig_sens = plot_sensor_data(sensor, simu);
-    % saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data.fig'])
-    saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data.jpg'])
 
 
 %% (2) OPTION: filter *existing* unfiltered sensor data with sensor frequency response & save sensor
