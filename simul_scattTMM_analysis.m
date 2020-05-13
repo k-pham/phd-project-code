@@ -1,7 +1,13 @@
+%%
+run('simul_scattTMM_fineUpsampledGrid.m')
+
+%%
+run('clearcloseclc.m')
+
 %% parameters
 
-file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\';
-file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\fine step size\';
+file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine upsampled grid\';
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\fine upsampled grid\';
 
 scattering_type = 'random';      % options: 'random', 'points'
 
@@ -307,81 +313,81 @@ figure('Position',[1300, 30,560,420]), imagesc(centre_freqs,bandwidths,scatCNR_a
 
 
 %% plot results of COMPLETE C & RHO COMPARISON
-
-c_ranges   = 0:10:150;
-rho_ranges = 0:10:100;
-figure('Position',[ 100,550,560,420]), imagesc(c_ranges,rho_ranges,scatter_hole_mean_ar), title('scatter hole mean'), xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
-figure('Position',[ 100, 30,560,420]), imagesc(c_ranges,rho_ranges,scatter_hole_std_ar) , title('scatter hole std') , xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
-figure('Position',[ 700,550,560,420]), imagesc(c_ranges,rho_ranges,scatter_stmm_mean_ar), title('scatter stmm mean'), xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
-figure('Position',[ 700, 30,560,420]), imagesc(c_ranges,rho_ranges,scatter_stmm_std_ar) , title('scatter stmm std') , xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
-figure('Position',[1300,550,560,420]), imagesc(c_ranges,rho_ranges,scatSNR_ar)          , title('scatSNR')          , xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
-figure('Position',[1300, 30,560,420]), imagesc(c_ranges,rho_ranges,scatCNR_ar)          , title('scatCNR')          , xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
+% 
+% c_ranges   = 0:10:150;
+% rho_ranges = 0:10:100;
+% figure('Position',[ 100,550,560,420]), imagesc(c_ranges,rho_ranges,scatter_hole_mean_ar), title('scatter hole mean'), xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
+% figure('Position',[ 100, 30,560,420]), imagesc(c_ranges,rho_ranges,scatter_hole_std_ar) , title('scatter hole std') , xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
+% figure('Position',[ 700,550,560,420]), imagesc(c_ranges,rho_ranges,scatter_stmm_mean_ar), title('scatter stmm mean'), xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
+% figure('Position',[ 700, 30,560,420]), imagesc(c_ranges,rho_ranges,scatter_stmm_std_ar) , title('scatter stmm std') , xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
+% figure('Position',[1300,550,560,420]), imagesc(c_ranges,rho_ranges,scatSNR_ar)          , title('scatSNR')          , xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
+% figure('Position',[1300, 30,560,420]), imagesc(c_ranges,rho_ranges,scatCNR_ar)          , title('scatCNR')          , xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
 
 
 %% compare with experimental data
-% 181204 atmm with orgasol
-
-file_dir = '..\data\imagingUS\';
-file_name = '181204\atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
-trigger_delay = 0;
-samples_cut_off = 50;
-samples_t0_correct = -6;
-c0 = 1544;
-
-[exp.data, exp.params] = loadSGL([file_dir file_name]);
-exp.kgrid   = kWaveGrid(exp.params.Nx, exp.params.dx, exp.params.Ny ,exp.params.dy);
-exp.t_array = linspace(1, exp.params.Nt, exp.params.Nt) * exp.params.dt;
-
-figure
-imagesc(exp.kgrid.x_vec*1e3, exp.t_array*1e6, squeeze(exp.data(:,round(exp.params.Nx/2),:))')
-    xlabel('x / mm')
-    ylabel('time / \mus')
-    ylim([0,10])
-figure
-plot(exp.t_array*1e6, squeeze(exp.data(round(exp.params.Nx/2),round(exp.params.Ny/2),:)))
-    xlabel('time / \mus')
-    ylabel('amplitude')
-    xlim([0,10])
-    ylim([-0.3,0.2])
-
-figure
-hold on
-[frequency, f_series] = spect(squeeze(exp.data(75,75,:)),1/exp.params.dt);
-plot(frequency/1e6,f_series,'b')
-[frequency, f_series] = spect(squeeze(exp.data(75,75,:)),1/exp.params.dt,'Window','Tukey'); 
-plot(frequency/1e6,f_series,'g')
-    xlim([0,60])
-    ylim([0,0.01])
-    xlabel('frequency / MHz')
-    ylabel('amplitude')
+% % 181204 atmm with orgasol
+% 
+% file_dir = '..\data\imagingUS\';
+% file_name = '181204\atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
+% trigger_delay = 0;
+% samples_cut_off = 50;
+% samples_t0_correct = -6;
+% c0 = 1544;
+% 
+% [exp.data, exp.params] = loadSGL([file_dir file_name]);
+% exp.kgrid   = kWaveGrid(exp.params.Nx, exp.params.dx, exp.params.Ny ,exp.params.dy);
+% exp.t_array = linspace(1, exp.params.Nt, exp.params.Nt) * exp.params.dt;
+% 
+% figure
+% imagesc(exp.kgrid.x_vec*1e3, exp.t_array*1e6, squeeze(exp.data(:,round(exp.params.Nx/2),:))')
+%     xlabel('x / mm')
+%     ylabel('time / \mus')
+%     ylim([0,10])
+% figure
+% plot(exp.t_array*1e6, squeeze(exp.data(round(exp.params.Nx/2),round(exp.params.Ny/2),:)))
+%     xlabel('time / \mus')
+%     ylabel('amplitude')
+%     xlim([0,10])
+%     ylim([-0.3,0.2])
+% 
+% figure
+% hold on
+% [frequency, f_series] = spect(squeeze(exp.data(75,75,:)),1/exp.params.dt);
+% plot(frequency/1e6,f_series,'b')
+% [frequency, f_series] = spect(squeeze(exp.data(75,75,:)),1/exp.params.dt,'Window','Tukey'); 
+% plot(frequency/1e6,f_series,'g')
+%     xlim([0,60])
+%     ylim([0,0.01])
+%     xlabel('frequency / MHz')
+%     ylabel('amplitude')
 
 
 %% check noise statistics of experimental data
-% 191126 resolution27umPlanar in 2D // 181119 hair in 2D // 
-
-file_dir = '..\data\imagingUS\';
-% file_name = '191126\resolution27umPlanar_BK31[CNT]_trolley_scrambled_2D@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_13s20m12h_26-11-19_avg1_2D_raw.SGL';
-% file_name = '181119\hair_BK31[CNT]_6@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_17s24m17h_19-11-18_avg1_2D_raw.SGL';
-file_name = '180625\polymerLeafFlat_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_08s15m19h_25-06-18_avg1_2D_raw.SGL';
-
-[exp.data, exp.params] = loadSGL([file_dir file_name]);
-
-% ROI = exp.data(45,60:90,50:500);
-ROI = exp.data(70,1:40,1:180);
-% ROI = exp.data(70,:,1:1000);
-
-figure, imagesc(squeeze(ROI))
-
-binwidth   = max(ROI(:))/100;
-binedges   = min(ROI(:)) : binwidth : max(ROI(:));
-bincount   = histcounts(ROI, binedges);
-bincentres = 0.5 * ( binedges(2:end) + binedges(1:end-1) );
-
-figure, plot(bincentres,bincount)
-hold on
-
-fittttt = fit(bincentres', bincount', 'gauss1');
-gcf, plot(fittttt)
+% % 191126 resolution27umPlanar in 2D // 181119 hair in 2D // 
+% 
+% file_dir = '..\data\imagingUS\';
+% % file_name = '191126\resolution27umPlanar_BK31[CNT]_trolley_scrambled_2D@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_13s20m12h_26-11-19_avg1_2D_raw.SGL';
+% % file_name = '181119\hair_BK31[CNT]_6@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_17s24m17h_19-11-18_avg1_2D_raw.SGL';
+% file_name = '180625\polymerLeafFlat_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_08s15m19h_25-06-18_avg1_2D_raw.SGL';
+% 
+% [exp.data, exp.params] = loadSGL([file_dir file_name]);
+% 
+% % ROI = exp.data(45,60:90,50:500);
+% ROI = exp.data(70,1:40,1:180);
+% % ROI = exp.data(70,:,1:1000);
+% 
+% figure, imagesc(squeeze(ROI))
+% 
+% binwidth   = max(ROI(:))/100;
+% binedges   = min(ROI(:)) : binwidth : max(ROI(:));
+% bincount   = histcounts(ROI, binedges);
+% bincentres = 0.5 * ( binedges(2:end) + binedges(1:end-1) );
+% 
+% figure, plot(bincentres,bincount)
+% hold on
+% 
+% fittttt = fit(bincentres', bincount', 'gauss1');
+% gcf, plot(fittttt)
 
 
 %% LOCAL FUNCTIONS
