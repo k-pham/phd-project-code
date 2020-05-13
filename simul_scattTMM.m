@@ -10,7 +10,7 @@ file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\';
 file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
 
 
-%% (1) SPECIFY SIMULATION PARAMS -> struct SIMU.PARAMS
+%% (1-SPECIFY): simulation params -> struct SIMU.PARAMS
 
 % background material properties (WATER)
 simu.params.c0   = 1500;    % sound speed [m/s]
@@ -57,7 +57,7 @@ else
 end
 
 
-%% (1) OPTION: make *existing* non-attenuating medium attenuating & save simu
+%% (1-OPTION): make *existing* non-attenuating medium attenuating & save simu
 
 if simu.params.attenuating == false
     simu.params.attenuating = true;     % TOGGLE
@@ -69,7 +69,7 @@ if simu.params.attenuating == false
 end
 
 
-%% (2) SPECIFY SIMULATION PARAMS FOR SENSOR -> struct SIMU.PARAMS
+%% (2-SPECIFY): simulation params for sensor -> struct SIMU.PARAMS
 
 % filter with sensor frequency response (or not)
 simu.params.sensor_freq_filtered = false;       % TOGGLE
@@ -103,7 +103,7 @@ else
 end
 
 
-%% (2) OPTION: filter *existing* unfiltered sensor data with sensor frequency response & save sensor
+%% (2-OPTION): filter *existing* unfiltered sensor data with sensor frequency response & save sensor
 
 if simu.params.sensor_freq_filtered == false
     simu.params.sensor_freq_filtered = true;    % TOGGLE
@@ -113,7 +113,7 @@ if simu.params.sensor_freq_filtered == false
 end
 
 
-%% (2) OPTION: filter *existing* unfiltered sensor data with gaussian bandpass filter & save sensor
+%% (2-OPTION): filter *existing* unfiltered sensor data with gaussian bandpass filter & save sensor
 
 if simu.params.gaussian_freq_filtered == false
     simu.params.gaussian_freq_filtered = true;  % TOGGLE
@@ -125,7 +125,7 @@ if simu.params.gaussian_freq_filtered == false
 end
 
 
-%% (2) OPTION: add noise to *existing* non-noisy sensor data before reconstruction & save sensor
+%% (2-OPTION): add noise to *existing* non-noisy sensor data before reconstruction & save sensor
 
 if simu.params.sensor_noisy == false
     simu.params.sensor_noisy = true;    % TOGGLE
@@ -135,21 +135,27 @@ if simu.params.sensor_noisy == false
 end
 
 
-%% (3) RECONSTRUCT NEW IMAGE -> struct IMAGE
+%% (3) LOAD/RECONSTRUCT NEW IMAGE -> struct IMAGE
 
-image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0);
-    % NOTE: kgrid and t_array UPDATED
-    global kgrid t_array
+image_file_path = [file_dir_data file_name(simu.params) '_image.mat'];
 
-image.kgrid   = kgrid;
-image.t_array = t_array;
-
-save([file_dir_data file_name(simu.params) '_image.mat'], 'image' , '-v7.3')
-save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
-
-fig_imag = plot_image_data(image, simu);
-	% saveas(fig_imag, [file_dir_figs file_name(simu.params) '_image.fig'])
-    saveas(fig_imag, [file_dir_figs file_name(simu.params) '_image.jpg'])
+if exist(image_file_path, 'file')
+    disp(['Loading existing image data: ' file_name(simu.params)])
+    load(image_file_path, 'sensor');
+else
+    disp(['Reconstructing new image data: ' file_name(simu.params)])
+    image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0);
+        % NOTE: kgrid and t_array UPDATED
+        global kgrid t_array %#ok<TLEV>
+    image.kgrid   = kgrid;
+    image.t_array = t_array;
+    save(image_file_path, 'image', '-v7.3')
+    save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
+    
+    fig_imag = plot_image_data(image, simu);
+        % saveas(fig_imag, [file_dir_figs file_name(simu.params) '_image.fig'])
+        saveas(fig_imag, [file_dir_figs file_name(simu.params) '_image.jpg'])
+end
 
 
 %% (4) ANALYSE IMAGE: scattering distributions in hole & stmm, plot if wanted
