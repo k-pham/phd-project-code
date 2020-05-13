@@ -27,7 +27,7 @@ simu.params.c_object   = 1500;      % [m/s]
 simu.params.rho_object = 1000;      % [kg/m^3]
 
 % make medium attenuating (or not)
-simu.params.attenuating = true;    % TOGGLE
+simu.params.attenuating = false;    % TOGGLE
 if simu.params.attenuating
     simu.params.medium_attenuation_coeff = 0.0022;      % [dB MHz^-pow cm^-1]
     simu.params.medium_attenuation_power = 2;           % between 1..3
@@ -83,6 +83,9 @@ end
 
 % add noise to sensor data
 simu.params.sensor_noisy = false;                % TOGGLE
+if simu.params.sensor_noisy
+    simu.params.sensor_snr = 20;                    % [dB w.r.t. rms]
+end
 
 
 %% (2) LOAD/GENERATE NEW SENSOR DATA -> struct SENSOR
@@ -129,6 +132,7 @@ end
 
 if simu.params.sensor_noisy == false
     simu.params.sensor_noisy = true;    % TOGGLE
+    simu.params.sensor_snr = 6;                    % [dB w.r.t. rms]
     sensor = maybe_make_sensor_noisy(sensor, simu);
     
     save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
@@ -257,6 +261,10 @@ function filename = file_name(params)
     
     if params.gaussian_freq_filtered
         filename = [filename '_FILTER_f' num2str(params.freq_filter_cf/1e6) '_bw' num2str(params.freq_filter_bw/1e6) ];
+    end
+    
+    if params.sensor_noisy
+        filename = [filename '_NOISE_snr' num2str(params.sensor_snr) ];
     end
 
 end
@@ -562,7 +570,17 @@ end
 
 function sensor = maybe_make_sensor_noisy(sensor, simu)
 
-
+    % save source for later addition
+    sensor_data_source = sensor.data(:,1:50);
+    
+    % zero-pad source (so that addNoise can determine signal rms)
+    sensor.data(:,1:50) = 0;
+    
+    % add noise
+    sensor.data = addNoise(sensor.data, simu.params.sensor_snr, 'rms');
+    
+    % add source back in
+    sensor.data(:,1:50) = sensor.data(:,1:50) + sensor_data_source;
 
 end
 
