@@ -10,7 +10,7 @@ global kgrid t_array
 %% SET UP
 
 % clear all
-close all
+% close all
 
 file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine upsampled grid\';
 file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\fine upsampled grid\';

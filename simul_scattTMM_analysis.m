@@ -2,7 +2,7 @@
 run('simul_scattTMM_fineUpsampledGrid.m')
 
 %%
-run('clearcloseclc.m')
+clear all %#ok<CLALL>
 
 %% parameters
 
