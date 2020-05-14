@@ -132,7 +132,7 @@ end
 
 if simu.params.sensor_noisy == false
     simu.params.sensor_noisy = true;    % TOGGLE
-    simu.params.sensor_snr = 0;                    % [dB w.r.t. rms]
+    simu.params.sensor_snr = 20;                    % [dB w.r.t. rms]
     sensor = maybe_make_sensor_noisy(sensor, simu);
     
     save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
