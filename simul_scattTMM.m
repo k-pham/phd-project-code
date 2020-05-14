@@ -27,10 +27,10 @@ simu.params.c_object   = 1500;      % [m/s]
 simu.params.rho_object = 1000;      % [kg/m^3]
 
 % make medium attenuating (or not)
-simu.params.attenuating = false;    % TOGGLE
+simu.params.attenuating = true;    % TOGGLE
 if simu.params.attenuating
-    simu.params.medium_attenuation_coeff = 0.0022;      % [dB MHz^-pow cm^-1]
-    simu.params.medium_attenuation_power = 2;           % between 1..3
+    simu.params.medium_attenuation_coeff = 0.15;      % [dB MHz^-pow cm^-1]
+    simu.params.medium_attenuation_power = 1.21;           % between 1..3
 end
 
 % params for sensor must be set to false here, can change later on
@@ -61,8 +61,8 @@ end
 
 if simu.params.attenuating == false
     simu.params.attenuating = true;     % TOGGLE
-    simu.params.medium_attenuation_coeff = 0.0022;      % [dB MHz^-pow cm^-1]
-    simu.params.medium_attenuation_power = 2;           % between 1..3
+    simu.params.medium_attenuation_coeff = 0.9;      % [dB MHz^-pow cm^-1]
+    simu.params.medium_attenuation_power = 1.1;           % between 1..3
     simu = maybe_set_medium_attenuation(simu);
     
     save([file_dir_data file_name(simu.params) '_simu.mat'], 'simu', '-v7.3')
@@ -75,10 +75,10 @@ end
 simu.params.sensor_freq_filtered = false;       % TOGGLE
 
 % filter with gaussian frequency filter (or not)
-simu.params.gaussian_freq_filtered = false;     % TOGGLE
+simu.params.gaussian_freq_filtered = true;     % TOGGLE
 if simu.params.gaussian_freq_filtered
     simu.params.freq_filter_cf = 1e6;               % [Hz]
-    simu.params.freq_filter_bw = 10e6;              % [Hz]
+    simu.params.freq_filter_bw = 20e6;              % [Hz]
 end
 
 % add noise to sensor data
@@ -132,7 +132,7 @@ end
 
 if simu.params.sensor_noisy == false
     simu.params.sensor_noisy = true;    % TOGGLE
-    simu.params.sensor_snr = 6;                    % [dB w.r.t. rms]
+    simu.params.sensor_snr = 0;                    % [dB w.r.t. rms]
     sensor = maybe_make_sensor_noisy(sensor, simu);
     
     save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
@@ -169,8 +169,7 @@ image.c0 = simu.params.c0;
 plot_toggle = true;
 
 if plot_toggle == true
-    fig_distr = figure(4);
-        clf(4)
+    fig_distr = figure;
         title('scattering distributions')
         hold on
         xlabel('pixel intensity')
