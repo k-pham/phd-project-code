@@ -571,18 +571,22 @@ end
 
 function sensor = maybe_make_sensor_noisy(sensor, simu)
 
-    % save source for later addition
-    sensor_data_source = sensor.data(:,1:50);
+    if simu.params.sensor_noisy
+        
+        % save source for later addition
+        sensor_data_source = sensor.data(:,1:50);
+        
+        % zero-pad source (so that addNoise can determine signal rms)
+        sensor.data(:,1:50) = 0;
+        
+        % add noise
+        sensor.data = addNoise(sensor.data, simu.params.sensor_snr, 'rms');
+        
+        % add source back in
+        sensor.data(:,1:50) = sensor.data(:,1:50) + sensor_data_source;
+        
+    end
     
-    % zero-pad source (so that addNoise can determine signal rms)
-    sensor.data(:,1:50) = 0;
-    
-    % add noise
-    sensor.data = addNoise(sensor.data, simu.params.sensor_snr, 'rms');
-    
-    % add source back in
-    sensor.data(:,1:50) = sensor.data(:,1:50) + sensor_data_source;
-
 end
 
 function fig_sens = plot_sensor_data(sensor, simu)
