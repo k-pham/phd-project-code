@@ -1,13 +1,7 @@
-%%
-run('simul_scattTMM_fineUpsampledGrid.m')
-
-%%
-clear all %#ok<CLALL>
-
 %% parameters
 
-file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine upsampled grid\';
-file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\fine upsampled grid\';
+file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine upsampled grid\normal grid\';
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\fine upsampled grid\normal grid\';
 
 scattering_type = 'random';      % options: 'random', 'points'
 
