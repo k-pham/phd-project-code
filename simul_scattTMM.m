@@ -148,7 +148,10 @@ if exist(image_file_path, 'file')
     load(image_file_path, 'sensor');
 else
     disp(['Reconstructing new image data: ' file_name(simu.params)])
-    image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0);
+    image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0, ...
+                                        'Upsample', true, ...
+                                        'EnvelopeDetect', true, ...
+                                        'SaveImageToFile', false );
         % NOTE: kgrid and t_array UPDATED
         global kgrid t_array %#ok<TLEV>
     image.kgrid   = kgrid;
