@@ -1,4 +1,44 @@
-function [reflection_image] = reconstruct2dUSimage(sensor_data, params, c0)
+function [reflection_image] = reconstruct2dUSimage(sensor_data, params, c0, varargin)
+
+%% read from varargin
+
+% set usage defaults
+num_req_input_variables = 3;
+toUpsample = false;
+toApodise = false;
+tgc_params = {};
+toEnvelopeDetect = false;
+compression_ratio = 0;
+toSaveImage = false;
+
+% replace with user defined values if provided
+if nargin < num_req_input_variables
+    error('Incorrect number of inputs.');
+elseif ~isempty(varargin)
+    for input_index = 1:2:length(varargin)
+        switch varargin{input_index}
+            case 'Upsample'
+                toUpsample = varargin{input_index + 1};
+            case 'Apodise'
+                toApodise = varargin{input_index + 1};
+            case 'TimeGainCompensate'
+                tgc_params = varargin{input_index + 1};
+                assert(iscell(tgc_params),'Need cell array {method, strength}.')
+                if ~isempty(tgc_params)
+                    assert(length(tgc_params)==2,'Need cell array of length 2.')
+                end
+            case 'EnvelopeDetect'
+                toEnvelopeDetect = varargin{input_index + 1};
+            case 'LogCompress'
+                compression_ratio = varargin{input_index + 1};
+                assert(isnumeric(compression_ratio),'Need number for compression ratio.')
+            case 'SaveImageToFile'
+                toSaveImage = varargin{input_index + 1};
+            otherwise
+                error('Unknown optional input.');
+        end
+    end
+end
 
 
 %% assign parameters from params to use in script and globally
@@ -45,19 +85,23 @@ end
 Nt = Nt + params.Nt_t0_correct;
 
 % upsample along space (x)
-sensor_data_upsampled = zeros( 2*Nx , Nt );
-for i = 1:Nx
-    sensor_data_upsampled(2*i-1,:) = sensor_data(i,:);
-    sensor_data_upsampled(2*i  ,:) = sensor_data(i,:);
+if toUpsample
+    sensor_data_upsampled = zeros( 2*Nx , Nt );
+    for i = 1:Nx
+        sensor_data_upsampled(2*i-1,:) = sensor_data(i,:);
+        sensor_data_upsampled(2*i  ,:) = sensor_data(i,:);
+    end
+    sensor_data = sensor_data_upsampled;
+    clear sensor_data_upsampled
+    dx = dx/2;
+    Nx = 2*Nx;
 end
-sensor_data = sensor_data_upsampled;
-clear sensor_data_upsampled
-dx = dx/2;
-Nx = 2*Nx;
 
-% window the data (apodising to remove artefacts due to edge of sensor)
-% win = getWin(Nx, 'Cosine');
-% sensor_data_apodised = bsxfun(@times, win, sensor_data);
+% apodising data (to remove edge wave artefacts)
+if toApodise
+    win = getWin(Nx, 'Cosine');
+    sensor_data = bsxfun(@times, win, sensor_data);
+end
 
 
 %% reconstruct an image using a k-space method
@@ -81,28 +125,40 @@ t_array = linspace(1,Nt,Nt)*dt;
 %% image processing steps
 
 % time gain compensation
-% tgc_exponent = 50;
-% tgc = 2+ exp(tgc_exponent * t_array * c0); % exponential
-% %tgc = tgc_exponent * t_array * c0; % linear
-% reflection_image = bsxfun(@times, tgc, reflection_image);
+if ~isempty(tgc_params)
+    [method, strength] = tgc_params{:};
+    switch method
+        case 'Linear'
+            tgc = strength * t_array * c0;
+        case 'Exponential'
+            tgc = exp(strength * t_array * c0);
+    end
+    tgc = reshape(tgc, 1, length(tgc));
+    reflection_image = bsxfun(@times, tgc, reflection_image);
+end
 
 % envelope detection
-reflection_image = envelopeDetection(squeeze(reflection_image));            % p_xz
+if toEnvelopeDetect
+    reflection_image = envelopeDetection(squeeze(reflection_image));            % p_xz
+end
 
 % log compression
-% compression_ratio = 3;
-% reflection_image = logCompression(reflection_image, compression_ratio, true);   % p_xz
+if compression_ratio ~= 0
+    reflection_image = logCompression(reflection_image, compression_ratio, true);   % p_xz
+end
 
 
 %% saving image data to .mat
 
-[Nz] = size(reflection_image,2);
-volume_data = reshape(reflection_image,Nx,1,Nz);
-volume_spacing = [kgrid.dx, kgrid.dx, dt*c0];           % omit factor 1/2 in dz because of doubled depth bug
+if toSaveImage
+    [Nz] = size(reflection_image,2);
+    volume_data = reshape(reflection_image,Nx,1,Nz);
+    volume_spacing = [kgrid.dx, kgrid.dx, dt*c0];           % omit factor 1/2 in dz because of doubled depth bug
 
-phantom_id = strtok(params.file_data,'@');  % parse string up to specified delimiter
-phantom_id = phantom_id(8:end);             % remove date folder from string
-save(['recon_data\' phantom_id '.mat'],'volume_data','volume_spacing','-v7.3')
+    phantom_id = strtok(params.file_data,'@');  % parse string up to specified delimiter
+    phantom_id = phantom_id(8:end);             % remove date folder from string
+    save(['recon_data\' phantom_id '.mat'],'volume_data','volume_spacing','-v7.3')
+end
 
 
 end
