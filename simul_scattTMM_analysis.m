@@ -1,7 +1,7 @@
 %% parameters
 
-file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine upsampled grid\normal grid\';
-file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\fine upsampled grid\normal grid\';
+file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\normal step size & upsampling\';
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\fine step size\normal step size & upsampling\';
 
 scattering_type = 'random';      % options: 'random', 'points'
 
@@ -178,7 +178,10 @@ for idx_c = 5 %1:length(c_ranges)
                     legend('sensor data - unfiltered','sensor data - smooth edge','sensor data - filtered','source')
                 
                 % recon with narrowband data and show image
-                image_filtered.data = reconstruct2dUSimage(sensor_filtered.data, sensor.params, c0);
+                image_filtered.data = reconstruct2dUSimage(sensor_filtered.data, sensor.params, c0, ...
+                                                            'Upsample', true, ...
+                                                            'EnvelopeDetect', true, ...
+                                                            'SaveImageToFile', false );
                 
                 % plot filtered recon image
                 fig_img = figure(3);
