@@ -12,8 +12,8 @@ global kgrid t_array
 % clear all
 close all
 
-file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\';
-file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
+file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\';
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\fine step size\';
 
 
 %% SET UP EXPERIMENT
@@ -105,7 +105,8 @@ source.p = source_amplitude * apodisation * pressure;
 %% SENSOR
 
 % sensor array co-aligned with the source
-sensor_positions_x = pml_size:5:(Nx - pml_size);
+% sensor_positions_x = pml_size:5:(Nx - pml_size);
+sensor_positions_x = pml_size:10:(Nx - pml_size);
 sensor.mask = zeros(Nx, Ny);
 sensor.mask(sensor_positions_x, pml_size+1) = 1;
 
@@ -142,7 +143,8 @@ imagesc(kgrid.x_vec*1e3,kgrid.t_array(50:end)*1e6,sensor_data(:,50:end)')
 
 params.Nx = size(sensor_data,1);
 params.Ny = 1;
-params.dx = 5*dx;
+% params.dx = 5*dx;
+params.dx = 10*dx;
 params.dy = dy;
 params.dt = kgrid.dt;
 
@@ -151,7 +153,11 @@ params.Nt_zero_pad_source   = 50;
 params.Nt_t0_correct        = -16;
 params.file_data            = '111111\scattTMM_simul';
 
-reflection_image = reconstruct2dUSimage(sensor_data, params, c0);
+reflection_image = reconstruct2dUSimage(sensor_data, params, c0, ...
+                                        ... % 'Upsample', false, ...
+                                        'Upsample', true, ...
+                                        'EnvelopeDetect', true, ...
+                                        'SaveImageToFile', false );
     % NOTE: kgrid and t_array UPDATED
 
 fig_image = figure;
