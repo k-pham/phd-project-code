@@ -321,6 +321,24 @@ figure('Position',[1300, 30,560,420]), imagesc(centre_freqs,bandwidths,scatCNR_a
 % figure('Position',[1300, 30,560,420]), imagesc(c_ranges,rho_ranges,scatCNR_ar)          , title('scatCNR')          , xlabel('c range / m/s'), ylabel('\rho range / kg/m3'), colorbar
 
 
+%% look at frequency content in data in x & t
+
+sensor_data_fftT  = zeros(150,3892);
+sensor_data_fftTX = zeros(76 ,3892);
+
+for x = 1 : params.Nx
+    [sensor_data_fftT(x,:) , freqT] = spect(sensor_data(x,:), params.dt);
+end
+
+for t = 1 : size(sensor_data_fftT, 2)
+    [sensor_data_fftTX(:,t), freqX] = spect(sensor_data_fftT(:,t), params.dx);
+end
+figure, imagesc(freqX,freqT,sensor_data_fftTX)
+
+% sensor_data_fftT  = fft(sensor_data, [], 2);
+% sensor_data_fftTX  = abs(fft(sensor_data_fftT, [], 1));
+
+
 %% compare with experimental data
 % % 181204 atmm with orgasol
 % 
@@ -384,7 +402,7 @@ figure('Position',[1300, 30,560,420]), imagesc(centre_freqs,bandwidths,scatCNR_a
 % hold on
 % 
 % fittttt = fit(bincentres', bincount', 'gauss1');
-% gcf, plot(fittttt)
+% plot(fittttt)
 
 
 %% LOCAL FUNCTIONS
