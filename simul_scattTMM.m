@@ -27,7 +27,7 @@ simu.params.c_object   = 1500;      % [m/s]
 simu.params.rho_object = 1000;      % [kg/m^3]
 
 % make medium attenuating (or not)
-simu.params.attenuating = true;    % TOGGLE
+simu.params.attenuating = false;    % TOGGLE
 if simu.params.attenuating
     simu.params.medium_attenuation_coeff = 0.15;      % [dB MHz^-pow cm^-1]
     simu.params.medium_attenuation_power = 1.21;           % between 1..3
@@ -58,15 +58,15 @@ end
 
 
 %% (1-OPTION): make *existing* non-attenuating medium attenuating & save simu
-
-if simu.params.attenuating == false
-    simu.params.attenuating = true;     % TOGGLE
-    simu.params.medium_attenuation_coeff = 0.9;      % [dB MHz^-pow cm^-1]
-    simu.params.medium_attenuation_power = 1.1;           % between 1..3
-    simu = maybe_set_medium_attenuation(simu);
-    
-    save([file_dir_data file_name(simu.params) '_simu.mat'], 'simu', '-v7.3')
-end
+% 
+% if simu.params.attenuating == false
+%     simu.params.attenuating = true;     % TOGGLE
+%     simu.params.medium_attenuation_coeff = 0.9;      % [dB MHz^-pow cm^-1]
+%     simu.params.medium_attenuation_power = 1.1;           % between 1..3
+%     simu = maybe_set_medium_attenuation(simu);
+%     
+%     save([file_dir_data file_name(simu.params) '_simu.mat'], 'simu', '-v7.3')
+% end
 
 
 %% (2-SPECIFY): simulation params for sensor -> struct SIMU.PARAMS
@@ -107,36 +107,36 @@ end
 
 
 %% (2-OPTION): filter *existing* unfiltered sensor data with sensor frequency response & save sensor
-
-if simu.params.sensor_freq_filtered == false
-    simu.params.sensor_freq_filtered = true;    % TOGGLE
-    sensor = maybe_sensor_freq_filter(sensor, simu);
-    
-    save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
-end
+% 
+% if simu.params.sensor_freq_filtered == false
+%     simu.params.sensor_freq_filtered = true;    % TOGGLE
+%     sensor = maybe_sensor_freq_filter(sensor, simu);
+%     
+%     save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
+% end
 
 
 %% (2-OPTION): filter *existing* unfiltered sensor data with gaussian bandpass filter & save sensor
-
-if simu.params.gaussian_freq_filtered == false
-    simu.params.gaussian_freq_filtered = true;  % TOGGLE
-    simu.params.freq_filter_cf = 1e6;               % [Hz]
-    simu.params.freq_filter_bw = 20e6;              % [Hz]
-    sensor = maybe_gaussian_freq_filter(sensor, simu);
-    
-    save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
-end
+% 
+% if simu.params.gaussian_freq_filtered == false
+%     simu.params.gaussian_freq_filtered = true;  % TOGGLE
+%     simu.params.freq_filter_cf = 1e6;               % [Hz]
+%     simu.params.freq_filter_bw = 20e6;              % [Hz]
+%     sensor = maybe_gaussian_freq_filter(sensor, simu);
+%     
+%     save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
+% end
 
 
 %% (2-OPTION): add noise to *existing* non-noisy sensor data before reconstruction & save sensor
-
-if simu.params.sensor_noisy == false
-    simu.params.sensor_noisy = true;    % TOGGLE
-    simu.params.sensor_snr = 20;                    % [dB w.r.t. rms]
-    sensor = maybe_make_sensor_noisy(sensor, simu);
-    
-    save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
-end
+% 
+% if simu.params.sensor_noisy == false
+%     simu.params.sensor_noisy = true;    % TOGGLE
+%     simu.params.sensor_snr = 20;                    % [dB w.r.t. rms]
+%     sensor = maybe_make_sensor_noisy(sensor, simu);
+%     
+%     save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
+% end
 
 
 %% (3) LOAD/RECONSTRUCT NEW IMAGE -> struct IMAGE
