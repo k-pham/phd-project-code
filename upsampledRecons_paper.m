@@ -27,18 +27,18 @@ file_dir = '..\data\imagingUS\';
 %         file_name_cli = '180629\clinical scanner\29-06-2018_17-41-25 DICOM +2 higher gain\17-38-33.dcm';
 
 % 181204 atmm orgasol 1
-    file_name = '181204/atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
-    trigger_delay = 0;
-    samples_cut_off = 50;
-    samples_t0_correct = -6;
-    c0 = 1544;
+%     file_name = '181204/atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
+%     trigger_delay = 0;
+%     samples_cut_off = 50;
+%     samples_t0_correct = -6;
+%     c0 = 1544;
 
 % 180828 pork belly 3
-%     file_name = '180828\porkBelly3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[20ns]_26s20m19h_28-08-18_avg1_2D_raw.SGL';
-%     trigger_delay = 0;
-%     samples_cut_off = 10;
-%     samples_t0_correct = -4;
-%     c0 = 1460;
+    file_name = '180828\porkBelly3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[20ns]_26s20m19h_28-08-18_avg1_2D_raw.SGL';
+    trigger_delay = 0;
+    samples_cut_off = 10;
+    samples_t0_correct = -4;
+    c0 = 1460;
 
 % 190114 lymph node (L3)
 %     file_name = '190114/lymphNode2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_13s51m16h_14-01-19_avg1_2D_raw.SGL';
@@ -116,7 +116,7 @@ disp(['Reconstructing: ' file_name])
                             'Upsample', true, ...
                             'Apodise', false, ...
                             'FreqBandFilter', {}, ... % 10e6, 15e6
-                            'FreqLowFilter', {20e6}, ... % 30e6
+                            'FreqLowFilter', {}, ... % 30e6
                             'TimeGainCompensate', {}, ...
                             'EnvelopeDetect', true, ...
                             'LogCompress', 0, ...
@@ -127,5 +127,62 @@ disp(['Reconstructing: ' file_name])
 
 sliceViewer
 
+
+%% fly through videos
+
+% data = load('D:\PROJECT\code\recon_data\porkBelly3_BK31[CNT].mat');
+% data = load('D:\PROJECT\code\recon_data\porkBelly3_BK31[CNT]_trimmed_tgc.mat');
+data = load('D:\PROJECT\code\recon_data\porkBelly3_BK31[CNT]_trimmed_tgc_interp.mat');
+
+image = data.volume_data;
+voxsz = data.volume_spacing;
+
+% trim in depth & y
+maxdepth = round( 5e-3/voxsz(3));
+miny     = round( 2e-3/voxsz(2));
+maxy     = round(12e-3/voxsz(2));
+image    = image(:,miny:maxy,1:maxdepth);
+
+% make spatial axes
+x_axis = (0:size(image,1)-1)*voxsz(1)*1e3;    % [mm]
+z_axis = (0:size(image,3)-1)*voxsz(3)*1e3;    % [mm]
+
+% slice & frame parameters
+slicethickness = round(1e-3/voxsz(2));      % [voxel]
+num_frames     = size(image,2) - slicethickness + 1;
+
+% open video
+vidObj = VideoWriter('D:\PROJECT\figures\_Matlab figs\USimaging\180828 porkBelly3 BK31[CNT]\porkBelly3_fly_zx_USIPAPER.avi');   % ,'Uncompressed AVI');
+vidObj.FrameRate = slicethickness;
+open(vidObj);
+
+% open figure
+figure('Position',[300,300,600,300])
+
+% add frames to video
+for frame = 1 : num_frames
+    ypos = frame*voxsz(2)*1e3;
+    meanIP = squeeze(mean(image(:,frame:frame+slicethickness-1,:),2));
+    gcf
+    imagesc(x_axis,z_axis,meanIP')
+        axis image
+        colormap(gray)
+        brighten(0.2)
+        xlabel('x axis [mm]')
+        ylabel('depth z [mm]')
+        %annotation('textbox',[0.1,0.1,0.3,0.3],'String',['y = ']
+        text(11.5,4.5,['y = ' sprintf('%0.1f', ypos) ' mm'],'FontSize',14,'FontName','Times New Roman','Color',[1 1 1])
+        set(gca,'FontSize',14)
+        set(gca,'FontName','Times New Roman')
+    currFrame = getframe(gcf);
+    writeVideo(vidObj,currFrame);
+    %pause(0.01)
+end
+
+% check that all frames added
+assert(size(image,2) == frame+slicethickness-1);
+
+% close video
+close(vidObj);
 
 
