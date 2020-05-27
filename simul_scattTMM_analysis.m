@@ -323,17 +323,45 @@ figure('Position',[1300, 30,560,420]), imagesc(centre_freqs,bandwidths,scatCNR_a
 
 %% look at frequency content in data in x & t
 
-sensor_data_fftT  = zeros(150,3892);
-sensor_data_fftTX = zeros(76 ,3892);
+clearvars
+
+% STEP SIZE = 100 um:
+filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\normal step size & no upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
+% filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\normal step size & upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
+
+% STEP SIZE = 50 um:
+filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\fine step size & no upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
+% filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\fine step size & upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
+
+load(filename)
+
+[size_x, size_t] = size(sensor_data);
+
+size_t_fft = round((size_t+1)/2);
+size_x_fft = round((size_x+1)/2);
+
+sensor_data_fftT  = zeros(size_x    , size_t_fft);      % zeros(150,3892)
+sensor_data_fftTX = zeros(size_x_fft, size_t_fft);      % zeros(76 ,3892)
 
 for x = 1 : params.Nx
-    [sensor_data_fftT(x,:) , freqT] = spect(sensor_data(x,:), params.dt);
+    [freqT, sensor_data_fftT(x,:) ] = spect(sensor_data(x,:), 1/params.dt);
 end
 
 for t = 1 : size(sensor_data_fftT, 2)
-    [sensor_data_fftTX(:,t), freqX] = spect(sensor_data_fftT(:,t), params.dx);
+    [freqX, sensor_data_fftTX(:,t)] = spect(sensor_data_fftT(:,t), 1/params.dx);
 end
-figure, imagesc(freqX,freqT,sensor_data_fftTX)
+
+x_min = 1;
+
+figure('Position',[300,300,750,450])
+imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
+    title(filename(84:end-58))
+    xlabel('Temporal frequency [MHz]')
+    ylabel('Spatial frequency [mm^{-1}]')
+    xlim([0,70])
+    ylim([0,10]) %max(freqX/1e3)])
+    colorbar
+    set(gca,'FontSize',13)
 
 % sensor_data_fftT  = fft(sensor_data, [], 2);
 % sensor_data_fftTX  = abs(fft(sensor_data_fftT, [], 1));
