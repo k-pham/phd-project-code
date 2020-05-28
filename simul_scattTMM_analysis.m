@@ -374,6 +374,45 @@ imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
 
 
 %% compare with experimental data
+% 191126 resolution 27 um tungsten
+
+file_dir = '..\data\imagingUS\';
+file_name = '191126\resolution27umPlanar_BK31[CNT]_trolley_scrambled_2D@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_13s20m12h_26-11-19_avg1_2D_raw.SGL';
+trigger_delay = 0;
+samples_cut_off = 50;
+samples_t0_correct = -14;
+c0 = 1489;
+
+[exp.data, exp.params] = loadSGL([file_dir file_name]);
+exp.kgrid   = kWaveGrid(exp.params.Nx, exp.params.dx, exp.params.Ny ,exp.params.dy);
+exp.t_array = linspace(1, exp.params.Nt, exp.params.Nt) * exp.params.dt;
+
+x_coord = round(exp.params.Nx/2);
+y_coord = round(exp.params.Ny/2);
+t_range = 150:350; % 40:exp.params.Nt; % 
+
+figure
+imagesc(exp.t_array(t_range)*1e6, exp.kgrid.y_vec*1e3, squeeze(exp.data(x_coord,:,t_range)))
+    xlabel('time / \mus')
+    ylabel('x / mm')
+figure
+plot(exp.t_array(t_range)*1e6, squeeze(exp.data(x_coord,y_coord,t_range)))
+    xlabel('time / \mus')
+    ylabel('amplitude')
+
+figure
+hold on
+[frequency, f_series] = spect(squeeze(exp.data(x_coord,y_coord,t_range)),1/exp.params.dt,'FFTLength',1000);
+plot(frequency/1e6,f_series,'b')
+[frequency, f_series] = spect(squeeze(exp.data(x_coord,y_coord,t_range)),1/exp.params.dt,'Window','Tukey','FFTLength',1000); 
+plot(frequency/1e6,f_series,'g')
+    xlim([0,100])
+%     ylim([0,0.01])
+    xlabel('frequency / MHz')
+    ylabel('amplitude')
+
+
+%% compare with experimental data
 % % 181204 atmm with orgasol
 % 
 % file_dir = '..\data\imagingUS\';
