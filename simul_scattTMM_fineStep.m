@@ -105,8 +105,10 @@ source.p = source_amplitude * apodisation * pressure;
 %% SENSOR
 
 % sensor array co-aligned with the source
+% sensor_positions_x = pml_size:2:(Nx - pml_size);
 % sensor_positions_x = pml_size:5:(Nx - pml_size);
-sensor_positions_x = pml_size:10:(Nx - pml_size);
+% sensor_positions_x = pml_size:10:(Nx - pml_size);
+sensor_positions_x = pml_size:20:(Nx - pml_size);
 sensor.mask = zeros(Nx, Ny);
 sensor.mask(sensor_positions_x, pml_size+1) = 1;
 
@@ -143,8 +145,10 @@ imagesc(kgrid.x_vec*1e3,kgrid.t_array(50:end)*1e6,sensor_data(:,50:end)')
 
 params.Nx = size(sensor_data,1);
 params.Ny = 1;
+% params.dx = 2*dx;
 % params.dx = 5*dx;
-params.dx = 10*dx;
+% params.dx = 10*dx;
+params.dx = 20*dx;
 params.dy = dy;
 params.dt = kgrid.dt;
 
@@ -154,8 +158,8 @@ params.Nt_t0_correct        = -16;
 params.file_data            = '111111\scattTMM_simul';
 
 reflection_image = reconstruct2dUSimage(sensor_data, params, c0, ...
-                                        ... % 'Upsample', false, ...
-                                        'Upsample', true, ...
+                                        'Upsample', false, ...
+                                        ... % 'Upsample', true, ...
                                         'EnvelopeDetect', true, ...
                                         'SaveImageToFile', false );
     % NOTE: kgrid and t_array UPDATED
