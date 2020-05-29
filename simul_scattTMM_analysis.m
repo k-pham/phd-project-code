@@ -322,58 +322,67 @@ figure('Position',[1300, 30,560,420]), imagesc(centre_freqs,bandwidths,scatCNR_a
 
 
 %% look at frequency content in data in x & t
-% 
-% clearvars
-% 
-% % STEP SIZE = 100 um:
-% % filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\step 100 & no upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
-% % filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\step 100 & upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
-% 
-% % STEP SIZE = 50 um:
-% % filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\step 50 & no upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
-% % filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\step 50 & upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
-% 
-% % GRID SIZE = 100 um:
-% % filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine upsampled grid\normal grid\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
-% 
-% % GRID SIZE = 50 um:
-% % filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine upsampled grid\upsampled grid\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
-% 
-% % STEP SIZE = 20 um:
-% % filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\step 20 & no upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
-% 
-% % STEP SIZE = 200 um:
+
+clearvars
+
+% STEP SIZE = 100 um:
+% filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\step 100 & no upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
+% filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\step 100 & upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
+
+% STEP SIZE = 50 um:
+% filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\step 50 & no upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
+% filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\step 50 & upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
+
+% GRID SIZE = 100 um:
+% filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine upsampled grid\normal grid\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
+
+% GRID SIZE = 50 um:
+% filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine upsampled grid\upsampled grid\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
+
+% STEP SIZE = 20 um:
+% filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\step 20 & no upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
+
+% STEP SIZE = 200 um:
 % filename = 'D:\PROJECT\data\simulations\scattTMM\random with water hole 40 80 - fine step size\step 200 & no upsampling\random_SCATT_c40_rho80_HOLE_c1500_rho1000_sensor_data.mat';
-% 
+
 % load(filename)
-% 
-% [size_x, size_t] = size(sensor_data);
-% 
-% size_t_fft = round((size_t+1)/2);
-% size_x_fft = round((size_x+1)/2);
-% 
-% sensor_data_fftT  = zeros(size_x    , size_t_fft);      % zeros(150,3892)
-% sensor_data_fftTX = zeros(size_x_fft, size_t_fft);      % zeros(76 ,3892)
-% 
-% for x = 1 : params.Nx
-%     [freqT, sensor_data_fftT(x,:) ] = spect(sensor_data(x,:), 1/params.dt);
-% end
-% 
-% for t = 1 : size(sensor_data_fftT, 2)
-%     [freqX, sensor_data_fftTX(:,t)] = spect(sensor_data_fftT(:,t), 1/params.dx);
-% end
-% 
-% x_min = 4;
-% 
-% figure('Position',[300,300,750,450])
-% imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
-%     title(filename(84:end-58))   % STEP SIZE comparison (84:end-58)     % GRID SIZE comparison (89:end-58)
-%     xlabel('Temporal frequency [MHz]')
-%     ylabel('Spatial frequency [mm^{-1}]')
+
+% REAL DATA
+% filename = 'D:\PROJECT\data\imagingUS\191126\resolution27umPlanar_BK31[CNT]_trolley_scrambled_2D@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_13s20m12h_26-11-19_avg1_2D_raw.SGL';
+% [sensor_data, params] = loadSGL(filename);
+% sensor_data = squeeze(sensor_data(21,:,40:end));
+
+filename = 'D:\PROJECT\data\imagingUS\181204\atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
+[sensor_data, params] = loadSGL(filename);
+sensor_data = squeeze(sensor_data(:,75,:));
+
+[size_x, size_t] = size(sensor_data);
+
+size_t_fft = round((size_t+1)/2);
+size_x_fft = round((size_x+1)/2);
+
+sensor_data_fftT  = zeros(size_x    , size_t_fft);      % zeros(150,3892)
+sensor_data_fftTX = zeros(size_x_fft, size_t_fft);      % zeros(76 ,3892)
+
+for x = 1 : params.Nx
+    [freqT, sensor_data_fftT(x,:) ] = spect(sensor_data(x,:), 1/params.dt);
+end
+
+for t = 1 : size(sensor_data_fftT, 2)
+    [freqX, sensor_data_fftTX(:,t)] = spect(sensor_data_fftT(:,t), 1/params.dx);
+end
+
+x_min = 4;
+
+figure('Position',[300,300,750,450])
+imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
+    title(filename(84:end-58))   % STEP SIZE comparison (84:end-58)     % GRID SIZE comparison (89:end-58)
+    xlabel('Temporal frequency [MHz]')
+    ylabel('Spatial frequency [mm^{-1}]')
 %     xlim([0,70])
-%     ylim([0,25])     % STEP SIZE comparison 10       % GRID SIZE comparison 5
-%     colorbar
-%     set(gca,'FontSize',13)
+%     ylim([0,5])     % STEP SIZE comparison 10       % GRID SIZE comparison 5
+    colorbar
+    set(gca,'FontSize',13)
 
 
 %% compare with experimental data
