@@ -109,10 +109,10 @@ end
 
 % frequency band filtering data (to use for frequency compounding)
 if ~isempty(freqbandfilter_params)
-    sensor_data = freq_filtering_gaussian(sensor_data, freqbandfilter_params);
+    sensor_data = freq_filtering_bandpass_gaussian(sensor_data, freqbandfilter_params);
 end
 if ~isempty(freqlowfilter_params)
-    sensor_data = freq_filtering_butter(sensor_data, freqlowfilter_params);
+    sensor_data = freq_filtering_lowpass_butter(sensor_data, freqlowfilter_params);
 end
 
 
@@ -314,8 +314,8 @@ function reflection_image_log = log_compressing(reflection_image, compression_ra
 end
 
 
-%% frequency bandpass filtering data (for frequency compounding)
-function sensor_data_filtered = freq_filtering_gaussian(sensor_data, freqfilter_params)
+%% frequency bandpass filtering data (for frequency compounding) - gaussian
+function sensor_data_filtered = freq_filtering_bandpass_gaussian(sensor_data, freqfilter_params)
 
     global Nx dt
     
@@ -335,8 +335,23 @@ function sensor_data_filtered = freq_filtering_gaussian(sensor_data, freqfilter_
 end
 
 
-%% frequency lowpass filtering data
-function sensor_data_filtered = freq_filtering_butter(sensor_data, freqfilter_params)
+%% frequency bandpass filtering data - butter
+function sensor_data_filtered = freq_filtering_bandpass_butter(sensor_data, freqfilter_params)
+
+    global Nx Ny dt
+    
+    disp('Frequency bandpass filtering (butterworth) ...'),
+    tic
+    
+    
+    
+    disp(['  completed in ' scaleTime(toc)]);
+
+end
+
+
+%% frequency lowpass filtering data - butter
+function sensor_data_filtered = freq_filtering_lowpass_butter(sensor_data, freqfilter_params)
 
     global Nx Ny dt
     
