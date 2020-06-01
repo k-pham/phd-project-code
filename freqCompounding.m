@@ -193,6 +193,34 @@ disp('  resoLat    resoAxi    specSNR   scatSNR   scatCNR')
 disp([resoLat*1e6,resoAxi*1e6,specSNR,scatSNR,scatCNR])
 
 
+%% look at frequency filters
+
+clearvars
+
+f            = (0:0.05:50)*1e6;     % [Hz]
+magnitude    = 1;
+centre_freqs = (2:1:15)*1e6;        % [Hz]
+bandwidth    = 2e6;                 % [Hz]
+variance     = (bandwidth / (2 * sqrt(2 * log(2)))).^2;
+
+figure, hold on
+for mean = centre_freqs
+    gauss_filter = max(gaussian(f, magnitude, mean, variance), gaussian(f, magnitude, -mean, variance));
+    
+    plot(f/1e6, gauss_filter, ':')
+        xlabel('Frequency / MHz')
+    
+    if ~exist('compound_filter','var')
+        compound_filter = gauss_filter;
+    else
+        compound_filter = compound_filter + gauss_filter;
+    end
+
+end
+
+plot(f/1e6, compound_filter/max(compound_filter), 'k-')
+
+
 %% LOCAL FUNCTIONS
 
 function [reflection_image, voxel_size] = load_image(phantom_id, centre_freq, bandwidth)
