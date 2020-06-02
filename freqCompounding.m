@@ -165,7 +165,8 @@ bandwidths   = 2e6;
 
 % load image data with specified weighting_type
 % file_path = ['recon_data\' phantom_id '_weighted_' weighting_type];
-file_path = ['recon_data\' phantom_id '_bw2_compound_envDetectAfter.mat'];
+% file_path = ['recon_data\' phantom_id '_bw2_compound_envDetectAfter.mat'];
+file_path = ['recon_data\' phantom_id '_f1.5-15.5.mat'];
 image_data = load(file_path);
 compound_image = image_data.volume_data;
 voxel_size = image_data.volume_spacing;
@@ -193,11 +194,11 @@ disp('  resoLat    resoAxi    specSNR   scatSNR   scatCNR')
 disp([resoLat*1e6,resoAxi*1e6,specSNR,scatSNR,scatCNR])
 
 
-%% look at frequency filters
+%% look at frequency filters & make compound filter
 
 clearvars
 
-f            = (0:0.05:50)*1e6;     % [Hz]
+f            = (0:0.05:100)*1e6;     % [Hz]
 magnitude    = 1;
 centre_freqs = (2:1:15)*1e6;        % [Hz]
 bandwidth    = 2e6;                 % [Hz]
@@ -218,7 +219,28 @@ for mean = centre_freqs
 
 end
 
-plot(f/1e6, compound_filter/max(compound_filter), 'k-')
+compound_filter = compound_filter/max(compound_filter);
+
+plot(f/1e6, compound_filter, 'k-')
+    title('compound filter')
+
+
+%% recon image with compound filter (to compare to compound of individually filtered recons)
+
+[reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, ...
+                            'ZeroPad', 10, ...
+                            'Upsample', true, ...
+                            'Apodise', false, ...
+                            'FreqBandFilter', {}, ...
+                            'FreqLowFilter', {}, ...
+                            'FreqCustomFilter', {f, compound_filter}, ...
+                            'TimeGainCompensate',{}, ...
+                            'EnvelopeDetect', true, ...
+                            'LogCompress', 0, ...
+                            'SaveImageToFile', true ...
+                        );
+
+display_and_save_projection(phantom_id, reflection_image, c0, 'Brightness', 0.5)
 
 
 %% LOCAL FUNCTIONS
