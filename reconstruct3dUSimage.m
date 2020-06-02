@@ -9,6 +9,7 @@ toUpsample = false;
 toApodise = false;
 freqbandfilter_params = {};
 freqlowfilter_params = {};
+freqcustomfilter_params = {};
 tgc_params = {};
 toEnvelopeDetect = false;
 compression_ratio = 0;
@@ -38,6 +39,12 @@ elseif ~isempty(varargin)
                 assert(iscell(freqlowfilter_params),'Need cell array {cutoff_freq(Hz)}.')
                 if ~isempty(freqlowfilter_params)
                     assert(length(freqlowfilter_params)==1,'Need cell array of length 1.')
+                end
+            case 'FreqCustomFilter'
+                freqcustomfilter_params = varargin{input_index + 1};
+                assert(iscell(freqcustomfilter_params),'Need cell array {[freq(Hz)],[filter]}.')
+                if ~isempty(freqcustomfilter_params)
+                    assert(length(freqcustomfilter_params)==2,'Need cell array of length 2.')
                 end
             case 'TimeGainCompensate'
                 tgc_params = varargin{input_index + 1};
@@ -114,6 +121,9 @@ end
 if ~isempty(freqlowfilter_params)
     sensor_data = freq_filtering_lowpass_butter(sensor_data, freqlowfilter_params);
 end
+if ~isempty(freqcustomfilter_params)
+    sensor_data = freq_filtering_custom(sensor_data, freqcustomfilter_params);
+end
 
 
 %% reconstruct image using k-space method
@@ -157,7 +167,7 @@ end
 
 if toSaveImage
     savingImageToMat(reflection_image, params.file_data, dt*c0, ...     % omit factor 1/2 in dz because of doubled depth bug
-                        freqbandfilter_params, freqlowfilter_params)
+                        freqbandfilter_params, freqlowfilter_params, freqcustomfilter_params)
 end
 
 
@@ -335,15 +345,42 @@ function sensor_data_filtered = freq_filtering_bandpass_gaussian(sensor_data, fr
 end
 
 
-%% frequency bandpass filtering data - butter
-function sensor_data_filtered = freq_filtering_bandpass_butter(sensor_data, freqfilter_params)
+%% frequency filtering data - custom
+function sensor_data_filtered = freq_filtering_custom(sensor_data, freqfilter_params)
 
-    global Nx Ny dt
+    global dt
     
-    disp('Frequency bandpass filtering (butterworth) ...'),
+    disp('Frequency filtering (custom) ...'),
     tic
     
+    % compute the double-sided frequency axis
+    Nt = size(sensor_data,3);
+    Fs = 1/dt;
+    if mod(Nt,2) == 0
+        f = (-Nt/2:Nt/2-1) * Fs/Nt;
+    else
+        f = (-(Nt-1)/2:(Nt-1)/2) * Fs/Nt;
+    end
     
+    % unpack freqcustomfilter_params
+    [f_custom, filter_custom] = freqfilter_params{:};
+    
+    % make sensor frequency response double-sided
+    f_custom      = [-fliplr(f_custom)      f_custom(2:end)  ];
+    filter_custom = [ fliplr(filter_custom) filter_custom(2:end)];
+    
+    % resample filter_custom at f
+    filter_custom = interp1(f_custom, filter_custom, f);
+    
+    % reshape filter_custom to match dim of sensor_data
+    filter_custom = reshape(filter_custom,1,1,length(filter_custom));
+    
+    % apply filter with zero-phase
+    sensor_data_filtered = real(ifft(ifftshift( ...
+                             bsxfun(@times, filter_custom, ...
+                                 fftshift(fft(sensor_data, [], 3), 3) ...
+                             ) ...
+                           , 3), [], 3));
     
     disp(['  completed in ' scaleTime(toc)]);
 
@@ -374,7 +411,7 @@ end
 
 
 %% saving image data to .mat (for sliceViewer)
-function savingImageToMat(reflection_image, file_data, dz, freqbandfilter_params, freqlowfilter_params)
+function savingImageToMat(reflection_image, file_data, dz, freqbandfilter_params, freqlowfilter_params, freqcustomfilter_params)
 
     global Nx Ny kgrid
     
@@ -401,7 +438,10 @@ function savingImageToMat(reflection_image, file_data, dz, freqbandfilter_params
                         '_fc' num2str(cutoff_freq/1e6) ...
                      ];
     end
-        
+    if(~isempty(freqcustomfilter_params))
+        phantom_id = [phantom_id '_ffcustom'];
+    end
+    
     file_image = ['recon_data\' phantom_id '.mat'];
     
     save(file_image,'volume_data','volume_spacing','-v7.3')
