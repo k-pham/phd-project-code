@@ -38,6 +38,9 @@ simu.params.sensor_freq_filtered = false;
 simu.params.gaussian_freq_filtered = false;
 simu.params.sensor_noisy = false;
 
+% params for recon must be set to false here, can change later on
+simu.params.freq_compound = false;
+
 
 %% (1) LOAD/MAKE NEW SIMULATION -> struct SIMU
 
@@ -75,7 +78,7 @@ end
 simu.params.sensor_freq_filtered = false;       % TOGGLE
 
 % filter with gaussian frequency filter (or not)
-simu.params.gaussian_freq_filtered = true;     % TOGGLE
+simu.params.gaussian_freq_filtered = false;     % TOGGLE
 if simu.params.gaussian_freq_filtered
     simu.params.freq_filter_cf = 1e6;               % [Hz]
     simu.params.freq_filter_bw = 20e6;              % [Hz]
@@ -139,23 +142,26 @@ end
 % end
 
 
+%% (3-SPECIFY): simulation params for reconstruction -> struct SIMU.PARAMS
+
+simu.params.freq_compound = true;
+if simu.params.freq_compound
+    simu.params.freq_compound_method = 'coherent';      % options: 'coherent', 'incoherent'
+    simu.params.freq_compound_cf     = (1:1:10)*1e6;    % [Hz]
+    simu.params.freq_compound_bw     = 2e6;             % [Hz]
+end
+
+
 %% (3) LOAD/RECONSTRUCT NEW IMAGE -> struct IMAGE
 
 image_file_path = [file_dir_data file_name(simu.params) '_image.mat'];
 
 if exist(image_file_path, 'file')
     disp(['Loading existing image data: ' file_name(simu.params)])
-    load(image_file_path, 'sensor');
+    load(image_file_path, 'image');
 else
     disp(['Reconstructing new image data: ' file_name(simu.params)])
-    image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0, ...
-                                        'Upsample', true, ...
-                                        'EnvelopeDetect', true, ...
-                                        'SaveImageToFile', false );
-        % NOTE: kgrid and t_array UPDATED
-        global kgrid t_array %#ok<TLEV>
-    image.kgrid   = kgrid;
-    image.t_array = t_array;
+    image = recon_new_image(sensor, simu);
     save(image_file_path, 'image', '-v7.3')
     save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
     
@@ -267,6 +273,10 @@ function filename = file_name(params)
     
     if params.sensor_noisy
         filename = [filename '_NOISE_snr' num2str(params.sensor_snr) ];
+    end
+    
+    if params.freq_compound
+        filename = [filename '_COMPOUND_' params.freq_compound_method '_f' num2str(params.freq_compound_cf(1)/1e6) '-' num2str(params.freq_compound_cf(end)/1e6) '_bw' num2str(params.freq_compound_bw/1e6) ];
     end
 
 end
@@ -614,6 +624,62 @@ end
 
 
 %% METHODS FOR IMAGE
+
+function image = recon_new_image(sensor, simu)
+
+    % recon with frequency compounding
+    if simu.params.freq_compound
+        
+        method = simu.params.freq_compound_method;
+        cfs    = simu.params.freq_compound_cf;
+        bw     = simu.params.freq_compound_bw;
+        
+        % set envelope detection according to compounding method
+        switch method
+            case 'coherent'
+                toEnvelopeDetect = false;
+            case 'incoherent'
+                toEnvelopeDetect = true;
+        end
+        
+        % loop over centre frequencies and compound
+        num_images_compounded = 0;
+        for cf = cfs
+            disp(['CENTRE FREQ ' num2str(cf/1e6) ', BANDWIDTH ' num2str(bw/1e6)])
+            single_image = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0, ...
+                                          'Upsample', true, ...
+                                          'FreqBandFilter', {cf, bw}, ...
+                                          'EnvelopeDetect', toEnvelopeDetect, ...
+                                          'SaveImageToFile', false );
+            % add to compound or create new if first image
+            if ~exist('compound_image','var')
+                compound_image = single_image;
+            else
+                compound_image = compound_image + single_image;
+            end
+            num_images_compounded = num_images_compounded + 1;
+        end
+        image.data = compound_image / num_images_compounded;
+        
+        % envelope detect after if coherent compounding
+        if strcmp(method,'coherent')
+            image.data = envelopeDetection(image.data);
+        end
+    
+	% recon without frequency compounding
+    else
+        image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0, ...
+                                    'Upsample', true, ...
+                                    'EnvelopeDetect', true, ...
+                                    'SaveImageToFile', false );
+    end
+    
+    % assign image.kgrid and image.t_array from global
+    global kgrid t_array
+    image.kgrid   = kgrid;
+    image.t_array = t_array;
+    
+end
 
 function fig_imag = plot_image_data(image, simu)
 % plots:    image.data
