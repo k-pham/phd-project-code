@@ -6,6 +6,7 @@ function [reflection_image] = reconstruct2dUSimage(sensor_data, params, c0, vara
 num_req_input_variables = 3;
 toUpsample = false;
 toApodise = false;
+freqbandfilter_params = {};
 tgc_params = {};
 toEnvelopeDetect = false;
 compression_ratio = 0;
@@ -21,6 +22,12 @@ elseif ~isempty(varargin)
                 toUpsample = varargin{input_index + 1};
             case 'Apodise'
                 toApodise = varargin{input_index + 1};
+            case 'FreqBandFilter'
+                freqbandfilter_params = varargin{input_index + 1};
+                assert(iscell(freqbandfilter_params),'Need cell array {centre_freq(Hz) bandwidth(Hz)}.')
+                if ~isempty(freqbandfilter_params)
+                    assert(length(freqbandfilter_params)==2,'Need cell array of length 2.')
+                end
             case 'TimeGainCompensate'
                 tgc_params = varargin{input_index + 1};
                 assert(iscell(tgc_params),'Need cell array {method, strength}.')
@@ -101,6 +108,13 @@ end
 if toApodise
     win = getWin(Nx, 'Cosine');
     sensor_data = bsxfun(@times, win, sensor_data);
+end
+
+% frequency band filtering data (to use for frequency compounding)
+if ~isempty(freqbandfilter_params)
+    [centre_freq, bandwidth] = freqbandfilter_params{:};
+    bandwidth_pc = bandwidth / centre_freq * 100;       % convert bandwidth to % of centre frequency for gaussianFilter
+    sensor_data = gaussianFilter(sensor_data,1/dt,centre_freq,bandwidth_pc);
 end
 
 
