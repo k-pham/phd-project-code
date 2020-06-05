@@ -17,14 +17,14 @@ simu.params.c0   = 1500;    % sound speed [m/s]
 simu.params.rho0 = 1000;    % density [kg/m^3]
 
 % choose option to represent scattering medium and object shape
-simu.params.scattering_type = 'random';     % options: 'random', 'points'
-simu.params.object_shape    = 'hole';       % options: 'hole', 'slab'
+simu.params.scattering_type = 'non-scattering';     % options: 'random', 'points', 'non-scattering'
+simu.params.object_shape    = 'wire';           % options: 'hole', 'slab', 'wire'
 
 % define c/rho for scattering medium and object
-simu.params.c_scatt    = 40;        % [m/s]
-simu.params.rho_scatt  = 80;        % [kg/m^3]
-simu.params.c_object   = 1500;      % [m/s]
-simu.params.rho_object = 1000;      % [kg/m^3]
+simu.params.c_scatt    = 0;        % [m/s]
+simu.params.rho_scatt  = 0;        % [kg/m^3]
+simu.params.c_object   = 1600;      % [m/s]
+simu.params.rho_object = 1100;      % [kg/m^3]
 
 % make medium attenuating (or not)
 simu.params.attenuating = false;    % TOGGLE
@@ -144,7 +144,7 @@ end
 
 %% (3-SPECIFY): simulation params for reconstruction -> struct SIMU.PARAMS
 
-simu.params.freq_compound = true;
+simu.params.freq_compound = false;
 if simu.params.freq_compound
     simu.params.freq_compound_method = 'coherent';      % options: 'coherent', 'incoherent'
     simu.params.freq_compound_cf     = (1:1:10)*1e6;    % [Hz]
@@ -252,6 +252,16 @@ function slab = get_slab_location(Nx, Ny)
     
 end
 
+function wire = get_wire_location(Nx, Ny)
+
+    wire_radius = 1;                % [grid points]
+    wire_x      = round(Nx/2);      % [grid points]
+    wire_y      = round(Ny/4);      % [grid points]
+    
+    wire = makeDisc(Nx,Ny,wire_x,wire_y,wire_radius);
+
+end
+
 function filename = file_name(params)
 % makes:    file name stem
 % requires: simu.params - for scattering medium and object specs
@@ -352,6 +362,8 @@ function simu = make_medium(simu)
             
             simu.medium.sound_speed(pointscatts==1) = simu.params.c_scatt;
             simu.medium.density(pointscatts==1)     = simu.params.rho_scatt;
+        case 'non-scattering'
+            % do nothing, keep uniform background medium properties
     end
     
     % make object specified by object_shape
@@ -360,6 +372,8 @@ function simu = make_medium(simu)
             object = get_hole_location(simu.kgrid.Nx, simu.kgrid.Ny);
         case 'slab'
             object = get_slab_location(simu.kgrid.Nx, simu.kgrid.Ny);
+        case 'wire'
+            object = get_wire_location(simu.kgrid.Nx, simu.kgrid.Ny);
     end
     
     simu.medium.sound_speed(object==1) = simu.params.c_object;
@@ -500,7 +514,7 @@ function sensor = set_sensor_params(sensor, simu)
     
     sensor.params.trigger_delay      = 0;
     sensor.params.Nt_zero_pad_source = 100;
-    sensor.params.Nt_t0_correct      = -16;
+    sensor.params.Nt_t0_correct      = -17;  %16
     sensor.params.file_data          = '111111\scattTMM_simul';
     
     assert(sensor.params.Nt_t0_correct == find_t0_correct(sensor.data))
