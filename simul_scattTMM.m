@@ -163,7 +163,7 @@ else
     disp(['Reconstructing new image data: ' file_name(simu.params)])
     image = recon_new_image(sensor, simu);
     save(image_file_path, 'image', '-v7.3')
-    save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
+    save_image_for_sliceViewer(image, sensor, simu, image_file_path)
     
     fig_imag = plot_image_data(image, simu);
         % saveas(fig_imag, [file_dir_figs file_name(simu.params) '_image.fig'])
@@ -186,7 +186,7 @@ if plot_toggle == true
 end
 
 [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image, plot_toggle);
-[scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_tmm(image, plot_toggle);
+[scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_stmm(image, plot_toggle);
 
 if plot_toggle == true
     legend(gca,'show')
@@ -699,7 +699,7 @@ function fig_imag = plot_image_data(image, simu)
     
 end
 
-function save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
+function save_image_for_sliceViewer(image, sensor, simu, image_file_path)
 % saves:    image.data reshaped to 3D
 % requires: image.data
 %           image.kgrid   - for volume spacing
@@ -711,7 +711,7 @@ function save_image_for_sliceViewer(image, sensor, simu, file_dir_data)
     volume_spacing = [image.kgrid.dx, 1, sensor.params.dt*simu.params.c0];
                      % omit factor 1/2 in dz because of doubled depth bug
     
-    save([file_dir_data file_name(simu.params) '_image_4sliceViewer.mat'], 'volume_data', 'volume_spacing', '-v7.3')
+    save([image_file_path '_image_4sliceViewer.mat'], 'volume_data', 'volume_spacing', '-v7.3')
 
 end
 
@@ -748,7 +748,7 @@ function [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(im
     
 end
 
-function [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image, plot_toggle)
+function [scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_stmm(image, plot_toggle)
 
     hole_notoutside = get_discROI_at_hole_in_image(image, 1.1);
     hole_outside    = not(hole_notoutside);
@@ -758,8 +758,8 @@ function [scatter_tmm_mean, scatter_tmm_std] = get_scattering_distr_in_tmm(image
     
     ROI = image.data(mask);
     
-    scatter_tmm_mean = mean(ROI(:));
-    scatter_tmm_std  = std(ROI(:));
+    scatter_stmm_mean = mean(ROI(:));
+    scatter_stmm_std  = std(ROI(:));
     
     if plot_toggle == true
         plot_histogram_of_scattering_distr(ROI, 'scatter tmm', 'Normalise', true)
