@@ -23,8 +23,8 @@ simu.params.object_shape    = 'wire';           % options: 'hole', 'slab', 'wire
 % define c/rho for scattering medium and object
 simu.params.c_scatt    = 0;        % [m/s]
 simu.params.rho_scatt  = 0;        % [kg/m^3]
-simu.params.c_object   = 1600;      % [m/s]
-simu.params.rho_object = 1100;      % [kg/m^3]
+simu.params.c_object   = 1500;      % [m/s]
+simu.params.rho_object = 1000;      % [kg/m^3]
 
 % make medium attenuating (or not)
 simu.params.attenuating = false;    % TOGGLE
@@ -201,6 +201,45 @@ scatCNR = (scatter_stmm_mean - scatter_hole_mean) / (scatter_stmm_std + scatter_
 
 disp('  scatSNR   scatCNR')
 disp([scatSNR,scatCNR])
+
+
+%% (4) ANALYSE SENSOR DATA: frequency content in 2d-fft
+
+[size_x, size_t] = size(sensor.data);
+
+size_t_fft = round((size_t+1)/2);
+size_x_fft = round((size_x+1)/2);
+
+sensor_data_fftT  = zeros(size_x    , size_t_fft);
+sensor_data_fftTX = zeros(size_x_fft, size_t_fft);
+
+for x = 1 : sensor.params.Nx
+    [freqT, sensor_data_fftT(x,:) ] = spect(sensor.data(x,:), 1/sensor.params.dt);
+end
+
+for t = 1 : size_t_fft
+    [freqX, sensor_data_fftTX(:,t)] = spect(sensor_data_fftT(:,t), 1/sensor.params.dx);
+end
+
+load('D:\PROJECT\data\simulations\scattTMM\non-scattering no object\sensor_data_2dfft.mat', 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background');
+[fT_bg, fX_bg] = meshgrid(freqT_background, freqX_background);
+[fT   , fX   ] = meshgrid(freqT           , freqX           );
+sensor_data_fftTX_background_resample = interp2(sensor_data_fftTX_background, fT_bg, fX_bg, fT, fX);
+sensor_data_fftTX = sensor_data_fftTX - sensor_data_fftTX_background_resample;
+
+x_min = 5;
+
+fig_2dfft = figure('Position',[300,300,750,450]);
+imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
+    title('2D FFT of sensor.data')
+    xlabel('Temporal frequency \omega [MHz]')
+    ylabel('Spatial frequency k_x [mm^{-1}]')
+    xlim([0,70])
+	ylim([0,5])
+    colorbar
+    set(gca,'FontSize',13)
+    
+%     saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.jpg'])
 
 
 %% FUNCTIONS
@@ -514,10 +553,10 @@ function sensor = set_sensor_params(sensor, simu)
     
     sensor.params.trigger_delay      = 0;
     sensor.params.Nt_zero_pad_source = 100;
-    sensor.params.Nt_t0_correct      = -17;  %16
+    sensor.params.Nt_t0_correct      = find_t0_correct(sensor.data);  % hole -16
     sensor.params.file_data          = '111111\scattTMM_simul';
     
-    assert(sensor.params.Nt_t0_correct == find_t0_correct(sensor.data))
+    % assert(sensor.params.Nt_t0_correct == find_t0_correct(sensor.data))
 
 end
 
