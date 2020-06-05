@@ -221,6 +221,12 @@ for t = 1 : size_t_fft
     [freqX, sensor_data_fftTX(:,t)] = spect(sensor_data_fftT(:,t), 1/sensor.params.dx);
 end
 
+% cut out super high freq
+omegarange = 1:round(length(freqT)/2);
+freqT = freqT(omegarange);
+sensor_data_fftTX = sensor_data_fftTX(:,omegarange);
+
+% resample background 2dfft data onto same grid as current 2dfft data
 load('D:\PROJECT\data\simulations\scattTMM\non-scattering no object\sensor_data_2dfft.mat', 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background');
 [fT_bg, fX_bg] = meshgrid(freqT_background, freqX_background);
 [fT   , fX   ] = meshgrid(freqT           , freqX           );
