@@ -228,12 +228,14 @@ sensor_data_fftTX = sensor_data_fftTX(:,omegarange);
 
 % resample background 2dfft data onto same grid as current 2dfft data
 load('D:\PROJECT\data\simulations\scattTMM\non-scattering no object\sensor_data_2dfft.mat', 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background');
-[fT_bg, fX_bg] = meshgrid(freqT_background, freqX_background);
-[fT   , fX   ] = meshgrid(freqT           , freqX           );
-sensor_data_fftTX_background_resample = interp2(sensor_data_fftTX_background, fT_bg, fX_bg, fT, fX);
+% [fT_bg, fX_bg] = meshgrid(freqT_background, freqX_background);
+% [fT   , fX   ] = meshgrid(freqT           , freqX           );
+% sensor_data_fftTX_background_resample = interp2(sensor_data_fftTX_background, fT_bg, fX_bg, fT, fX);
+sensor_data_fftTX_background_resample = permute(interp1(freqT_background, sensor_data_fftTX_background', freqT), [2 1]);
+
 sensor_data_fftTX = sensor_data_fftTX - sensor_data_fftTX_background_resample;
 
-x_min = 5;
+x_min = 1;
 
 fig_2dfft = figure('Position',[300,300,750,450]);
 imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
@@ -243,6 +245,7 @@ imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
     xlim([0,70])
 	ylim([0,5])
     colorbar
+    caxis([0,3e-4])
     set(gca,'FontSize',13)
     
 %     saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.jpg'])
