@@ -17,12 +17,12 @@ simu.params.c0   = 1500;    % sound speed [m/s]
 simu.params.rho0 = 1000;    % density [kg/m^3]
 
 % choose option to represent scattering medium and object shape
-simu.params.scattering_type = 'non-scattering';     % options: 'random', 'points', 'non-scattering'
-simu.params.object_shape    = 'wire';           % options: 'hole', 'slab', 'wire'
+simu.params.scattering_type = 'random';     % options: 'random', 'points', 'non-scattering'
+simu.params.object_shape    = 'hole';           % options: 'hole', 'slab', 'wire'
 
 % define c/rho for scattering medium and object
-simu.params.c_scatt    = 0;        % [m/s]
-simu.params.rho_scatt  = 0;        % [kg/m^3]
+simu.params.c_scatt    = 40;        % [m/s]
+simu.params.rho_scatt  = 80;        % [kg/m^3]
 simu.params.c_object   = 1500;      % [m/s]
 simu.params.rho_object = 1000;      % [kg/m^3]
 
@@ -185,8 +185,8 @@ if plot_toggle == true
         ylabel('count')
 end
 
-[scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image, plot_toggle);
-[scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_stmm(image, plot_toggle);
+[scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image, simu, plot_toggle);
+[scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_stmm(image, simu, plot_toggle);
 
 if plot_toggle == true
     legend(gca,'show')
@@ -282,8 +282,8 @@ end
 function [hole, hole_x, hole_y] = get_hole_location(Nx, Ny)
 
     hole_radius = 50;               % [grid points]
-    hole_x      = round(Nx/2);      % [grid points]
-    hole_y      = round(Ny/4);      % [grid points]
+    hole_x      = 600; % round(Nx/2);      % [grid points]
+    hole_y      = 300; % round(Ny/4);      % [grid points]
     
     hole = makeDisc(Nx,Ny,hole_x,hole_y,hole_radius);
     
@@ -782,24 +782,24 @@ end
 
 %% IMAGE QUAL FUNCTIONS
 
-function ROI = get_discROI_at_hole_in_image(image, fractional_radius)
+function ROI = get_discROI_at_object_in_image(image, simu, fractional_radius)
 
-    hole_x = 0;
-    hole_y = 2.35e-3;
-    hole_radius = 0.5e-3;
+    object_x = simu.kgrid.x_vec(simu.params.x_object);
+    object_y = (simu.params.y_object - simu.params.pml_size - 1) * simu.kgrid.dx;
+    object_radius = 0.5e-3;
     
     vec_x = image.kgrid.x_vec;
     vec_y = image.t_array*image.c0;
     
-    distance = sqrt((vec_x - hole_x).^2 + (vec_y - hole_y).^2);
+    distance = sqrt((vec_x - object_x).^2 + (vec_y - object_y).^2);
     
-    ROI = distance < hole_radius * fractional_radius;
+    ROI = distance < object_radius * fractional_radius;
     
 end
 
-function [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image, plot_toggle)
+function [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image, simu, plot_toggle)
 
-    mask = get_discROI_at_hole_in_image(image, 0.9);
+    mask = get_discROI_at_object_in_image(image, simu, 0.9);
     
     ROI = image.data(mask);
     
@@ -812,11 +812,11 @@ function [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(im
     
 end
 
-function [scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_stmm(image, plot_toggle)
+function [scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_stmm(image, simu, plot_toggle)
 
-    hole_notoutside = get_discROI_at_hole_in_image(image, 1.1);
+    hole_notoutside = get_discROI_at_object_in_image(image, simu, 1.1);
     hole_outside    = not(hole_notoutside);
-    large_hole      = get_discROI_at_hole_in_image(image, 2);
+    large_hole      = get_discROI_at_object_in_image(image, simu, 2);
     
     mask = and(hole_outside,large_hole);
     
