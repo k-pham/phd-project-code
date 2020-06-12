@@ -279,7 +279,7 @@ function pointscatts = get_pointscatt_locations(Nx, Ny, dx, dy, num_points_per_v
 
 end
 
-function hole = get_hole_location(Nx, Ny)
+function [hole, hole_x, hole_y] = get_hole_location(Nx, Ny)
 
     hole_radius = 50;               % [grid points]
     hole_x      = round(Nx/2);      % [grid points]
@@ -300,7 +300,7 @@ function slab = get_slab_location(Nx, Ny)
     
 end
 
-function wire = get_wire_location(Nx, Ny)
+function [wire, wire_x, wire_y] = get_wire_location(Nx, Ny)
 
     wire_radius = 1;                % [grid points]
     wire_x      = round(Nx/2);      % [grid points]
@@ -417,12 +417,14 @@ function simu = make_medium(simu)
     % make object specified by object_shape
     switch simu.params.object_shape
         case 'hole'
-            object = get_hole_location(simu.kgrid.Nx, simu.kgrid.Ny);
+            [object, xposgrid, yposgrid] = get_hole_location(simu.kgrid.Nx, simu.kgrid.Ny);
         case 'slab'
             object = get_slab_location(simu.kgrid.Nx, simu.kgrid.Ny);
         case 'wire'
-            object = get_wire_location(simu.kgrid.Nx, simu.kgrid.Ny);
+            [object, xposgrid, yposgrid] = get_wire_location(simu.kgrid.Nx, simu.kgrid.Ny);
     end
+    simu.params.x_object = xposgrid;
+    simu.params.y_object = yposgrid;
     
     simu.medium.sound_speed(object==1) = simu.params.c_object;
     simu.medium.density(object==1)     = simu.params.rho_object;
