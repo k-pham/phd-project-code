@@ -35,6 +35,12 @@ if simu.params.attenuating
     simu.params.medium_attenuation_power = 1.21;           % between 1..3
 end
 
+% shorten time of acquisition
+simu.params.shorten_time = 1;                       % [fraction]
+
+% sensor spacing
+simu.params.sensor_spacing = 100e-6;                % [m]
+
 % params for sensor must be set to false here, can change later on
 simu.params.sensor_freq_filtered = false;
 simu.params.gaussian_freq_filtered = false;
@@ -175,7 +181,7 @@ end
 image.c0 = simu.params.c0;
 
 
-%% (4) ANALYSE IMAGE: scattering distributions in hole & stmm, plot if wanted
+%% (4) ANALYSE IMAGE
 
 switch simu.params.object_shape
     
@@ -213,7 +219,7 @@ switch simu.params.object_shape
         [resoLat, resoAxi] = get_resolution_of_wire(image, simu);
         
         disp('  specSig   resoLat   resoAxi')
-        disp([signal_wire,resoLat,resoAxi])
+        disp([signal_wire,resoLat*1e6,resoAxi*1e6])
         
 end
 
@@ -253,7 +259,6 @@ sensor_data_fftTX = sensor_data_fftTX - sensor_data_fftTX_background_resample;
 
 % plot 2dfft data
 x_min = 1;
-
 fig_2dfft = figure('Position',[300,300,750,450]);
 imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
     title('2D FFT of sensor.data')
@@ -264,8 +269,7 @@ imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
     colorbar
     caxis([0,3e-4])
     set(gca,'FontSize',13)
-    
-%     saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.jpg'])
+saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.jpg'])
 
 
 %% FUNCTIONS
@@ -458,8 +462,7 @@ function simu = make_time(simu)
 %           simu.medium - for max sound speed (to determine dt)
 
     cfl = 0.2;                  % clf number
-    shorten_time = 0.75;        % fraction by which to shorten acquisition length
-    t_end = shorten_time * 2 * simu.kgrid.Ny * simu.kgrid.dy / simu.params.c0;      % [s]
+    t_end = simu.params.shorten_time * 2 * simu.kgrid.Ny * simu.kgrid.dy / simu.params.c0;      % [s]
     
     simu.kgrid.makeTime(simu.medium.sound_speed, cfl, t_end);
 
@@ -500,8 +503,7 @@ function simu = make_sensor(simu)
 % requires: simu.kgrid           - for size
 %           simu.params.pml_size - for position of sensor
 
-    sensor_spacing      = 100e-6;                                   % [m]
-    sensor_spacing_grid = round(sensor_spacing / simu.kgrid.dx);    % [grid points]
+    sensor_spacing_grid = round(simu.params.sensor_spacing / simu.kgrid.dx);    % [grid points]
     sensor_positions_x  = simu.params.pml_size : sensor_spacing_grid : (simu.kgrid.Nx - simu.params.pml_size);
     
     simu.sensor.mask = zeros(simu.kgrid.Nx, simu.kgrid.Ny);
