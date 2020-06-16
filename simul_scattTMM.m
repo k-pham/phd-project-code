@@ -16,15 +16,17 @@ file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
 simu.params.c0   = 1500;    % sound speed [m/s]
 simu.params.rho0 = 1000;    % density [kg/m^3]
 
-% choose option to represent scattering medium and object shape
-simu.params.scattering_type = 'random';     % options: 'random', 'points', 'non-scattering'
-simu.params.object_shape    = 'hole';           % options: 'hole', 'slab', 'wire'
+% define scattering medium
+simu.params.scattering_type = 'non-scattering';     % options: 'random', 'points', 'non-scattering'
+simu.params.c_scatt         = 0;                    % [m/s]
+simu.params.rho_scatt       = 0;                    % [kg/m^3]
 
-% define c/rho for scattering medium and object
-simu.params.c_scatt    = 40;        % [m/s]
-simu.params.rho_scatt  = 80;        % [kg/m^3]
-simu.params.c_object   = 1500;      % [m/s]
-simu.params.rho_object = 1000;      % [kg/m^3]
+% define object
+simu.params.object_shape = 'wire';                  % options: 'hole', 'slab', 'wire'
+simu.params.c_object     = 1600;                    % [m/s]
+simu.params.rho_object   = 1100;                    % [kg/m^3]
+simu.params.x_object     = 600; % round(Nx/2);      % [grid points]
+simu.params.y_object     = 600; % round(Ny/4);      % [grid points]
 
 % make medium attenuating (or not)
 simu.params.attenuating = false;    % TOGGLE
@@ -170,10 +172,10 @@ else
         saveas(fig_imag, [file_dir_figs file_name(simu.params) '_image.jpg'])
 end
 
+image.c0 = simu.params.c0;
+
 
 %% (4) ANALYSE IMAGE: scattering distributions in hole & stmm, plot if wanted
-
-image.c0 = simu.params.c0;
 
 plot_toggle = true;
 
@@ -201,6 +203,12 @@ scatCNR = (scatter_stmm_mean - scatter_hole_mean) / (scatter_stmm_std + scatter_
 
 disp('  scatSNR   scatCNR')
 disp([scatSNR,scatCNR])
+
+
+%% (4) ANALYSE IMAGE: specular quality metrics
+
+signal_wire = get_specular_signal_of_wire(image, simu);
+[resoLat, resoAxi] = get_resolution_of_wire(image, simu);
 
 
 %% (4) ANALYSE SENSOR DATA: frequency content in 2d-fft
@@ -279,11 +287,11 @@ function pointscatts = get_pointscatt_locations(Nx, Ny, dx, dy, num_points_per_v
 
 end
 
-function [hole, hole_x, hole_y] = get_hole_location(Nx, Ny)
+function hole = get_hole_location(Nx, Ny, hole_x, hole_y)
 
     hole_radius = 50;               % [grid points]
-    hole_x      = 600; % round(Nx/2);      % [grid points]
-    hole_y      = 300; % round(Ny/4);      % [grid points]
+    % hole_x      = 600; % round(Nx/2);      % [grid points]
+    % hole_y      = 300; % round(Ny/4);      % [grid points]
     
     hole = makeDisc(Nx,Ny,hole_x,hole_y,hole_radius);
     
@@ -300,11 +308,11 @@ function slab = get_slab_location(Nx, Ny)
     
 end
 
-function [wire, wire_x, wire_y] = get_wire_location(Nx, Ny)
+function wire = get_wire_location(Nx, Ny, wire_x, wire_y)
 
     wire_radius = 1;                % [grid points]
-    wire_x      = round(Nx/2);      % [grid points]
-    wire_y      = round(Ny/4);      % [grid points]
+    % wire_x      = 600; % round(Nx/2);      % [grid points]
+    % wire_y      = 600; % round(Ny/4);      % [grid points]
     
     wire = makeDisc(Nx,Ny,wire_x,wire_y,wire_radius);
 
@@ -417,14 +425,12 @@ function simu = make_medium(simu)
     % make object specified by object_shape
     switch simu.params.object_shape
         case 'hole'
-            [object, xposgrid, yposgrid] = get_hole_location(simu.kgrid.Nx, simu.kgrid.Ny);
+            object = get_hole_location(simu.kgrid.Nx, simu.kgrid.Ny, simu.params.x_object, simu.params.y_object);
         case 'slab'
             object = get_slab_location(simu.kgrid.Nx, simu.kgrid.Ny);
         case 'wire'
-            [object, xposgrid, yposgrid] = get_wire_location(simu.kgrid.Nx, simu.kgrid.Ny);
+            object = get_wire_location(simu.kgrid.Nx, simu.kgrid.Ny, simu.params.x_object, simu.params.y_object);
     end
-    simu.params.x_object = xposgrid;
-    simu.params.y_object = yposgrid;
     
     simu.medium.sound_speed(object==1) = simu.params.c_object;
     simu.medium.density(object==1)     = simu.params.rho_object;
@@ -864,4 +870,35 @@ function plot_histogram_of_scattering_distr(ROI, legend_entry, varargin)
     plot(bincentres,bincount,'DisplayName',legend_entry)
     
 end
+
+function signal_wire = get_specular_signal_of_wire(image, simu)
+
+    mask = get_discROI_at_object_in_image(image, simu, 1);
+    
+    ROI = image.data(mask);
+    
+    signal_wire = max(ROI,[],'all');
+
+end
+
+function [resoLat, resoAxi] = get_resolution_of_wire(image, simu)
+
+    signal_wire = get_specular_signal_of_wire(image, simu);
+    
+    [peak_pos_x, peak_pos_z] = find(image.data == signal_wire);
+    
+    halfwidth = 0.5e-3;
+    hwX = round(halfwidth/image.kgrid.dx);
+    hwZ = round(halfwidth/(simu.kgrid.dt*image.c0));
+    
+    profile_x = image.data(peak_pos_x-hwX:peak_pos_x+hwX, peak_pos_z);
+    profile_z = image.data(peak_pos_x, peak_pos_z-hwZ:peak_pos_z+hwZ);
+    
+    resoLat = fwhm(profile_x,image.kgrid.dx,1);
+    resoAxi = fwhm(profile_z,simu.kgrid.dt*image.c0,1);
+
+end
+
+
+
 
