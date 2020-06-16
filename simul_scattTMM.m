@@ -177,38 +177,45 @@ image.c0 = simu.params.c0;
 
 %% (4) ANALYSE IMAGE: scattering distributions in hole & stmm, plot if wanted
 
-plot_toggle = true;
-
-if plot_toggle == true
-    fig_distr = figure;
-        title('scattering distributions')
-        hold on
-        xlabel('pixel intensity')
-        ylabel('count')
+switch simu.params.object_shape
+    
+    % scattering distributions in hole & stmm, plot if wanted, scattering SNR / CNR
+    case 'hole'
+        
+        plot_toggle = true;
+        
+        if plot_toggle == true
+            fig_distr = figure;
+                title('scattering distributions')
+                hold on
+                xlabel('pixel intensity')
+                ylabel('count')
+        end
+        
+        [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image, simu, plot_toggle);
+        [scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_stmm(image, simu, plot_toggle);
+        
+        if plot_toggle == true
+            legend(gca,'show')
+            saveas(fig_distr, [file_dir_figs file_name(simu.params) '_image_distr.jpg'])
+        end
+        
+        scatSNR = scatter_stmm_mean / scatter_hole_mean;
+        scatCNR = (scatter_stmm_mean - scatter_hole_mean) / (scatter_stmm_std + scatter_hole_std);
+        
+        disp('  scatSNR   scatCNR')
+        disp([scatSNR,scatCNR])
+        
+    % specular signal & resolution
+    case 'wire'
+        
+        signal_wire = get_specular_signal_of_wire(image, simu);
+        [resoLat, resoAxi] = get_resolution_of_wire(image, simu);
+        
+        disp('  specSig   resoLat   resoAxi')
+        disp([signal_wire,resoLat,resoAxi])
+        
 end
-
-[scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image, simu, plot_toggle);
-[scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_stmm(image, simu, plot_toggle);
-
-if plot_toggle == true
-    legend(gca,'show')
-    saveas(fig_distr, [file_dir_figs file_name(simu.params) '_image_distr.jpg'])
-end
-
-
-%% (4) ANALYSE IMAGE: image quality metrics
-
-scatSNR = scatter_stmm_mean / scatter_hole_mean;
-scatCNR = (scatter_stmm_mean - scatter_hole_mean) / (scatter_stmm_std + scatter_hole_std);
-
-disp('  scatSNR   scatCNR')
-disp([scatSNR,scatCNR])
-
-
-%% (4) ANALYSE IMAGE: specular quality metrics
-
-signal_wire = get_specular_signal_of_wire(image, simu);
-[resoLat, resoAxi] = get_resolution_of_wire(image, simu);
 
 
 %% (4) ANALYSE SENSOR DATA: frequency content in 2d-fft
@@ -241,8 +248,10 @@ load('D:\PROJECT\data\simulations\scattTMM\non-scattering no object\sensor_data_
 % sensor_data_fftTX_background_resample = interp2(sensor_data_fftTX_background, fT_bg, fX_bg, fT, fX);
 sensor_data_fftTX_background_resample = permute(interp1(freqT_background, sensor_data_fftTX_background', freqT), [2 1]);
 
+% subtract background 2dfft data
 sensor_data_fftTX = sensor_data_fftTX - sensor_data_fftTX_background_resample;
 
+% plot 2dfft data
 x_min = 1;
 
 fig_2dfft = figure('Position',[300,300,750,450]);
@@ -521,16 +530,16 @@ function fig_simu = plot_simu_medium(simu)
     subplot(2,1,1)
     imagesc(simu.kgrid.x_vec*1e3,simu.kgrid.y_vec*1e3,simu.medium.sound_speed')
         axis image
-        title(['sound speed: ' simu.params.scatt_type   num2str(simu.params.scatt_c) ...
-                           ' ' simu.params.object_shape num2str(simu.params.object_c) ])
+        title(['sound speed: ' simu.params.scatt_type   num2str(simu.params.scatt_c) ', ' ...
+                               simu.params.object_shape num2str(simu.params.object_c) ])
         xlabel('x position / mm')
         ylabel('y position / mm')
         colorbar
     subplot(2,1,2)
     imagesc(simu.kgrid.x_vec*1e3,simu.kgrid.y_vec*1e3,simu.medium.density')
         axis image
-        title(['density: ' simu.params.scatt_type   num2str(simu.params.scatt_rho) ...
-                       ' ' simu.params.object_shape num2str(simu.params.object_rho) ])
+        title(['density: ' simu.params.scatt_type   num2str(simu.params.scatt_rho) ', ' ...
+                           simu.params.object_shape num2str(simu.params.object_rho) ])
         xlabel('x position / mm')
         ylabel('y position / mm')
         colorbar
@@ -684,7 +693,7 @@ function fig_sens = plot_sensor_data(sensor, simu)
     
     fig_sens = figure;
     imagesc(sensor.kgrid.x_vec*1e3,sensor.t_array(50:end)*1e6,sensor.data(:,50:end)')
-        title([simu.params.scatt_type   ' c ' num2str(simu.params.scatt_c)  ' rho ' num2str(simu.params.scatt_rho) ...
+        title([simu.params.scatt_type   ' c ' num2str(simu.params.scatt_c)  ' rho ' num2str(simu.params.scatt_rho) ', ' ...
                simu.params.object_shape ' c ' num2str(simu.params.object_c) ' rho ' num2str(simu.params.object_rho) ])
         xlabel('x position / mm')
         ylabel('time / \mus')
@@ -762,7 +771,7 @@ function fig_imag = plot_image_data(image, simu)
     imagesc(image.kgrid.x_vec*1e3, image.t_array*simu.params.c0*1e3, image.data')
                      % omit factor 1/2 in depth because of doubled depth bug
         axis image
-        title([simu.params.scatt_type   ' c ' num2str(simu.params.scatt_c)  ' rho ' num2str(simu.params.scatt_rho) ...
+        title([simu.params.scatt_type   ' c ' num2str(simu.params.scatt_c)  ' rho ' num2str(simu.params.scatt_rho) ', ' ...
                simu.params.object_shape ' c ' num2str(simu.params.object_c) ' rho ' num2str(simu.params.object_rho) ])
         xlabel('x position / mm')
         ylabel('y position / mm')
