@@ -276,7 +276,7 @@ imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
     xlim([0,70])
 	ylim([0,5])
     colorbar
-    caxis([0,3e-4])
+    caxis([0,2e-5])
     set(gca,'FontSize',13)
 saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.fig'])
 saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.jpg'])
@@ -285,6 +285,29 @@ saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.jpg'])
 %% loop through wire positions - end
     end
 end
+
+
+%% rescale caxis on 2dfft plots
+
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\non-scattering with wire r1 1600 1100 - diff positions\';
+
+xpositions = 1536/6*(1:1:5);
+ypositions = 1024/4*(1:1:3);
+
+for xpos = xpositions
+    for ypos = ypositions
+        
+        filepath = [file_dir_figs 'non-scattering_SCATT_c0_rho0_wire_OBJECT_c1600_rho1100_x' num2str(xpos) '_y' num2str(ypos) '_sensor_2dfft'];
+        openfig([filepath '.fig'])
+        
+        caxis([0,2e-5])
+        
+        saveas(gcf,[filepath '.fig'])
+        saveas(gcf,[filepath '.jpg'])
+        
+    end
+end
+
 
 %% FUNCTIONS
 
