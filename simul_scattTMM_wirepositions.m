@@ -3,8 +3,8 @@
 
 %% loop through wire positions - start
 
-xpositions = 1536/6*(1:1:5);
-ypositions = 1024/4*(1:1:3);
+xpositions = 1536/2; % /6*(1:1:5);
+ypositions = 1024/8*(1:2:7); % /4*(1:1:3);
 
 for xpos = xpositions
     for ypos = ypositions
@@ -47,7 +47,7 @@ end
 simu.params.shorten_time = 1;                       % [fraction]
 
 % sensor spacing
-simu.params.sensor_spacing = 100e-6;                % [m]
+simu.params.sensor_spacing = 10e-6;                % [m]
 
 % params for sensor must be set to false here, can change later on
 simu.params.sensor_freq_filtered = false;
@@ -257,7 +257,8 @@ freqT = freqT(omegarange);
 sensor_data_fftTX = sensor_data_fftTX(:,omegarange);
 
 % resample background 2dfft data onto same grid as current 2dfft data
-load('D:\PROJECT\data\simulations\scattTMM\non-scattering no object\sensor_data_2dfft.mat', 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background');
+% load('D:\PROJECT\data\simulations\scattTMM\non-scattering no object\sensor_data_2dfft.mat', 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background');
+load('D:\PROJECT\data\simulations\scattTMM\non-scattering no object 10 um spacing\sensor_data_2dfft.mat', 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background');
 % [fT_bg, fX_bg] = meshgrid(freqT_background, freqX_background);
 % [fT   , fX   ] = meshgrid(freqT           , freqX           );
 % sensor_data_fftTX_background_resample = interp2(sensor_data_fftTX_background, fT_bg, fX_bg, fT, fX);
@@ -273,8 +274,8 @@ imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
     title('2D FFT of sensor.data')
     xlabel('Temporal frequency \omega [MHz]')
     ylabel('Spatial frequency k_x [mm^{-1}]')
-    xlim([0,70])
-	ylim([0,5])
+    xlim([0,50])
+	ylim([0,10])
     colorbar
     caxis([0,2e-5])
     set(gca,'FontSize',13)
@@ -288,25 +289,25 @@ end
 
 
 %% rescale caxis on 2dfft plots
-
-file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\non-scattering with wire r1 1600 1100 - diff positions\';
-
-xpositions = 1536/6*(1:1:5);
-ypositions = 1024/4*(1:1:3);
-
-for xpos = xpositions
-    for ypos = ypositions
-        
-        filepath = [file_dir_figs 'non-scattering_SCATT_c0_rho0_wire_OBJECT_c1600_rho1100_x' num2str(xpos) '_y' num2str(ypos) '_sensor_2dfft'];
-        openfig([filepath '.fig'])
-        
-        caxis([0,2e-5])
-        
-        saveas(gcf,[filepath '.fig'])
-        saveas(gcf,[filepath '.jpg'])
-        
-    end
-end
+% 
+% file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\non-scattering with wire r1 1600 1100 - diff positions\';
+% 
+% xpositions = 1536/6*(1:1:5);
+% ypositions = 1024/4*(1:1:3);
+% 
+% for xpos = xpositions
+%     for ypos = ypositions
+%         
+%         filepath = [file_dir_figs 'non-scattering_SCATT_c0_rho0_wire_OBJECT_c1600_rho1100_x' num2str(xpos) '_y' num2str(ypos) '_sensor_2dfft'];
+%         openfig([filepath '.fig'])
+%         
+%         caxis([0,2e-5])
+%         
+%         saveas(gcf,[filepath '.fig'])
+%         saveas(gcf,[filepath '.jpg'])
+%         
+%     end
+% end
 
 
 %% FUNCTIONS
