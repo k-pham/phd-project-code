@@ -133,15 +133,16 @@ sliceViewer
 % data = load('D:\PROJECT\code\recon_data\porkBelly3_BK31[CNT].mat');
 % data = load('D:\PROJECT\code\recon_data\porkBelly3_BK31[CNT]_trimmed_tgc.mat');
 % data = load('D:\PROJECT\code\recon_data\porkBelly3_BK31[CNT]_trimmed_tgc_interp.mat');
-data = load('D:\PROJECT\code\recon_data\lymphNode2_BK31[CNT]_f10_bw15_trimmed_tgc.mat');
+% data = load('D:\PROJECT\code\recon_data\lymphNode2_BK31[CNT]_f10_bw15_trimmed_tgc.mat');
+data = load('D:\PROJECT\code\recon_data\lymphNode2_BK31[CNT]_f10_bw15_trimmed_tgc_interp.mat');
 
 image = data.volume_data;
 voxsz = data.volume_spacing;
 
 % trim in depth & y
 %maxdepth = round( 5e-3/voxsz(3));
-miny     = 40;      %round( 2e-3/voxsz(2));
-maxy     = 240;     %round(12e-3/voxsz(2));
+miny     = round( 2e-3/voxsz(2)); % 40;  %
+maxy     = round(12e-3/voxsz(2)); % 240; %
 image    = image(:,miny:maxy,:);    %1:maxdepth);
 
 % make spatial axes
@@ -159,7 +160,7 @@ vidObj.FrameRate = slicethickness;
 open(vidObj);
 
 % open figure
-figure('Position',[300,300,600,300])
+figure('Position',[300,300,600,300]) % PORK [300,300,600,450]) % LYMPH
 
 % add frames to video
 for frame = 1 : num_frames
@@ -173,7 +174,7 @@ for frame = 1 : num_frames
         xlabel('x axis [mm]')
         ylabel('depth z [mm]')
         %annotation('textbox',[0.1,0.1,0.3,0.3],'String',['y = ']
-        text(10.5,3.5,['y = ' sprintf('%0.1f', ypos) ' mm'],'FontSize',14,'FontName','Times New Roman','Color',[1 1 1])     % 11.5,4.5
+        text(10.5,3.5,['y = ' sprintf('%0.1f', ypos) ' mm'],'FontSize',14,'FontName','Times New Roman','Color',[1 1 1])     % PORK 11.5,4.5 / 11.5,10.5 % LYMPH 10.5,3.5
         set(gca,'FontSize',14)
         set(gca,'FontName','Times New Roman')
     currFrame = getframe(gcf);
