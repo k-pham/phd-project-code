@@ -120,7 +120,7 @@ disp(['Reconstructing: ' file_name])
                             'TimeGainCompensate', {}, ...
                             'EnvelopeDetect', true, ...
                             'LogCompress', 0, ...
-                            'SaveImageToFile', true ...
+                            'SaveImageToFile', false ...
                         );
 
 %% post processing
@@ -130,62 +130,62 @@ sliceViewer
 
 %% fly through videos
 
-% data = load('D:\PROJECT\code\recon_data\porkBelly3_BK31[CNT].mat');
-% data = load('D:\PROJECT\code\recon_data\porkBelly3_BK31[CNT]_trimmed_tgc.mat');
-% data = load('D:\PROJECT\code\recon_data\porkBelly3_BK31[CNT]_trimmed_tgc_interp.mat');
-% data = load('D:\PROJECT\code\recon_data\lymphNode2_BK31[CNT]_f10_bw15_trimmed_tgc.mat');
-data = load('D:\PROJECT\code\recon_data\lymphNode2_BK31[CNT]_f10_bw15_trimmed_tgc_interp.mat');
-
-image = data.volume_data;
-voxsz = data.volume_spacing;
-
-% trim in depth & y
-%maxdepth = round( 5e-3/voxsz(3));
-miny     = round( 2e-3/voxsz(2)); % 40;  %
-maxy     = round(12e-3/voxsz(2)); % 240; %
-image    = image(:,miny:maxy,:);    %1:maxdepth);
-
-% make spatial axes
-x_axis = (0:size(image,1)-1)*voxsz(1)*1e3;    % [mm]
-z_axis = (0:size(image,3)-1)*voxsz(3)*1e3;    % [mm]
-
-% slice & frame parameters
-slicethickness = round(1e-3/voxsz(2));      % [voxel]
-num_frames     = size(image,2) - slicethickness + 1;
-
-% open video
-% vidObj = VideoWriter('D:\PROJECT\figures\_Matlab figs\USimaging\180828 porkBelly3 BK31[CNT]\porkBelly3_fly_zx_USIPAPER.avi');   % ,'Uncompressed AVI');
-vidObj = VideoWriter('D:\PROJECT\figures\_Matlab figs\USimaging\190114 lymph node 2 BK31[CNT]\lymphNode2_fly_zx_USIPAPER.avi');   % ,'Uncompressed AVI');
-vidObj.FrameRate = slicethickness;
-open(vidObj);
-
-% open figure
-figure('Position',[300,300,600,300]) % PORK [300,300,600,450]) % LYMPH
-
-% add frames to video
-for frame = 1 : num_frames
-    ypos = frame*voxsz(2)*1e3;
-    meanIP = squeeze(mean(image(:,frame:frame+slicethickness-1,:),2));
-    gcf
-    imagesc(x_axis,z_axis,meanIP')
-        axis image
-        colormap(gray)
-        brighten(0.2)
-        xlabel('x axis [mm]')
-        ylabel('depth z [mm]')
-        %annotation('textbox',[0.1,0.1,0.3,0.3],'String',['y = ']
-        text(10.5,3.5,['y = ' sprintf('%0.1f', ypos) ' mm'],'FontSize',14,'FontName','Times New Roman','Color',[1 1 1])     % PORK 11.5,4.5 / 11.5,10.5 % LYMPH 10.5,3.5
-        set(gca,'FontSize',14)
-        set(gca,'FontName','Times New Roman')
-    currFrame = getframe(gcf);
-    writeVideo(vidObj,currFrame);
-    %pause(0.01)
-end
-
-% check that all frames added
-assert(size(image,2) == frame+slicethickness-1);
-
-% close video
-close(vidObj);
+% % data = load('D:\PROJECT\code\recon_data\porkBelly3_BK31[CNT].mat');
+% % data = load('D:\PROJECT\code\recon_data\porkBelly3_BK31[CNT]_trimmed_tgc.mat');
+% % data = load('D:\PROJECT\code\recon_data\porkBelly3_BK31[CNT]_trimmed_tgc_interp.mat');
+% % data = load('D:\PROJECT\code\recon_data\lymphNode2_BK31[CNT]_f10_bw15_trimmed_tgc.mat');
+% data = load('D:\PROJECT\code\recon_data\lymphNode2_BK31[CNT]_f10_bw15_trimmed_tgc_interp.mat');
+% 
+% image = data.volume_data;
+% voxsz = data.volume_spacing;
+% 
+% % trim in depth & y
+% %maxdepth = round( 5e-3/voxsz(3));
+% miny     = round( 2e-3/voxsz(2)); % 40;  %
+% maxy     = round(12e-3/voxsz(2)); % 240; %
+% image    = image(:,miny:maxy,:);    %1:maxdepth);
+% 
+% % make spatial axes
+% x_axis = (0:size(image,1)-1)*voxsz(1)*1e3;    % [mm]
+% z_axis = (0:size(image,3)-1)*voxsz(3)*1e3;    % [mm]
+% 
+% % slice & frame parameters
+% slicethickness = round(1e-3/voxsz(2));      % [voxel]
+% num_frames     = size(image,2) - slicethickness + 1;
+% 
+% % open video
+% % vidObj = VideoWriter('D:\PROJECT\figures\_Matlab figs\USimaging\180828 porkBelly3 BK31[CNT]\porkBelly3_fly_zx_USIPAPER.avi');   % ,'Uncompressed AVI');
+% vidObj = VideoWriter('D:\PROJECT\figures\_Matlab figs\USimaging\190114 lymph node 2 BK31[CNT]\lymphNode2_fly_zx_USIPAPER.avi');   % ,'Uncompressed AVI');
+% vidObj.FrameRate = slicethickness;
+% open(vidObj);
+% 
+% % open figure
+% figure('Position',[300,300,600,300]) % PORK [300,300,600,450]) % LYMPH
+% 
+% % add frames to video
+% for frame = 1 : num_frames
+%     ypos = frame*voxsz(2)*1e3;
+%     meanIP = squeeze(mean(image(:,frame:frame+slicethickness-1,:),2));
+%     gcf
+%     imagesc(x_axis,z_axis,meanIP')
+%         axis image
+%         colormap(gray)
+%         brighten(0.2)
+%         xlabel('x axis [mm]')
+%         ylabel('depth z [mm]')
+%         %annotation('textbox',[0.1,0.1,0.3,0.3],'String',['y = ']
+%         text(10.5,3.5,['y = ' sprintf('%0.1f', ypos) ' mm'],'FontSize',14,'FontName','Times New Roman','Color',[1 1 1])     % PORK 11.5,4.5 / 11.5,10.5 % LYMPH 10.5,3.5
+%         set(gca,'FontSize',14)
+%         set(gca,'FontName','Times New Roman')
+%     currFrame = getframe(gcf);
+%     writeVideo(vidObj,currFrame);
+%     %pause(0.01)
+% end
+% 
+% % check that all frames added
+% assert(size(image,2) == frame+slicethickness-1);
+% 
+% % close video
+% close(vidObj);
 
 
