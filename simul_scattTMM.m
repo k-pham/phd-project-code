@@ -22,11 +22,11 @@ simu.params.scatt_c    = 0;                         % [m/s]
 simu.params.scatt_rho  = 0;                         % [kg/m^3]
 
 % define object
-simu.params.object_shape = 'no object';             % options: 'hole', 'slab', 'wire', 'no object'
-simu.params.object_c     = 0;                    % [m/s]
-simu.params.object_rho   = 0;                    % [kg/m^3]
-simu.params.object_x     = 0; % round(Nx/2);      % [grid points]
-simu.params.object_y     = 0; % round(Ny/4);      % [grid points]
+simu.params.object_shape = 'wire';             % options: 'hole', 'slab', 'wire', 'no object'
+simu.params.object_c     = 1600;                    % [m/s]
+simu.params.object_rho   = 1100;                    % [kg/m^3]
+simu.params.object_x     = 600; % round(Nx/2);      % [grid points]
+simu.params.object_y     = 600; % round(Ny/4);      % [grid points]
 
 % make medium attenuating (or not)
 simu.params.attenuating = false;    % TOGGLE
@@ -39,7 +39,7 @@ end
 simu.params.shorten_time = 1;                       % [fraction]
 
 % sensor spacing
-simu.params.sensor_spacing = 100e-6;                % [m]
+simu.params.sensor_spacing = 10e-6;                % [m]
 
 % params for sensor must be set to false here, can change later on
 simu.params.sensor_freq_filtered = false;
@@ -115,6 +115,34 @@ else
         % saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data.fig'])
         saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data.jpg'])
 end
+
+
+%% (2) subtract source contribution/background from sensor data -> struct SENSOR
+
+background_path = [file_dir_data 'non-scattering _no object_\' ...
+                     num2str(simu.params.sensor_spacing*1e6) ' um\' ...
+                     'non-scattering_SCATT_c0_rho0_no object_OBJECT_c0_rho0_x0_y0'];
+
+background_sensor = load([background_path '_sensor.mat']);
+bckgr_sensor      = background_sensor.sensor;
+
+background_simu   = load([background_path '_simu.mat']);
+bckgr_simu        = background_simu.simu;
+
+% check sensor spacing the same
+assert(simu.params.sensor_spacing == bckgr_simu.params.sensor_spacing)
+
+% resample background data if necessary
+if simu.kgrid.dt ~= bckgr_simu.kgrid.dt
+    sensor_data_bckgr_resampled = permute(interp1(bckgr_sensor.t_array, bckgr_sensor.data', sensor.t_array), [2 1]);
+end
+
+% subtract background data
+sensor.data = sensor.data - sensor_data_bckgr_resampled;
+
+fig_sens = plot_sensor_data(sensor, simu);
+    % saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.fig'])
+    saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.jpg'])
 
 
 %% (2-OPTION): filter *existing* unfiltered sensor data with sensor frequency response & save sensor
@@ -247,15 +275,15 @@ omegarange = 1:round(length(freqT)/2);
 freqT = freqT(omegarange);
 sensor_data_fftTX = sensor_data_fftTX(:,omegarange);
 
-% resample background 2dfft data onto same grid as current 2dfft data
-load('D:\PROJECT\data\simulations\scattTMM\non-scattering no object\sensor_data_2dfft.mat', 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background');
-% [fT_bg, fX_bg] = meshgrid(freqT_background, freqX_background);
-% [fT   , fX   ] = meshgrid(freqT           , freqX           );
-% sensor_data_fftTX_background_resample = interp2(sensor_data_fftTX_background, fT_bg, fX_bg, fT, fX);
-sensor_data_fftTX_background_resample = permute(interp1(freqT_background, sensor_data_fftTX_background', freqT), [2 1]);
-
-% subtract background 2dfft data
-sensor_data_fftTX = sensor_data_fftTX - sensor_data_fftTX_background_resample;
+% % resample background 2dfft data onto same grid as current 2dfft data
+% load('D:\PROJECT\data\simulations\scattTMM\non-scattering no object\sensor_data_2dfft.mat', 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background');
+% % [fT_bg, fX_bg] = meshgrid(freqT_background, freqX_background);
+% % [fT   , fX   ] = meshgrid(freqT           , freqX           );
+% % sensor_data_fftTX_background_resample = interp2(sensor_data_fftTX_background, fT_bg, fX_bg, fT, fX);
+% sensor_data_fftTX_background_resample = permute(interp1(freqT_background, sensor_data_fftTX_background', freqT), [2 1]);
+% 
+% % subtract background 2dfft data
+% sensor_data_fftTX = sensor_data_fftTX - sensor_data_fftTX_background_resample;
 
 % plot 2dfft data
 x_min = 1;
@@ -311,13 +339,14 @@ imagesc(freqT/1e6, freqX/1e3, freqT_mat/1e6)
 
 F = scatteredInterpolant(freqT_ar, theta_ar, sensor_data_fftTX_ar);
 
-theta_new = 0:1:90;
-freqT_new = (0:1:75)*1e6;
+theta_new = 0:0.05:90;
+freqT_new = (0:0.05:75)*1e6;
 % [theta_new, freqT_new] = meshgrid(theta_new, freqT_new);
 
 sensor_data_fftTA = F({freqT_new, theta_new});
 
 figure, scatter(freqT_ar, theta_ar, 1, sensor_data_fftTX_ar)
+figure, imagesc(freqT_new/1e6, theta_new, sensor_data_fftTA)
 
 
 %% FUNCTIONS
