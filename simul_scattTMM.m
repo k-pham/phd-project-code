@@ -22,11 +22,11 @@ simu.params.scatt_c    = 0;                         % [m/s]
 simu.params.scatt_rho  = 0;                         % [kg/m^3]
 
 % define object
-simu.params.object_shape = 'wire';                  % options: 'hole', 'slab', 'wire'
-simu.params.object_c     = 1600;                    % [m/s]
-simu.params.object_rho   = 1100;                    % [kg/m^3]
-simu.params.object_x     = 600; % round(Nx/2);      % [grid points]
-simu.params.object_y     = 600; % round(Ny/4);      % [grid points]
+simu.params.object_shape = 'no object';             % options: 'hole', 'slab', 'wire', 'no object'
+simu.params.object_c     = 0;                    % [m/s]
+simu.params.object_rho   = 0;                    % [kg/m^3]
+simu.params.object_x     = 0; % round(Nx/2);      % [grid points]
+simu.params.object_y     = 0; % round(Ny/4);      % [grid points]
 
 % make medium attenuating (or not)
 simu.params.attenuating = false;    % TOGGLE
@@ -267,9 +267,57 @@ imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
     xlim([0,70])
 	ylim([0,5])
     colorbar
-    caxis([0,3e-4])
+    caxis([0,1e-4])
     set(gca,'FontSize',13)
 saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.jpg'])
+
+
+%% transform 2dfft data to angle of incidence \theta dependence
+
+c = 1500;
+sintheta = freqX' * c ./ freqT;
+sintheta(sintheta>1) = NaN;
+
+theta = asin(sintheta);
+theta = theta / pi * 180;
+
+figure('Position',[300,300,750,450]);
+imagesc(freqT/1e6, freqX/1e3, theta)
+    title('theta')
+    xlabel('Temporal frequency \omega [MHz]')
+    ylabel('Spatial frequency k_x [mm^{-1}]')
+    xlim([0,70])
+	ylim([0,5])
+    colorbar
+    set(gca,'FontSize',13)
+
+mask = not(isnan(theta));
+
+theta_ar             = theta(mask);
+sensor_data_fftTX_ar = sensor_data_fftTX(mask);
+freqT_mat            = repmat(freqT, [length(freqX), 1]);
+freqT_ar             = freqT_mat(mask);
+
+figure('Position',[300,300,750,450]);
+imagesc(freqT/1e6, freqX/1e3, freqT_mat/1e6)
+    title('freqT \omega [MHz]')
+    xlabel('Temporal frequency \omega [MHz]')
+    ylabel('Spatial frequency k_x [mm^{-1}]')
+    xlim([0,70])
+    ylim([0,5])
+    caxis([0,70])
+    colorbar
+    set(gca,'FontSize',13)
+
+F = scatteredInterpolant(freqT_ar, theta_ar, sensor_data_fftTX_ar);
+
+theta_new = 0:1:90;
+freqT_new = (0:1:75)*1e6;
+% [theta_new, freqT_new] = meshgrid(theta_new, freqT_new);
+
+sensor_data_fftTA = F({freqT_new, theta_new});
+
+figure, scatter(freqT_ar, theta_ar, 1, sensor_data_fftTX_ar)
 
 
 %% FUNCTIONS
@@ -440,6 +488,8 @@ function simu = make_medium(simu)
             object = get_slab_location(simu.kgrid.Nx, simu.kgrid.Ny);
         case 'wire'
             object = get_wire_location(simu.kgrid.Nx, simu.kgrid.Ny, simu.params.object_x, simu.params.object_y);
+        case 'no object'
+            object = zeros(simu.kgrid.Nx, simu.kgrid.Ny);
     end
     
     simu.medium.sound_speed(object==1) = simu.params.object_c;
