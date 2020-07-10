@@ -112,8 +112,8 @@ else
     save(sensor_file_path, 'sensor', '-v7.3')
     
     fig_sens = plot_sensor_data(sensor, simu);
-        saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data.fig'])
-        saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data.jpg'])
+        saveas(fig_sens, [file_dir_figs file_name(simu.params) '_data.fig'])
+        saveas(fig_sens, [file_dir_figs file_name(simu.params) '_data.jpg'])
 end
 
 
@@ -141,9 +141,9 @@ end
 sensor_data = sensor.data;      % save background-unsubtracted data for 2dfft
 sensor.data = sensor.data - bckgr_sensor.data;
 
-fig_sens = plot_sensor_data(sensor, simu);
-    saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.fig'])
-    saveas(fig_sens,  [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.jpg'])
+fig_sens2 = plot_sensor_data(sensor, simu);
+    saveas(fig_sens2, [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.fig'])
+    saveas(fig_sens2, [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.jpg'])
 
 
 %% (2-OPTION): filter *existing* unfiltered sensor data with sensor frequency response & save sensor
@@ -391,7 +391,7 @@ sensor_data_fftTA = F({freqT_new, theta_new});
 
 % plot sensor_data_fft(theta,freqT) as interpolated scatter data
 f_min = 5;
-figure
+fig_2dfft_aoi = figure('Position',[300,300,750,450]);
 imagesc(freqT_new(f_min:end)/1e6, theta_new, sensor_data_fftTA(:,f_min:end))
     title('sensor.data')
     xlabel('Temporal frequency \omega [MHz]')
@@ -400,8 +400,8 @@ imagesc(freqT_new(f_min:end)/1e6, theta_new, sensor_data_fftTA(:,f_min:end))
     ylim([0,90])
     colorbar
     set(gca,'FontSize',13)
-saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.fig'])
-saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.jpg'])
+saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.fig'])
+saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.jpg'])
 
 
 %% FUNCTIONS
