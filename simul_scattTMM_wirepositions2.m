@@ -131,7 +131,7 @@ end
 
 %% (2) subtract source contribution/background from sensor data -> struct SENSOR
 
-background_path = [file_dir_data 'non-scattering _no object_\' ...
+background_path = ['D:\PROJECT\data\simulations\scattTMM\non-scattering _no object_\' ...
                      num2str(simu.params.sensor_spacing*1e6) ' um\' ...
                      'non-scattering_SCATT_c0_rho0_no object_OBJECT_c0_rho0_x0_y0'];
 
@@ -421,6 +421,9 @@ saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.j
 %% loop through wire positions - end
 
 end
+
+% save image qual results
+save([file_dir_data file_name(simu.params) '_image_quality.mat'], 'xpositions', 'ypositions', 'imgqual')
 
 
 %% FUNCTIONS
