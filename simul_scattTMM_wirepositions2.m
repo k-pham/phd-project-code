@@ -18,8 +18,8 @@ ypos = ypositions(idx);
 % clear all
 close all
 
-file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\';
-file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
+file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\';
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\';
 
 
 %% (1-SPECIFY): simulation params -> struct SIMU.PARAMS
@@ -261,6 +261,8 @@ switch simu.params.object_shape
         
         disp('  specSig   resoLat   resoAxi')
         disp([signal_wire,resoLat*1e6,resoAxi*1e6])
+        
+        imgqual(:,idx) = [signal_wire resoLat resoAxi];
         
 end
 
