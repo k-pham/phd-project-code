@@ -51,7 +51,7 @@ end
 simu.params.shorten_time = 1;                       % [fraction]
 
 % sensor spacing
-simu.params.sensor_spacing = 10e-6;                % [m]
+simu.params.sensor_spacing = 100e-6;                % [m]
 
 % params for sensor must be set to false here, can change later on
 simu.params.sensor_freq_filtered = false;
