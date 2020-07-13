@@ -179,7 +179,7 @@ else
     disp(['Reconstructing new image data: ' file_name(simu.params)])
     image = recon_new_image(sensor, simu);
     save(image_file_path, 'image', '-v7.3')
-    save_image_for_sliceViewer(image, sensor, simu, image_file_path)
+    save_image_for_sliceViewer(image, sensor, simu, [file_dir_data file_name(simu.params)])
     
     fig_imag = plot_image_data(image, simu);
         saveas(fig_imag, [file_dir_figs file_name(simu.params) '_image.fig'])
