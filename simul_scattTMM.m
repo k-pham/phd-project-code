@@ -371,12 +371,12 @@ freqT_ar             = freqT_mat(mask);
 %     set(gca,'FontSize',13)
 
 % make function for interpolating sensor_data_fftTX
-F = scatteredInterpolant(freqT_ar, theta_ar, sensor_data_fftTX_ar);
+F = scatteredInterpolant(theta_ar, freqT_ar, sensor_data_fftTX_ar);
 
 % resample sensor_data_fftTX at regular theta and freqT arrays
 theta_new = 0:0.1:90;
 freqT_new = (0:0.1:75)*1e6;
-sensor_data_fftTA = F({freqT_new, theta_new});
+sensor_data_fftTA = F({theta_new, freqT_new});
 
 % % plot sensor_data_fft(theta,freqT) as scatter plot
 % figure
