@@ -426,6 +426,39 @@ end
 save([file_dir_data file_name(simu.params) '_image_quality.mat'], 'xpositions', 'ypositions', 'imgqual')
 
 
+%% rescale caxis on 2dfft plots
+
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\';
+
+stepsize = 10e-6;
+
+% xpositions = 1536/6*(1:1:5);
+% ypositions = 1024/4*(1:1:3);
+
+xpositions = 1536/2;
+ypositions = 1024/8*(1:2:7);
+
+for xpos = xpositions
+    for ypos = ypositions
+        
+        filepath = [file_dir_figs num2str(stepsize*1e6) ' um\non-scattering_SCATT_c0_rho0_wire_OBJECT_c1500_rho1200_x' num2str(xpos) '_y' num2str(ypos) '_sensor_2dfft_aoi'];
+        openfig([filepath '.fig'])
+        
+        caxis([-0.25e-5, 1e-5])
+        
+        % saveas(gcf,[filepath '.fig'])
+        saveas(gcf,[filepath '.jpg'])
+        pause
+    end
+end
+
+% for idx = [15, 12, 9, 6, 3, 14, 11, 8, 5, 2, 13, 10, 7, 4, 1]
+%     figure(idx)
+%     caxis([-0.25e-5, 1e-5])
+%     pause
+% end
+
+
 %% FUNCTIONS
 
 function pointscatts = get_pointscatt_locations(Nx, Ny, dx, dy, num_points_per_voxel, vox_size)
