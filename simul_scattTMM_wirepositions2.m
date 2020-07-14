@@ -430,7 +430,7 @@ save([file_dir_data file_name(simu.params) '_image_quality.mat'], 'xpositions', 
 
 file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\';
 
-stepsize = 10e-6;
+stepsize = 100e-6;
 
 % xpositions = 1536/6*(1:1:5);
 % ypositions = 1024/4*(1:1:3);
@@ -441,14 +441,14 @@ ypositions = 1024/8*(1:2:7);
 for xpos = xpositions
     for ypos = ypositions
         
-        filepath = [file_dir_figs num2str(stepsize*1e6) ' um\non-scattering_SCATT_c0_rho0_wire_OBJECT_c1500_rho1200_x' num2str(xpos) '_y' num2str(ypos) '_sensor_2dfft_aoi'];
+        filepath = [file_dir_figs num2str(stepsize*1e6) ' um\non-scattering_SCATT_c0_rho0_wire_OBJECT_c1500_rho1200_x' num2str(xpos) '_y' num2str(ypos) '_sensor_2dfft'];   % _aoi
         openfig([filepath '.fig'])
         
         caxis([-0.25e-5, 1e-5])
         
         % saveas(gcf,[filepath '.fig'])
         saveas(gcf,[filepath '.jpg'])
-        pause
+%         pause
     end
 end
 
@@ -457,6 +457,41 @@ end
 %     caxis([-0.25e-5, 1e-5])
 %     pause
 % end
+
+
+%% contour of aliasing
+
+c         = 1500;
+stepsize  = 100e-6;
+theta     = 0:0.1:90;
+freqT     = (0:0.1:75)*1e6;
+
+sin_maxdetectangle = c./(2*freqT*stepsize);
+
+maxdetectangle = real(asin( sin_maxdetectangle ));
+maxdetectangle = maxdetectangle / pi * 180;
+
+figure(1), hold on
+plot(freqT/1e6, sin_maxdetectangle, 'r')
+    title('sin(max detectable angle)')
+    xlabel('temporal frequency [MHz]')
+    ylabel('sin(max detectable angle)')
+    xlim([0,75])
+    ylim([0,2])
+    set(gcf,'Position',[300,300,750,450])
+    set(gca,'FontSize',13)
+    legend('10 um','100 um')
+
+figure(2), hold on
+plot(freqT/1e6, maxdetectangle, 'r')
+    title('max detectable angle')
+    xlabel('temporal frequency [MHz]')
+    ylabel('max detectable angle [deg]')
+    xlim([0,75])
+    ylim([0,90])
+    set(gcf,'Position',[300,300,750,450])
+    set(gca,'FontSize',13)
+    legend('10 um','100 um')
 
 
 %% FUNCTIONS
