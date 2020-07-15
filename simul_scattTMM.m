@@ -23,8 +23,8 @@ simu.params.scatt_rho  = 0;                         % [kg/m^3]
 
 % define object
 simu.params.object_shape = 'wire';             % options: 'hole', 'slab', 'wire', 'no object'
-simu.params.object_c     = 1500;                    % [m/s]
-simu.params.object_rho   = 1200;                    % [kg/m^3]
+simu.params.object_c     = 1400;                    % [m/s]
+simu.params.object_rho   = 1300;                    % [kg/m^3]
 simu.params.object_x     = 1536/2;                  % [grid points]
 simu.params.object_y     = 1024/4;                  % [grid points]
 
@@ -317,7 +317,7 @@ else
     	ylim([0,20])
         colorbar
         set(gca,'FontSize',13)
-        % caxis([-0.5e-5, 3e-5])
+        % caxis([-0.5e-5, 1e-5])
     saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.fig'])
 	saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.jpg'])
     
@@ -453,7 +453,7 @@ end
 
 function wire = get_wire_location(Nx, Ny, wire_x, wire_y)
 
-    wire_radius = 5;                % [grid points]
+    wire_radius = 0;                % [grid points]
     
     wire = makeDisc(Nx,Ny,wire_x,wire_y,wire_radius);
 
