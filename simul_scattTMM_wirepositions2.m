@@ -494,6 +494,36 @@ plot(freqT/1e6, maxdetectangle, 'r')
     legend('10 um','100 um')
 
 
+%% image quality vs position
+
+% load('D:\PROJECT\data\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\10 um\non-scattering_SCATT_c0_rho0_wire_OBJECT_c1500_rho1200_x768_y896_image_quality.mat')
+load('D:\PROJECT\data\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\100 um\non-scattering_SCATT_c0_rho0_wire_OBJECT_c1500_rho1200_x768_y896_image_quality.mat')
+
+specSig = imgqual(1,:);
+resoLat = imgqual(2,:);
+resoAxi = imgqual(3,:);
+
+F1 = scatteredInterpolant(xpositions', ypositions', specSig');
+F2 = scatteredInterpolant(xpositions', ypositions', resoLat');
+F3 = scatteredInterpolant(xpositions', ypositions', resoAxi');
+
+x = 1:1536;
+y = 1:1024;
+specSig_resampled = F1({x,y});
+resoLat_resampled = F2({x,y});
+resoAxi_resampled = F3({x,y});
+
+figure, imagesc(x,y,specSig_resampled'), title('specular signal of wire')
+figure, imagesc(x,y,resoLat_resampled'*1e6), title('lateral resolution [\mum]')
+figure, imagesc(x,y,resoAxi_resampled'*1e6), title('axial resolution [\mum]')
+figure, scatter(xpositions,ypositions,10), title('wire positions'), xlim([1,1536]), ylim([1,1024])
+
+xlabel('x axis [dx = 10 \mum]')
+ylabel('depth y [dy = 10 \mum]')
+set(gca,'FontSize',13)
+set(gcf, 'Position',[300,300,750,450])
+
+
 %% FUNCTIONS
 
 function pointscatts = get_pointscatt_locations(Nx, Ny, dx, dy, num_points_per_voxel, vox_size)
