@@ -17,14 +17,14 @@ simu.params.c0   = 1500;    % sound speed [m/s]
 simu.params.rho0 = 1000;    % density [kg/m^3]
 
 % define scattering medium
-simu.params.scatt_type = 'non-scattering';          % options: 'random', 'points', 'non-scattering'
-simu.params.scatt_c    = 0;                         % [m/s]
-simu.params.scatt_rho  = 0;                         % [kg/m^3]
+simu.params.scatt_type = 'random';          % options: 'random', 'points', 'non-scattering'
+simu.params.scatt_c    = 40;                         % [m/s]
+simu.params.scatt_rho  = 80;                         % [kg/m^3]
 
 % define object
-simu.params.object_shape = 'wire';             % options: 'hole', 'slab', 'wire', 'no object'
+simu.params.object_shape = 'hole';             % options: 'hole', 'slab', 'wire', 'no object'
 simu.params.object_c     = 1500;                    % [m/s]
-simu.params.object_rho   = 1200;                    % [kg/m^3]
+simu.params.object_rho   = 1000;                    % [kg/m^3]
 simu.params.object_x     = 1536/2;                  % [grid points]
 simu.params.object_y     = 1024/4;                  % [grid points]
 
@@ -39,7 +39,7 @@ end
 simu.params.shorten_time = 1;                       % [fraction]
 
 % sensor spacing
-simu.params.sensor_spacing = 20e-6;                % [m]
+simu.params.sensor_spacing = 10e-6;                % [m]
 
 % params for sensor must be set to false here, can change later on
 simu.params.sensor_freq_filtered = false;
