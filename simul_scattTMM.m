@@ -39,7 +39,7 @@ end
 simu.params.shorten_time = 1;                       % [fraction]
 
 % sensor spacing
-simu.params.sensor_spacing = 10e-6;                % [m]
+simu.params.sensor_spacing = 100e-6;                % [m]
 
 % params for sensor must be set to false here, can change later on
 simu.params.sensor_freq_filtered = false;
@@ -61,7 +61,7 @@ else
     disp(['Making new simulation: ' file_name(simu.params)])
     simu = make_new_simu(simu);
     save(simu_file_path, 'simu', '-v7.3')
-    
+
     fig_simu = plot_simu_medium(simu);
         saveas(fig_simu,[file_dir_figs file_name(simu.params) '_medium.fig'])
         saveas(fig_simu,[file_dir_figs file_name(simu.params) '_medium.jpg'])
@@ -181,9 +181,9 @@ fig_sens2 = plot_sensor_data(sensor, simu);
 
 %% (3-SPECIFY): simulation params for reconstruction -> struct SIMU.PARAMS
 
-simu.params.freq_compound = false;
+simu.params.freq_compound = true;
 if simu.params.freq_compound
-    simu.params.freq_compound_method = 'coherent';      % options: 'coherent', 'incoherent'
+    simu.params.freq_compound_method = 'incoherent';      % options: 'coherent', 'incoherent'
     simu.params.freq_compound_cf     = (1:1:10)*1e6;    % [Hz]
     simu.params.freq_compound_bw     = 2e6;             % [Hz]
 end
@@ -221,7 +221,6 @@ switch simu.params.object_shape
         
         if plot_toggle == true
             fig_distr = figure;
-                title('scattering distributions')
                 hold on
                 xlabel('pixel intensity')
                 ylabel('count')
@@ -231,6 +230,7 @@ switch simu.params.object_shape
         [scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_stmm(image, simu, plot_toggle);
         
         if plot_toggle == true
+            title(['scattering distributions, SNR = ' num2str(scatSNR) ', CNR = ' num2str(scatCNR)])
             legend(gca,'show')
             saveas(fig_distr, [file_dir_figs file_name(simu.params) '_image_distr.jpg'])
         end
