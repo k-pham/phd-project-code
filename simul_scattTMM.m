@@ -22,11 +22,11 @@ simu.params.scatt_c    = 0;                         % [m/s]
 simu.params.scatt_rho  = 0;                         % [kg/m^3]
 
 % define object
-simu.params.object_shape = 'wire';             % options: 'hole', 'slab', 'wire', 'no object'
-simu.params.object_c     = 1400;                    % [m/s]
-simu.params.object_rho   = 1300;                    % [kg/m^3]
-simu.params.object_x     = 1536/2;                  % [grid points]
-simu.params.object_y     = 1024/4;                  % [grid points]
+simu.params.object_shape = 'no object';             % options: 'hole', 'slab', 'wire', 'no object'
+simu.params.object_c     = 0;                    % [m/s]
+simu.params.object_rho   = 0;                    % [kg/m^3]
+simu.params.object_x     = 0;%1536/2;                  % [grid points]
+simu.params.object_y     = 0;%1024/4;                  % [grid points]
 
 % make medium attenuating (or not)
 simu.params.attenuating = false;    % TOGGLE
@@ -39,7 +39,7 @@ end
 simu.params.shorten_time = 1;                       % [fraction]
 
 % sensor spacing
-simu.params.sensor_spacing = 10e-6;                % [m]
+simu.params.sensor_spacing = 20e-6;                % [m]
 
 % params for sensor must be set to false here, can change later on
 simu.params.sensor_freq_filtered = false;
@@ -254,6 +254,8 @@ end
 
 
 %% (4) ANALYSE SENSOR DATA: frequency content in 2d-fft
+
+disp('Fourier transforming data in 2D..')
 
 [size_x, size_t] = size(sensor_data);       % use background-unsubtracted data and subtract 2dfft background data later
 
