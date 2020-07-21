@@ -127,6 +127,8 @@ end
 
 %% (2) subtract source contribution/background from sensor data -> struct SENSOR
 
+disp('Subtract source contribution from sensor.data')
+
 background_path = ['D:\PROJECT\data\simulations\scattTMM\non-scattering _no object_\' ...
                      num2str(simu.params.sensor_spacing*1e6) ' um\' ...
                      'non-scattering_SCATT_c0_rho0_no object_OBJECT_c0_rho0_x0_y0'];
@@ -149,10 +151,11 @@ end
 sensor_data = sensor.data;      % save background-unsubtracted data for 2dfft
 sensor.data = sensor.data - bckgr_sensor.data;
 
-if ~exist([file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.fig'],'file')
+file_data_bckgrsubtr = [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.fig'];
+if ~exist(file_data_bckgrsubtr,'file')
 fig_sens2 = plot_sensor_data(sensor, simu);
-    saveas(fig_sens2, [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.fig'])
-    saveas(fig_sens2, [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.jpg'])
+    saveas(fig_sens2, file_data_bckgrsubtr)
+    saveas(fig_sens2, file_data_bckgrsubtr)
 end
 
 
@@ -186,9 +189,11 @@ if simu.params.custom_freq_filtered == false
     % manually define custom filter parameters for compound bandpass filter:
     centre_freqs = (1:1:10)*1e6;        % [Hz]
     bandwidth    = 2e6;                 % [Hz]
-    [f_custom, filter_custom] = get_compound_filter(centre_freqs, bandwidth);
+    [f_compound, filter_compound] = get_compound_filter(centre_freqs, bandwidth);
     
-    simu.params.custom_freq_filter_data = {f_custom, filter_custom};	% [Hz]
+    simu.params.custom_freq_filter_cfs  = centre_freqs;
+    simu.params.custom_freq_filter_bw   = bandwidth;
+    simu.params.custom_freq_filter_data = {f_compound, filter_compound};	% [Hz]
     sensor = maybe_custom_freq_filter(sensor, simu);
     
     save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
@@ -227,7 +232,7 @@ else
     disp(['Reconstructing new image data: ' file_name(simu.params)])
     image = recon_new_image(sensor, simu);
     save(image_file_path, 'image', '-v7.3')
-    save_image_for_sliceViewer(image, sensor, simu, [file_dir_data file_name(simu.params)])
+    % save_image_for_sliceViewer(image, sensor, simu, [file_dir_data file_name(simu.params)])
     
     fig_imag = plot_image_data(image, simu);
         saveas(fig_imag, [file_dir_figs file_name(simu.params) '_image.fig'])
@@ -512,8 +517,7 @@ function filename = file_name(params)
     end
     
     if params.custom_freq_filtered
-        [cfs, bw] = params.custom_freq_filter_data{:};
-        filename = [filename '_CFILTER_f' num2str(min(cfs)/1e6) '-' num2str(max(cfs)/1e6) '_bw' num2str(bw/1e6) ];
+        filename = [filename '_CFILTER_f' num2str(params.custom_freq_filter_cfs(1)/1e6) '-' num2str(params.custom_freq_filter_cfs(end)/1e6) '_bw' num2str(params.custom_freq_filter_bw/1e6) ];
     end
     
     if params.sensor_noisy
