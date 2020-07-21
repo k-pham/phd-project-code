@@ -151,11 +151,11 @@ end
 sensor_data = sensor.data;      % save background-unsubtracted data for 2dfft
 sensor.data = sensor.data - bckgr_sensor.data;
 
-file_data_bckgrsubtr = [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.fig'];
-if ~exist(file_data_bckgrsubtr,'file')
+file_data_bckgrsubtr = [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted'];
+if ~exist([file_data_bckgrsubtr '.fig'],'file')
 fig_sens2 = plot_sensor_data(sensor, simu);
-    saveas(fig_sens2, file_data_bckgrsubtr)
-    saveas(fig_sens2, file_data_bckgrsubtr)
+    saveas(fig_sens2, [file_data_bckgrsubtr '.fig'])
+    saveas(fig_sens2, [file_data_bckgrsubtr '.jpg'])
 end
 
 
