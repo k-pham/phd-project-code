@@ -261,16 +261,13 @@ switch simu.params.object_shape
         [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image, simu, plot_toggle);
         [scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_stmm(image, simu, plot_toggle);
         
-        if plot_toggle == true
-            legend(gca,'show')
-            saveas(fig_distr, [file_dir_figs file_name(simu.params) '_image_distr.jpg'])
-        end
-        
         scatSNR = scatter_stmm_mean / scatter_hole_mean;
         scatCNR = (scatter_stmm_mean - scatter_hole_mean) / (scatter_stmm_std + scatter_hole_std);
         
         if plot_toggle == true
             title(['scattering distributions, SNR = ' num2str(scatSNR) ', CNR = ' num2str(scatCNR)])
+            legend(gca,'show')
+            saveas(fig_distr, [file_dir_figs file_name(simu.params) '_image_distr.jpg'])
         end
         
         disp('  scatSNR   scatCNR')
