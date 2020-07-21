@@ -44,6 +44,7 @@ simu.params.sensor_spacing = 100e-6;                % [m]
 % params for sensor must be set to false here, can change later on
 simu.params.sensor_freq_filtered = false;
 simu.params.gaussian_freq_filtered = false;
+simu.params.custom_freq_filtered = false;
 simu.params.sensor_noisy = false;
 
 % params for recon must be set to false here, can change later on
@@ -92,7 +93,14 @@ if simu.params.gaussian_freq_filtered
     simu.params.freq_filter_bw = 20e6;              % [Hz]
 end
 
-% add noise to sensor data
+% filter with custom frequency filter (or not)
+simu.params.custom_freq_filtered = false;       % TOGGLE
+if simu.params.custom_freq_filtered
+    % REQUIRES: manual definition of custom filter parameters
+    simu.params.custom_freq_filter_data = {f_custom, filter_custom};	% [Hz]
+end
+
+% add noise to sensor data (or not)
 simu.params.sensor_noisy = false;                % TOGGLE
 if simu.params.sensor_noisy
     simu.params.sensor_snr = 20;                    % [dB w.r.t. rms]
@@ -141,9 +149,11 @@ end
 sensor_data = sensor.data;      % save background-unsubtracted data for 2dfft
 sensor.data = sensor.data - bckgr_sensor.data;
 
+if ~exist([file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.fig'],'file')
 fig_sens2 = plot_sensor_data(sensor, simu);
     saveas(fig_sens2, [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.fig'])
     saveas(fig_sens2, [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.jpg'])
+end
 
 
 %% (2-OPTION): filter *existing* unfiltered sensor data with sensor frequency response & save sensor
@@ -168,6 +178,23 @@ fig_sens2 = plot_sensor_data(sensor, simu);
 % end
 
 
+%% (2-OPTION): filter *existing* unfiltered sensor data with custom filter - here: compound bandpass filter
+
+if simu.params.custom_freq_filtered == false
+    simu.params.custom_freq_filtered = true;    % TOGGLE
+    
+    % manually define custom filter parameters for compound bandpass filter:
+    centre_freqs = (1:1:10)*1e6;        % [Hz]
+    bandwidth    = 2e6;                 % [Hz]
+    [f_custom, filter_custom] = get_compound_filter(centre_freqs, bandwidth);
+    
+    simu.params.custom_freq_filter_data = {f_custom, filter_custom};	% [Hz]
+    sensor = maybe_custom_freq_filter(sensor, simu);
+    
+    save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
+end
+
+
 %% (2-OPTION): add noise to *existing* non-noisy sensor data before reconstruction & save sensor
 % 
 % if simu.params.sensor_noisy == false
@@ -181,7 +208,7 @@ fig_sens2 = plot_sensor_data(sensor, simu);
 
 %% (3-SPECIFY): simulation params for reconstruction -> struct SIMU.PARAMS
 
-simu.params.freq_compound = true;
+simu.params.freq_compound = false;
 if simu.params.freq_compound
     simu.params.freq_compound_method = 'incoherent';      % options: 'coherent', 'incoherent'
     simu.params.freq_compound_cf     = (1:1:10)*1e6;    % [Hz]
@@ -230,13 +257,16 @@ switch simu.params.object_shape
         [scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_stmm(image, simu, plot_toggle);
         
         if plot_toggle == true
-            title(['scattering distributions, SNR = ' num2str(scatSNR) ', CNR = ' num2str(scatCNR)])
             legend(gca,'show')
             saveas(fig_distr, [file_dir_figs file_name(simu.params) '_image_distr.jpg'])
         end
         
         scatSNR = scatter_stmm_mean / scatter_hole_mean;
         scatCNR = (scatter_stmm_mean - scatter_hole_mean) / (scatter_stmm_std + scatter_hole_std);
+        
+        if plot_toggle == true
+            title(['scattering distributions, SNR = ' num2str(scatSNR) ', CNR = ' num2str(scatCNR)])
+        end
         
         disp('  scatSNR   scatCNR')
         disp([scatSNR,scatCNR])
@@ -481,6 +511,11 @@ function filename = file_name(params)
         filename = [filename '_FILTER_f' num2str(params.freq_filter_cf/1e6) '_bw' num2str(params.freq_filter_bw/1e6) ];
     end
     
+    if params.custom_freq_filtered
+        [cfs, bw] = params.custom_freq_filter_data{:};
+        filename = [filename '_CFILTER_f' num2str(min(cfs)/1e6) '-' num2str(max(cfs)/1e6) '_bw' num2str(bw/1e6) ];
+    end
+    
     if params.sensor_noisy
         filename = [filename '_NOISE_snr' num2str(params.sensor_snr) ];
     end
@@ -498,6 +533,34 @@ function t0_correct = find_t0_correct(sensordata)
     
     t0_correct = -idx +1;
 
+end
+
+function [f, compound_filter] = get_compound_filter(centre_freqs, bandwidth)
+
+    f         = (0:0.05:400)*1e6;     % [Hz]
+    magnitude = 1;
+    variance  = (bandwidth / (2 * sqrt(2 * log(2)))).^2;
+
+    figure, hold on
+    for mean = centre_freqs
+        gauss_filter = max(gaussian(f, magnitude, mean, variance), gaussian(f, magnitude, -mean, variance));
+
+        plot(f/1e6, gauss_filter, ':')
+            xlabel('Frequency / MHz')
+
+        if ~exist('compound_filter','var')
+            compound_filter = gauss_filter;
+        else
+            compound_filter = compound_filter + gauss_filter;
+        end
+    end
+
+    compound_filter = compound_filter/max(compound_filter);
+    
+    plot(f/1e6, compound_filter, 'k-')
+    title('compound filter')
+    xlim([0,30])
+    
 end
 
 
@@ -793,6 +856,39 @@ function sensor = maybe_gaussian_freq_filter(sensor, simu)
         
         bandwidth_pc = bw / cf * 100;
         sensor.data = gaussianFilter(sensor.data, 1/sensor.kgrid.dt, cf, bandwidth_pc, false);
+    end
+
+end
+
+function sensor = maybe_custom_freq_filter(sensor, simu)
+
+    if simu.params.custom_freq_filtered
+        
+        % compute the double-sided frequency axis
+        Nt = sensor.kgrid.Nt;
+        Fs = 1/sensor.kgrid.dt;
+        if mod(Nt,2) == 0
+            f = (-Nt/2:Nt/2-1) * Fs/Nt;
+        else
+            f = (-(Nt-1)/2:(Nt-1)/2) * Fs/Nt;
+        end
+        
+        % load custom filter from simu.params
+        [f_custom, filter_custom] = simu.params.custom_freq_filter_data{:};
+        
+        % make custom filter double-sided
+        f_custom   = [-fliplr(f_custom)   f_custom(2:end)  ];
+        filter_custom = [ fliplr(filter_custom) filter_custom(2:end)];
+        
+        % resample custom filter at f
+        filter = interp1(f_custom, filter_custom, f);
+        
+        % apply filter with zero-phase
+        sensor.data = real(ifft(ifftshift( ...
+                        bsxfun(@times, filter, ...
+                            fftshift(fft(sensor.data, [], 2), 2) ...
+                        ) ...
+                      , 2), [], 2));
     end
 
 end
