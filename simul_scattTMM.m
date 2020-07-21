@@ -182,22 +182,22 @@ end
 
 
 %% (2-OPTION): filter *existing* unfiltered sensor data with custom filter - here: compound bandpass filter
-
-if simu.params.custom_freq_filtered == false
-    simu.params.custom_freq_filtered = true;    % TOGGLE
-    
-    % manually define custom filter parameters for compound bandpass filter:
-    centre_freqs = (1:1:10)*1e6;        % [Hz]
-    bandwidth    = 2e6;                 % [Hz]
-    [f_compound, filter_compound] = get_compound_filter(centre_freqs, bandwidth);
-    
-    simu.params.custom_freq_filter_cfs  = centre_freqs;
-    simu.params.custom_freq_filter_bw   = bandwidth;
-    simu.params.custom_freq_filter_data = {f_compound, filter_compound};	% [Hz]
-    sensor = maybe_custom_freq_filter(sensor, simu);
-    
-    save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
-end
+% 
+% if simu.params.custom_freq_filtered == false
+%     simu.params.custom_freq_filtered = true;    % TOGGLE
+%     
+%     % manually define custom filter parameters for compound bandpass filter:
+%     centre_freqs = (1:1:10)*1e6;        % [Hz]
+%     bandwidth    = 2e6;                 % [Hz]
+%     [f_compound, filter_compound] = get_compound_filter(centre_freqs, bandwidth);
+%     
+%     simu.params.custom_freq_filter_cfs  = centre_freqs;
+%     simu.params.custom_freq_filter_bw   = bandwidth;
+%     simu.params.custom_freq_filter_data = {f_compound, filter_compound};	% [Hz]
+%     sensor = maybe_custom_freq_filter(sensor, simu);
+%     
+%     save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
+% end
 
 
 %% (2-OPTION): add noise to *existing* non-noisy sensor data before reconstruction & save sensor
@@ -213,7 +213,7 @@ end
 
 %% (3-SPECIFY): simulation params for reconstruction -> struct SIMU.PARAMS
 
-simu.params.freq_compound = false;
+simu.params.freq_compound = true;
 if simu.params.freq_compound
     simu.params.freq_compound_method = 'incoherent';      % options: 'coherent', 'incoherent'
     simu.params.freq_compound_cf     = (1:1:10)*1e6;    % [Hz]
@@ -267,6 +267,7 @@ switch simu.params.object_shape
         if plot_toggle == true
             title(['scattering distributions, SNR = ' num2str(scatSNR) ', CNR = ' num2str(scatCNR)])
             legend(gca,'show')
+            saveas(fig_distr, [file_dir_figs file_name(simu.params) '_image_distr.fig'])
             saveas(fig_distr, [file_dir_figs file_name(simu.params) '_image_distr.jpg'])
         end
         
