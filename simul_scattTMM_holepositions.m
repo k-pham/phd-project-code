@@ -51,7 +51,7 @@ end
 simu.params.shorten_time = 1;                       % [fraction]
 
 % sensor spacing
-simu.params.sensor_spacing = 10e-6;                % [m]
+simu.params.sensor_spacing = 100e-6;                % [m]
 
 % params for sensor must be set to false here, can change later on
 simu.params.sensor_freq_filtered = false;
@@ -459,6 +459,32 @@ end
 
 % save image qual results
 save([file_dir_data file_name(simu.params) '_image_quality.mat'], 'xpositions', 'ypositions', 'imgqual')
+
+
+%% image quality vs position
+
+% load('D:\PROJECT\data\simulations\scattTMM\random 40 80 with water hole - diff positions\10 um\random_SCATT_c40_rho80_hole_OBJECT_c1500_rho1000_x768_y896_image_quality.mat')
+load('D:\PROJECT\data\simulations\scattTMM\random 40 80 with water hole - diff positions\100 um\random_SCATT_c40_rho80_hole_OBJECT_c1500_rho1000_x768_y896_image_quality.mat')
+
+scatSNR = imgqual(1,:);
+scatCNR = imgqual(2,:);
+
+F1 = scatteredInterpolant(xpositions', ypositions', scatSNR');
+F2 = scatteredInterpolant(xpositions', ypositions', scatCNR');
+
+x = 1:1536;
+y = 1:1024;
+scatSNR_resampled = F1({x,y});
+scatCNR_resampled = F2({x,y});
+
+figure, imagesc(x,y,scatSNR_resampled'), title('scattering SNR')
+figure, imagesc(x,y,scatCNR_resampled'), title('scattering CNR')
+figure, scatter(xpositions,ypositions,10), title('wire positions'), xlim([1,1536]), ylim([1,1024])
+
+xlabel('x axis [dx = 10 \mum]')
+ylabel('depth y [dy = 10 \mum]')
+set(gca,'FontSize',13)
+set(gcf, 'Position',[300,300,750,450])
 
 
 %% FUNCTIONS
