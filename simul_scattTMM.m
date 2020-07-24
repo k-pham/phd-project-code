@@ -763,6 +763,7 @@ function sensor = generate_new_sensordata(simu)
     sensor = make_sensor_tarray(sensor, simu);
     sensor = maybe_sensor_freq_filter(sensor, simu);
     sensor = maybe_gaussian_freq_filter(sensor, simu);
+    sensor = maybe_custom_freq_filter(sensor, simu);
     sensor = maybe_make_sensor_noisy(sensor, simu);
 
 end
