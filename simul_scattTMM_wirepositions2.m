@@ -18,8 +18,8 @@ ypos = ypositions(idx);
 % clear all
 close all
 
-file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\';
-file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\';
+file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\100 um\';
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\100 um\';
 
 
 %% (1-SPECIFY): simulation params -> struct SIMU.PARAMS
@@ -153,9 +153,12 @@ end
 sensor_data = sensor.data;      % save background-unsubtracted data for 2dfft
 sensor.data = sensor.data - bckgr_sensor.data;
 
+file_data_bckgrsubtr = [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted'];
+if ~exist([file_data_bckgrsubtr '.fig'],'file')
 fig_sens2 = plot_sensor_data(sensor, simu);
-    saveas(fig_sens2, [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.fig'])
-    saveas(fig_sens2, [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted.jpg'])
+    saveas(fig_sens2, [file_data_bckgrsubtr '.fig'])
+    saveas(fig_sens2, [file_data_bckgrsubtr '.jpg'])
+end
 
 
 %% (2-OPTION): filter *existing* unfiltered sensor data with sensor frequency response & save sensor
@@ -169,15 +172,15 @@ fig_sens2 = plot_sensor_data(sensor, simu);
 
 
 %% (2-OPTION): filter *existing* unfiltered sensor data with gaussian bandpass filter & save sensor
-% 
-% if simu.params.gaussian_freq_filtered == false
-%     simu.params.gaussian_freq_filtered = true;  % TOGGLE
-%     simu.params.freq_filter_cf = 1e6;               % [Hz]
-%     simu.params.freq_filter_bw = 20e6;              % [Hz]
-%     sensor = maybe_gaussian_freq_filter(sensor, simu);
-%     
-%     save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
-% end
+
+if simu.params.gaussian_freq_filtered == false
+    simu.params.gaussian_freq_filtered = true;  % TOGGLE
+    simu.params.freq_filter_cf = 1e6;               % [Hz]
+    simu.params.freq_filter_bw = 10e6;              % [Hz]
+    sensor = maybe_gaussian_freq_filter(sensor, simu);
+    
+    save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
+end
 
 
 %% (2-OPTION): add noise to *existing* non-noisy sensor data before reconstruction & save sensor
@@ -268,133 +271,145 @@ end
 
 
 %% (4) ANALYSE SENSOR DATA: frequency content in 2d-fft
-
-[size_x, size_t] = size(sensor_data);       % use background-unsubtracted data and subtract 2dfft background data later
-
-size_t_fft = round((size_t+1)/2);
-size_x_fft = round((size_x+1)/2);
-
-sensor_data_fftT  = zeros(size_x    , size_t_fft);
-sensor_data_fftTX = zeros(size_x_fft, size_t_fft);
-
-for x = 1 : sensor.params.Nx
-    [freqT, sensor_data_fftT(x,:) ] = spect(sensor_data(x,:), 1/sensor.params.dt);
-end
-
-for t = 1 : size_t_fft
-    [freqX, sensor_data_fftTX(:,t)] = spect(sensor_data_fftT(:,t), 1/sensor.params.dx);
-end
-
-% cut out super high freq
-omegarange = 1:round(length(freqT)/2);
-freqT = freqT(omegarange);
-sensor_data_fftTX = sensor_data_fftTX(:,omegarange);
-
-% file location for background 2dfft data
-file_background_2dfft = ['D:\PROJECT\data\simulations\scattTMM\non-scattering _no object_\' ...
-                            num2str(simu.params.sensor_spacing*1e6) ' um\sensor_data_2dfft.mat'];
-
-% if empty target: save background 2dfft data
-if strcmp(simu.params.scatt_type,'non-scattering') && strcmp(simu.params.object_shape,'no object')
-    % only save if not already exists
-    if ~exist(file_background_2dfft,'file')
-        disp('Saving background 2dfft data..')
-        sensor_data_fftTX_background = sensor_data_fftTX;
-        freqT_background = freqT;
-        freqX_background = freqX;
-        save(file_background_2dfft, 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background')
-    else
-        disp('Background 2dfft data already exists.')
-    end
-    
-% else: subtract it from current data
-else
-    disp('Subtracting background 2dfft data..')
-    
-    % loading bacground 2dfft data
-    load(file_background_2dfft, 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background');
-    
-    % resample background 2dfft data onto same grid as current 2dfft data
-    sensor_data_fftTX_background_resample = permute(interp1(freqT_background, sensor_data_fftTX_background', freqT), [2 1]);
-    
-    % subtract background 2dfft data
-    sensor_data_fftTX = sensor_data_fftTX - sensor_data_fftTX_background_resample;
-    
-    % plot 2dfft data
-    x_min = 4;
-    fig_2dfft = figure('Position',[300,300,750,450]);
-    imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
-        title('2D FFT of sensor.data')
-        xlabel('Temporal frequency \omega [MHz]')
-        ylabel('Spatial frequency k_x [mm^{-1}]')
-        xlim([0,70])
-    	ylim([0,20])
-        colorbar
-%         caxis([0,1e-4])
-        set(gca,'FontSize',13)
-    saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.fig'])
-	saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.jpg'])
-    
-end
+% 
+% [size_x, size_t] = size(sensor_data);       % use background-unsubtracted data and subtract 2dfft background data later
+% 
+% size_t_fft = round((size_t+1)/2);
+% size_x_fft = round((size_x+1)/2);
+% 
+% sensor_data_fftT  = zeros(size_x    , size_t_fft);
+% sensor_data_fftTX = zeros(size_x_fft, size_t_fft);
+% 
+% for x = 1 : sensor.params.Nx
+%     [freqT, sensor_data_fftT(x,:) ] = spect(sensor_data(x,:), 1/sensor.params.dt);
+% end
+% 
+% for t = 1 : size_t_fft
+%     [freqX, sensor_data_fftTX(:,t)] = spect(sensor_data_fftT(:,t), 1/sensor.params.dx);
+% end
+% 
+% % cut out super high freq
+% omegarange = 1:round(length(freqT)/2);
+% freqT = freqT(omegarange);
+% sensor_data_fftTX = sensor_data_fftTX(:,omegarange);
+% 
+% % file location for background 2dfft data
+% file_background_2dfft = ['D:\PROJECT\data\simulations\scattTMM\non-scattering _no object_\' ...
+%                             num2str(simu.params.sensor_spacing*1e6) ' um\sensor_data_2dfft.mat'];
+% 
+% % if empty target: save background 2dfft data
+% if strcmp(simu.params.scatt_type,'non-scattering') && strcmp(simu.params.object_shape,'no object')
+%     % only save if not already exists
+%     if ~exist(file_background_2dfft,'file')
+%         disp('Saving background 2dfft data..')
+%         sensor_data_fftTX_background = sensor_data_fftTX;
+%         freqT_background = freqT;
+%         freqX_background = freqX;
+%         save(file_background_2dfft, 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background')
+%     else
+%         disp('Background 2dfft data already exists.')
+%     end
+%     
+% % else: subtract it from current data
+% else
+%     disp('Subtracting background 2dfft data..')
+%     
+%     % loading bacground 2dfft data
+%     load(file_background_2dfft, 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background');
+%     
+%     % resample background 2dfft data onto same grid as current 2dfft data
+%     sensor_data_fftTX_background_resample = permute(interp1(freqT_background, sensor_data_fftTX_background', freqT), [2 1]);
+%     
+%     % subtract background 2dfft data
+%     sensor_data_fftTX = sensor_data_fftTX - sensor_data_fftTX_background_resample;
+%     
+%     % plot 2dfft data
+%     x_min = 4;
+%     fig_2dfft = figure('Position',[300,300,750,450]);
+%     imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
+%         title('2D FFT of sensor.data')
+%         xlabel('Temporal frequency \omega [MHz]')
+%         ylabel('Spatial frequency k_x [mm^{-1}]')
+%         xlim([0,70])
+%     	ylim([0,20])
+%         colorbar
+% %         caxis([0,1e-4])
+%         set(gca,'FontSize',13)
+%     saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.fig'])
+% 	saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.jpg'])
+%     
+% end
 
 
 %% transform 2dfft data to angle of incidence \theta dependence
-
-disp('Transforming 2dfft data to angle-of-incidence dependence..')
-
-c = 1500;
-
-% make sin(theta) matrix and make non-physical values NaNs
-sintheta = freqX' * c ./ freqT;
-sintheta(sintheta>1) = NaN;
-
-% convert to theta in degrees
-theta = asin(sintheta);
-theta = theta / pi * 180;
-
-% % plot theta matrix in k-space axes
-% figure('Position',[300,300,750,450]);
-% imagesc(freqT/1e6, freqX/1e3, theta)
-%     title('theta')
-%     xlabel('Temporal frequency \omega [MHz]')
-%     ylabel('Spatial frequency k_x [mm^{-1}]')
-%     xlim([0,70])
-% 	ylim([0,5])
-%     colorbar
-%     set(gca,'FontSize',13)
-
-% mask of theta is not non-physical/NaN
-mask = not(isnan(theta));
-
-% extract theta, freqT and sensor_data_fftTX at mask
-theta_ar             = theta(mask);
-sensor_data_fftTX_ar = sensor_data_fftTX(mask);
-freqT_mat            = repmat(freqT, [length(freqX), 1]);
-freqT_ar             = freqT_mat(mask);
-
-% % plot freqT matrix in k-space axes
-% figure('Position',[300,300,750,450]);
-% imagesc(freqT/1e6, freqX/1e3, freqT_mat/1e6)
-%     title('freqT \omega [MHz]')
-%     xlabel('Temporal frequency \omega [MHz]')
-%     ylabel('Spatial frequency k_x [mm^{-1}]')
-%     xlim([0,70])
-%     ylim([0,5])
-%     caxis([0,70])
-%     colorbar
-%     set(gca,'FontSize',13)
-
-% make function for interpolating sensor_data_fftTX
-F = scatteredInterpolant(theta_ar, freqT_ar, sensor_data_fftTX_ar);
-
-% resample sensor_data_fftTX at regular theta and freqT arrays
-theta_new = 0:0.1:90;
-freqT_new = (0:0.1:75)*1e6;
-sensor_data_fftTA = F({theta_new, freqT_new});
-
-% % plot sensor_data_fft(theta,freqT) as scatter plot
-% figure
-% scatter(freqT_ar/1e6, theta_ar, 1, sensor_data_fftTX_ar)
+% 
+% disp('Transforming 2dfft data to angle-of-incidence dependence..')
+% 
+% c = 1500;
+% 
+% % make sin(theta) matrix and make non-physical values NaNs
+% sintheta = freqX' * c ./ freqT;
+% sintheta(sintheta>1) = NaN;
+% 
+% % convert to theta in degrees
+% theta = asin(sintheta);
+% theta = theta / pi * 180;
+% 
+% % % plot theta matrix in k-space axes
+% % figure('Position',[300,300,750,450]);
+% % imagesc(freqT/1e6, freqX/1e3, theta)
+% %     title('theta')
+% %     xlabel('Temporal frequency \omega [MHz]')
+% %     ylabel('Spatial frequency k_x [mm^{-1}]')
+% %     xlim([0,70])
+% % 	ylim([0,5])
+% %     colorbar
+% %     set(gca,'FontSize',13)
+% 
+% % mask of theta is not non-physical/NaN
+% mask = not(isnan(theta));
+% 
+% % extract theta, freqT and sensor_data_fftTX at mask
+% theta_ar             = theta(mask);
+% sensor_data_fftTX_ar = sensor_data_fftTX(mask);
+% freqT_mat            = repmat(freqT, [length(freqX), 1]);
+% freqT_ar             = freqT_mat(mask);
+% 
+% % % plot freqT matrix in k-space axes
+% % figure('Position',[300,300,750,450]);
+% % imagesc(freqT/1e6, freqX/1e3, freqT_mat/1e6)
+% %     title('freqT \omega [MHz]')
+% %     xlabel('Temporal frequency \omega [MHz]')
+% %     ylabel('Spatial frequency k_x [mm^{-1}]')
+% %     xlim([0,70])
+% %     ylim([0,5])
+% %     caxis([0,70])
+% %     colorbar
+% %     set(gca,'FontSize',13)
+% 
+% % make function for interpolating sensor_data_fftTX
+% F = scatteredInterpolant(theta_ar, freqT_ar, sensor_data_fftTX_ar);
+% 
+% % resample sensor_data_fftTX at regular theta and freqT arrays
+% theta_new = 0:0.1:90;
+% freqT_new = (0:0.1:75)*1e6;
+% sensor_data_fftTA = F({theta_new, freqT_new});
+% 
+% % % plot sensor_data_fft(theta,freqT) as scatter plot
+% % figure
+% % scatter(freqT_ar/1e6, theta_ar, 1, sensor_data_fftTX_ar)
+% %     title('sensor.data')
+% %     xlabel('Temporal frequency \omega [MHz]')
+% %     ylabel('Angle of incidence [deg]')
+% %     xlim([0,75])
+% %     ylim([0,90])
+% %     colorbar
+% %     set(gca,'FontSize',13)
+% 
+% % plot sensor_data_fft(theta,freqT) as interpolated scatter data
+% f_min = 5;
+% fig_2dfft_aoi = figure('Position',[300,300,750,450]);
+% imagesc(freqT_new(f_min:end)/1e6, theta_new, sensor_data_fftTA(:,f_min:end))
 %     title('sensor.data')
 %     xlabel('Temporal frequency \omega [MHz]')
 %     ylabel('Angle of incidence [deg]')
@@ -402,20 +417,8 @@ sensor_data_fftTA = F({theta_new, freqT_new});
 %     ylim([0,90])
 %     colorbar
 %     set(gca,'FontSize',13)
-
-% plot sensor_data_fft(theta,freqT) as interpolated scatter data
-f_min = 5;
-fig_2dfft_aoi = figure('Position',[300,300,750,450]);
-imagesc(freqT_new(f_min:end)/1e6, theta_new, sensor_data_fftTA(:,f_min:end))
-    title('sensor.data')
-    xlabel('Temporal frequency \omega [MHz]')
-    ylabel('Angle of incidence [deg]')
-    xlim([0,75])
-    ylim([0,90])
-    colorbar
-    set(gca,'FontSize',13)
-saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.fig'])
-saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.jpg'])
+% saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.fig'])
+% saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.jpg'])
 
 
 %% loop through wire positions - end
@@ -428,76 +431,79 @@ save([file_dir_data file_name(simu.params) '_image_quality.mat'], 'xpositions', 
 
 %% rescale caxis on 2dfft plots
 
-file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\';
-
-stepsize = 100e-6;
-
-% xpositions = 1536/6*(1:1:5);
-% ypositions = 1024/4*(1:1:3);
-
-xpositions = 1536/2;
-ypositions = 1024/8*(1:2:7);
-
-for xpos = xpositions
-    for ypos = ypositions
-        
-        filepath = [file_dir_figs num2str(stepsize*1e6) ' um\non-scattering_SCATT_c0_rho0_wire_OBJECT_c1500_rho1200_x' num2str(xpos) '_y' num2str(ypos) '_sensor_2dfft'];   % _aoi
-        openfig([filepath '.fig'])
-        
-        caxis([-0.25e-5, 1e-5])
-        
-        % saveas(gcf,[filepath '.fig'])
-        saveas(gcf,[filepath '.jpg'])
-%         pause
-    end
-end
-
-% for idx = [15, 12, 9, 6, 3, 14, 11, 8, 5, 2, 13, 10, 7, 4, 1]
-%     figure(idx)
-%     caxis([-0.25e-5, 1e-5])
-%     pause
+% file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\';
+% 
+% stepsize = 100e-6;
+% 
+% % xpositions = 1536/6*(1:1:5);
+% % ypositions = 1024/4*(1:1:3);
+% 
+% xpositions = 1536/2;
+% ypositions = 1024/8*(1:2:7);
+% 
+% for xpos = xpositions
+%     for ypos = ypositions
+%         
+%         filepath = [file_dir_figs num2str(stepsize*1e6) ' um\non-scattering_SCATT_c0_rho0_wire_OBJECT_c1500_rho1200_x' num2str(xpos) '_y' num2str(ypos) '_sensor_2dfft'];   % _aoi
+%         openfig([filepath '.fig'])
+%         
+%         caxis([-0.25e-5, 1e-5])
+%         
+%         % saveas(gcf,[filepath '.fig'])
+%         saveas(gcf,[filepath '.jpg'])
+% %         pause
+%     end
 % end
+% 
+% % for idx = [15, 12, 9, 6, 3, 14, 11, 8, 5, 2, 13, 10, 7, 4, 1]
+% %     figure(idx)
+% %     caxis([-0.25e-5, 1e-5])
+% %     pause
+% % end
 
 
 %% contour of aliasing
 
-c         = 1500;
-stepsize  = 100e-6;
-theta     = 0:0.1:90;
-freqT     = (0:0.1:75)*1e6;
-
-sin_maxdetectangle = c./(2*freqT*stepsize);
-
-maxdetectangle = real(asin( sin_maxdetectangle ));
-maxdetectangle = maxdetectangle / pi * 180;
-
-figure(1), hold on
-plot(freqT/1e6, sin_maxdetectangle, 'r')
-    title('sin(max detectable angle)')
-    xlabel('temporal frequency [MHz]')
-    ylabel('sin(max detectable angle)')
-    xlim([0,75])
-    ylim([0,2])
-    set(gcf,'Position',[300,300,750,450])
-    set(gca,'FontSize',13)
-    legend('10 um','100 um')
-
-figure(2), hold on
-plot(freqT/1e6, maxdetectangle, 'r')
-    title('max detectable angle')
-    xlabel('temporal frequency [MHz]')
-    ylabel('max detectable angle [deg]')
-    xlim([0,75])
-    ylim([0,90])
-    set(gcf,'Position',[300,300,750,450])
-    set(gca,'FontSize',13)
-    legend('10 um','100 um')
+% c         = 1500;
+% stepsize  = 100e-6;
+% theta     = 0:0.1:90;
+% freqT     = (0:0.1:75)*1e6;
+% 
+% sin_maxdetectangle = c./(2*freqT*stepsize);
+% 
+% maxdetectangle = real(asin( sin_maxdetectangle ));
+% maxdetectangle = maxdetectangle / pi * 180;
+% 
+% figure(1), hold on
+% plot(freqT/1e6, sin_maxdetectangle, 'r')
+%     title('sin(max detectable angle)')
+%     xlabel('temporal frequency [MHz]')
+%     ylabel('sin(max detectable angle)')
+%     xlim([0,75])
+%     ylim([0,2])
+%     set(gcf,'Position',[300,300,750,450])
+%     set(gca,'FontSize',13)
+%     legend('10 um','100 um')
+% 
+% figure(2), hold on
+% plot(freqT/1e6, maxdetectangle, 'r')
+%     title('max detectable angle')
+%     xlabel('temporal frequency [MHz]')
+%     ylabel('max detectable angle [deg]')
+%     xlim([0,75])
+%     ylim([0,90])
+%     set(gcf,'Position',[300,300,750,450])
+%     set(gca,'FontSize',13)
+%     legend('10 um','100 um')
 
 
 %% image quality vs position
 
 % load('D:\PROJECT\data\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\10 um\non-scattering_SCATT_c0_rho0_wire_OBJECT_c1500_rho1200_x768_y896_image_quality.mat')
-load('D:\PROJECT\data\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\100 um\non-scattering_SCATT_c0_rho0_wire_OBJECT_c1500_rho1200_x768_y896_image_quality.mat')
+% load('D:\PROJECT\data\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\100 um\non-scattering_SCATT_c0_rho0_wire_OBJECT_c1500_rho1200_x768_y896_image_quality.mat')
+
+% load('D:\PROJECT\data\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\10 um\non-scattering_SCATT_c0_rho0_wire_OBJECT_c1500_rho1200_x768_y896_FILTER_f1_bw10_image_quality.mat')
+load('D:\PROJECT\data\simulations\scattTMM\non-scattering with wire r1 1500 1200 - diff positions\100 um\non-scattering_SCATT_c0_rho0_wire_OBJECT_c1500_rho1200_x768_y896_FILTER_f1_bw10_image_quality.mat')
 
 specSig = imgqual(1,:);
 resoLat = imgqual(2,:);
@@ -522,6 +528,7 @@ xlabel('x axis [dx = 10 \mum]')
 ylabel('depth y [dy = 10 \mum]')
 set(gca,'FontSize',13)
 set(gcf, 'Position',[300,300,750,450])
+colorbar
 
 
 %% FUNCTIONS
