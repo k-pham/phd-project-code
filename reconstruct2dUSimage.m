@@ -33,7 +33,7 @@ elseif ~isempty(varargin)
                 freqcustomfilter_data = varargin{input_index + 1};
                 assert(iscell(freqcustomfilter_data),'Need cell array.')
                 if ~isempty(freqcustomfilter_data)
-                    assert(length(freqcustomfilter_data)==1,'Need cell array of length 1.')
+                    assert(length(freqcustomfilter_data)==2,'Need cell array of length 2.')
                 end
             case 'TimeGainCompensate'
                 tgc_params = varargin{input_index + 1};
