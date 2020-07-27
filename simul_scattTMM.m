@@ -129,27 +129,8 @@ end
 
 disp('Subtract source contribution from sensor.data')
 
-background_path = ['D:\PROJECT\data\simulations\scattTMM\non-scattering _no object_\' ...
-                     num2str(simu.params.sensor_spacing*1e6) ' um\' ...
-                     'non-scattering_SCATT_c0_rho0_no object_OBJECT_c0_rho0_x0_y0'];
-
-background_sensor = load([background_path '_sensor.mat']);
-bckgr_sensor      = background_sensor.sensor;
-
-background_simu   = load([background_path '_simu.mat']);
-bckgr_simu        = background_simu.simu;
-
-% check sensor spacing the same
-assert(simu.params.sensor_spacing == bckgr_simu.params.sensor_spacing)
-
-% resample background data if necessary
-if simu.kgrid.dt ~= bckgr_simu.kgrid.dt
-    bckgr_sensor.data = permute(interp1(bckgr_sensor.t_array, bckgr_sensor.data', sensor.t_array, 'pchip'), [2 1]);
-end
-
-% subtract background data
 sensor_data = sensor.data;      % save background-unsubtracted data for 2dfft
-sensor.data = sensor.data - bckgr_sensor.data;
+sensor      = subtract_source_contribution(sensor, simu);
 
 file_data_bckgrsubtr = [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted'];
 if ~exist([file_data_bckgrsubtr '.fig'],'file')
@@ -934,6 +915,31 @@ function sensor = maybe_make_sensor_noisy(sensor, simu)
         sensor.data(:,1:50) = sensor.data(:,1:50) + sensor_data_source;
         
     end
+    
+end
+
+function sensor = subtract_source_contribution(sensor, simu)
+
+    background_path = ['D:\PROJECT\data\simulations\scattTMM\non-scattering _no object_\' ...
+                         num2str(simu.params.sensor_spacing*1e6) ' um\' ...
+                         'non-scattering_SCATT_c0_rho0_no object_OBJECT_c0_rho0_x0_y0'];
+
+    background_sensor = load([background_path '_sensor.mat']);
+    bckgr_sensor      = background_sensor.sensor;
+
+    background_simu   = load([background_path '_simu.mat']);
+    bckgr_simu        = background_simu.simu;
+
+    % check sensor spacing the same
+    assert(simu.params.sensor_spacing == bckgr_simu.params.sensor_spacing)
+
+    % resample background data if necessary
+    if simu.kgrid.dt ~= bckgr_simu.kgrid.dt
+        bckgr_sensor.data = permute(interp1(bckgr_sensor.t_array, bckgr_sensor.data', sensor.t_array, 'pchip'), [2 1]);
+    end
+
+    % subtract background data
+    sensor.data              = sensor.data - bckgr_sensor.data;
     
 end
 
