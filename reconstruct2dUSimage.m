@@ -7,6 +7,7 @@ num_req_input_variables = 3;
 toUpsample = false;
 toApodise = false;
 freqbandfilter_params = {};
+freqcustomfilter_data = {};
 tgc_params = {};
 toEnvelopeDetect = false;
 compression_ratio = 0;
@@ -27,6 +28,12 @@ elseif ~isempty(varargin)
                 assert(iscell(freqbandfilter_params),'Need cell array {centre_freq(Hz) bandwidth(Hz)}.')
                 if ~isempty(freqbandfilter_params)
                     assert(length(freqbandfilter_params)==2,'Need cell array of length 2.')
+                end
+            case 'FreqCustomFilter'
+                freqcustomfilter_data = varargin{input_index + 1};
+                assert(iscell(freqcustomfilter_data),'Need cell array.')
+                if ~isempty(freqcustomfilter_data)
+                    assert(length(freqcustomfilter_data)==1,'Need cell array of length 1.')
                 end
             case 'TimeGainCompensate'
                 tgc_params = varargin{input_index + 1};
@@ -115,6 +122,35 @@ if ~isempty(freqbandfilter_params)
     [centre_freq, bandwidth] = freqbandfilter_params{:};
     bandwidth_pc = bandwidth / centre_freq * 100;       % convert bandwidth to % of centre frequency for gaussianFilter
     sensor_data = gaussianFilter(sensor_data,1/dt,centre_freq,bandwidth_pc);
+end
+
+% frequency custom filtering data
+if ~isempty(freqcustomfilter_data)
+    
+    % compute the double-sided frequency axis
+    Fs = 1/dt;
+    if mod(Nt,2) == 0
+        f = (-Nt/2:Nt/2-1) * Fs/Nt;
+    else
+        f = (-(Nt-1)/2:(Nt-1)/2) * Fs/Nt;
+    end
+    
+    % load custom filter from freqcustomfilter_data
+    [f_custom, filter_custom] = freqcustomfilter_data{:};
+    
+    % make custom filter double-sided
+    f_custom   = [-fliplr(f_custom)   f_custom(2:end)  ];
+    filter_custom = [ fliplr(filter_custom) filter_custom(2:end)];
+    
+    % resample custom filter at f
+    filter = interp1(f_custom, filter_custom, f);
+    
+    % apply filter with zero-phase
+    sensor_data = real(ifft(ifftshift( ...
+                    bsxfun(@times, filter, ...
+                        fftshift(fft(sensor_data, [], 2), 2) ...
+                    ) ...
+                  , 2), [], 2));
 end
 
 
