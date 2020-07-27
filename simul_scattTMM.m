@@ -86,19 +86,19 @@ end
 % filter with sensor frequency response (or not)
 simu.params.sensor_freq_filtered = false;       % TOGGLE
 
-% filter with gaussian frequency filter (or not)
-simu.params.gaussian_freq_filtered = false;     % TOGGLE
-if simu.params.gaussian_freq_filtered
-    simu.params.freq_filter_cf = 1e6;               % [Hz]
-    simu.params.freq_filter_bw = 20e6;              % [Hz]
-end
+% % filter with gaussian frequency filter (or not)
+% simu.params.gaussian_freq_filtered = false;     % TOGGLE
+% if simu.params.gaussian_freq_filtered
+%     simu.params.freq_filter_cf = 1e6;               % [Hz]
+%     simu.params.freq_filter_bw = 20e6;              % [Hz]
+% end
 
-% filter with custom frequency filter (or not)
-simu.params.custom_freq_filtered = false;       % TOGGLE
-if simu.params.custom_freq_filtered
-    % REQUIRES: manual definition of custom filter parameters
-    simu.params.custom_freq_filter_data = {f_custom, filter_custom};	% [Hz]
-end
+% % filter with custom frequency filter (or not)
+% simu.params.custom_freq_filtered = false;       % TOGGLE
+% if simu.params.custom_freq_filtered
+%     % REQUIRES: manual definition of custom filter parameters
+%     simu.params.custom_freq_filter_data = {f_custom, filter_custom};	% [Hz]
+% end
 
 % add noise to sensor data (or not)
 simu.params.sensor_noisy = false;                % TOGGLE
@@ -169,35 +169,35 @@ end
 % end
 
 
-%% (2-OPTION): filter *existing* unfiltered sensor data with gaussian bandpass filter & save sensor
-% 
-% if simu.params.gaussian_freq_filtered == false
-%     simu.params.gaussian_freq_filtered = true;  % TOGGLE
-%     simu.params.freq_filter_cf = 1e6;               % [Hz]
-%     simu.params.freq_filter_bw = 20e6;              % [Hz]
-%     sensor = maybe_gaussian_freq_filter(sensor, simu);
-%     
-%     save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
-% end
+%% MIGRATED TO 3-SPECIFY ... (2-OPTION): filter *existing* unfiltered sensor data with gaussian bandpass filter & save sensor
+% % 
+% % if simu.params.gaussian_freq_filtered == false
+% %     simu.params.gaussian_freq_filtered = true;  % TOGGLE
+% %     simu.params.freq_filter_cf = 1e6;               % [Hz]
+% %     simu.params.freq_filter_bw = 20e6;              % [Hz]
+% %     sensor = maybe_gaussian_freq_filter(sensor, simu);
+% %     
+% %     save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
+% % end
 
 
-%% (2-OPTION): filter *existing* unfiltered sensor data with custom filter - here: compound bandpass filter
-% 
-% if simu.params.custom_freq_filtered == false
-%     simu.params.custom_freq_filtered = true;    % TOGGLE
-%     
-%     % manually define custom filter parameters for compound bandpass filter:
-%     centre_freqs = (1:1:10)*1e6;        % [Hz]
-%     bandwidth    = 2e6;                 % [Hz]
-%     [f_compound, filter_compound] = get_compound_filter(centre_freqs, bandwidth);
-%     
-%     simu.params.custom_freq_filter_cfs  = centre_freqs;
-%     simu.params.custom_freq_filter_bw   = bandwidth;
-%     simu.params.custom_freq_filter_data = {f_compound, filter_compound};	% [Hz]
-%     sensor = maybe_custom_freq_filter(sensor, simu);
-%     
-%     save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
-% end
+%% MIGRATED TO 3-SPECIFY ... (2-OPTION): filter *existing* unfiltered sensor data with custom filter - here: compound bandpass filter
+% % 
+% % if simu.params.custom_freq_filtered == false
+% %     simu.params.custom_freq_filtered = true;    % TOGGLE
+% %     
+% %     % manually define custom filter parameters for compound bandpass filter:
+% %     centre_freqs = (1:1:10)*1e6;        % [Hz]
+% %     bandwidth    = 2e6;                 % [Hz]
+% %     [f_compound, filter_compound] = get_compound_filter(centre_freqs, bandwidth);
+% %     
+% %     simu.params.custom_freq_filter_cfs  = centre_freqs;
+% %     simu.params.custom_freq_filter_bw   = bandwidth;
+% %     simu.params.custom_freq_filter_data = {f_compound, filter_compound};	% [Hz]
+% %     % sensor = maybe_custom_freq_filter(sensor, simu);
+% %     
+% %     % save([file_dir_data file_name(simu.params) '_sensor.mat'], 'sensor', '-v7.3')
+% % end
 
 
 %% (2-OPTION): add noise to *existing* non-noisy sensor data before reconstruction & save sensor
@@ -213,7 +213,28 @@ end
 
 %% (3-SPECIFY): simulation params for reconstruction -> struct SIMU.PARAMS
 
-simu.params.freq_compound = true;
+% recon with gaussian frequency filter
+simu.params.gaussian_freq_filtered = false;
+if simu.params.gaussian_freq_filtered
+    simu.params.freq_filter_cf = 1e6;               % [Hz]
+    simu.params.freq_filter_bw = 20e6;              % [Hz]
+end
+
+% recon with custom (compound) frequency filter
+simu.params.custom_freq_filtered = false;
+if simu.params.custom_freq_filtered
+    % manually define custom filter parameters for compound bandpass filter:
+    centre_freqs = (1:1:10)*1e6;        % [Hz]
+    bandwidth    = 2e6;                 % [Hz]
+    [f_compound, filter_compound] = get_compound_filter(centre_freqs, bandwidth);
+    
+    simu.params.custom_freq_filter_cfs  = centre_freqs;
+    simu.params.custom_freq_filter_bw   = bandwidth;
+    simu.params.custom_freq_filter_data = {f_compound, filter_compound};    % [Hz]
+end
+
+% recon with frequency compounding
+simu.params.freq_compound = false;
 if simu.params.freq_compound
     simu.params.freq_compound_method = 'incoherent';      % options: 'coherent', 'incoherent'
     simu.params.freq_compound_cf     = (1:1:10)*1e6;    % [Hz]
@@ -984,10 +1005,31 @@ function image = recon_new_image(sensor, simu)
     
 	% recon without frequency compounding
     else
-        image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0, ...
-                                    'Upsample', true, ...
-                                    'EnvelopeDetect', true, ...
-                                    'SaveImageToFile', false );
+        
+        % recon with gaussian bandpass filter
+        if simu.params.gaussian_freq_filtered
+            image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0, ...
+                                        'Upsample', true, ...
+                                        'FreqBandFilter', {simu.params.freq_filter_cf, simu.params.freq_filter_bw}, ...
+                                        'EnvelopeDetect', true, ...
+                                        'SaveImageToFile', false );
+        
+        % recon with custom frequency filter
+        elseif simu.params.custom_freq_filtered
+            image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0, ...
+                                        'Upsample', true, ...
+                                        'FreqCustomFilter', simu.params.custom_freq_filter_data, ...
+                                        'EnvelopeDetect', true, ...
+                                        'SaveImageToFile', false );
+        
+        % recon without frequency filter
+        else
+            image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0, ...
+                                        'Upsample', true, ...
+                                        'EnvelopeDetect', true, ...
+                                        'SaveImageToFile', false );
+        end
+        
     end
     
     % assign image.kgrid and image.t_array from global
@@ -1016,7 +1058,7 @@ function fig_imag = plot_image_data(image, simu)
     
 end
 
-function save_image_for_sliceViewer(image, sensor, simu, image_file_path)
+function save_image_for_sliceViewer(image, sensor, simu, image_file_path) %#ok<DEFNU>
 % saves:    image.data reshaped to 3D
 % requires: image.data
 %           image.kgrid   - for volume spacing
