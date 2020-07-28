@@ -22,9 +22,9 @@ simu.params.scatt_c    = 40;                         % [m/s]
 simu.params.scatt_rho  = 80;                         % [kg/m^3]
 
 % define object
-simu.params.object_shape = 'hole';             % options: 'hole', 'slab', 'wire', 'no object'
+simu.params.object_shape = 'wire';             % options: 'hole', 'slab', 'wire', 'no object'
 simu.params.object_c     = 1500;                    % [m/s]
-simu.params.object_rho   = 1000;                    % [kg/m^3]
+simu.params.object_rho   = 2000;                    % [kg/m^3]
 simu.params.object_x     = 1536/2;                  % [grid points]
 simu.params.object_y     = 1024/4;                  % [grid points]
 
@@ -215,9 +215,9 @@ if simu.params.custom_freq_filtered
 end
 
 % recon with frequency compounding
-simu.params.freq_compound = false;
+simu.params.freq_compound = true;
 if simu.params.freq_compound
-    simu.params.freq_compound_method = 'incoherent';      % options: 'coherent', 'incoherent'
+    simu.params.freq_compound_method = 'coherent';      % options: 'coherent', 'incoherent'
     simu.params.freq_compound_cf     = (1:1:10)*1e6;    % [Hz]
     simu.params.freq_compound_bw     = 2e6;             % [Hz]
 end
@@ -279,11 +279,12 @@ switch simu.params.object_shape
     % specular signal & resolution
     case 'wire'
         
-        signal_wire = get_specular_signal_of_wire(image, simu);
-        [resoLat, resoAxi] = get_resolution_of_wire(image, simu);
+        signal_wire                           = get_specular_signal_of_wire(image, simu);
+        [SNR_wire, scatter_mean, scatter_std] = get_SNR_of_wire(image, simu);
+        [resoLat, resoAxi]                    = get_resolution_of_wire(image, simu);
         
-        disp('  specSig   resoLat   resoAxi')
-        disp([signal_wire,resoLat*1e6,resoAxi*1e6])
+        disp('  specSig     scatMean  scatStd   SNR     resoLat   resoAxi')
+        disp([signal_wire,scatter_mean,scatter_std,SNR_wire,resoLat*1e6,resoAxi*1e6])
         
 end
 
@@ -1083,24 +1084,24 @@ end
 
 %% IMAGE QUAL FUNCTIONS
 
-function ROI = get_discROI_at_object_in_image(image, simu, fractional_radius)
+function ROI = get_discROI_at_object_in_image(image, simu, ROI_radius)
 
     object_x = simu.kgrid.x_vec(simu.params.object_x);
     object_y = (simu.params.object_y - simu.params.pml_size - 1) * simu.kgrid.dx;
-    object_radius = 0.5e-3;
+    % object_radius = 0.5e-3;
     
     vec_x = image.kgrid.x_vec;
     vec_y = image.t_array*image.c0;
     
     distance = sqrt((vec_x - object_x).^2 + (vec_y - object_y).^2);
     
-    ROI = distance < object_radius * fractional_radius;
+    ROI = distance < ROI_radius;
     
 end
 
 function [scatter_hole_mean, scatter_hole_std] = get_scattering_distr_in_hole(image, simu, plot_toggle)
 
-    mask = get_discROI_at_object_in_image(image, simu, 0.9);
+    mask = get_discROI_at_object_in_image(image, simu, 0.45e-3);
     
     ROI = image.data(mask);
     
@@ -1115,9 +1116,9 @@ end
 
 function [scatter_stmm_mean, scatter_stmm_std] = get_scattering_distr_in_stmm(image, simu, plot_toggle)
 
-    hole_notoutside = get_discROI_at_object_in_image(image, simu, 1.1);
+    hole_notoutside = get_discROI_at_object_in_image(image, simu, 0.55e-3);
     hole_outside    = not(hole_notoutside);
-    large_hole      = get_discROI_at_object_in_image(image, simu, 2);
+    large_hole      = get_discROI_at_object_in_image(image, simu, 1e-3);
     
     mask = and(hole_outside,large_hole);
     
@@ -1168,12 +1169,31 @@ end
 
 function signal_wire = get_specular_signal_of_wire(image, simu)
 
-    mask = get_discROI_at_object_in_image(image, simu, 1);
+    mask = get_discROI_at_object_in_image(image, simu, 0.5e-3);
     
     ROI = image.data(mask);
     
     signal_wire = max(ROI,[],'all');
 
+end
+
+function [SNR_wire, scatter_stmm_mean, scatter_stmm_std] = get_SNR_of_wire(image, simu)
+
+    signal_wire = get_specular_signal_of_wire(image, simu);
+    
+    wire_vicinity   = get_discROI_at_object_in_image(image, simu, 0.1e-3);
+    wire_outside    = not(wire_vicinity);
+    large_circle    = get_discROI_at_object_in_image(image, simu, 0.5e-3);
+    
+    mask = and(wire_outside,large_circle);
+    
+    ROI = image.data(mask);
+    
+    scatter_stmm_mean = mean(ROI(:));
+    scatter_stmm_std  = std(ROI(:));
+    
+    SNR_wire = signal_wire / scatter_stmm_mean;
+    
 end
 
 function [resoLat, resoAxi] = get_resolution_of_wire(image, simu)
