@@ -292,153 +292,31 @@ end
 
 disp('Fourier transforming data in 2D..')
 
-[size_x, size_t] = size(sensor_data);       % use background-unsubtracted data and subtract 2dfft background data later
+% use source-unsubtracted data
+sensor.data = sensor_data;
 
-size_t_fft = round((size_t+1)/2);
-size_x_fft = round((size_x+1)/2);
+% fourier transform source-unsubtracted data
+[freqT, freqX, sensor_data_fftTX] = fourier_transform_sensor_data(sensor);
 
-sensor_data_fftT  = zeros(size_x    , size_t_fft);
-sensor_data_fftTX = zeros(size_x_fft, size_t_fft);
+% subtract source contribution from 2dfft data (or save it)
+sensor_data_fftTX = save_or_subtract_2dfft_source_contribution(sensor_data_fftTX, freqT, freqX, simu);
 
-for x = 1 : sensor.params.Nx
-    [freqT, sensor_data_fftT(x,:) ] = spect(sensor_data(x,:), 1/sensor.params.dt);
-end
-
-for t = 1 : size_t_fft
-    [freqX, sensor_data_fftTX(:,t)] = spect(sensor_data_fftT(:,t), 1/sensor.params.dx);
-end
-
-% cut out super high freq
-omegarange = 1:round(length(freqT)/2);
-freqT = freqT(omegarange);
-sensor_data_fftTX = sensor_data_fftTX(:,omegarange);
-
-% file location for background 2dfft data
-file_background_2dfft = ['D:\PROJECT\data\simulations\scattTMM\non-scattering _no object_\' ...
-                            num2str(simu.params.sensor_spacing*1e6) ' um\sensor_data_2dfft.mat'];
-
-% if empty target: save background 2dfft data
-if strcmp(simu.params.scatt_type,'non-scattering') && strcmp(simu.params.object_shape,'no object')
-    % only save if not already exists
-    if ~exist(file_background_2dfft,'file')
-        disp('Saving background 2dfft data..')
-        sensor_data_fftTX_background = sensor_data_fftTX;
-        freqT_background = freqT;
-        freqX_background = freqX;
-        save(file_background_2dfft, 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background')
-    else
-        disp('Background 2dfft data already exists.')
-    end
-    
-% else: subtract it from current data
-else
-    disp('Subtracting background 2dfft data..')
-    
-    % loading bacground 2dfft data
-    load(file_background_2dfft, 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background');
-    
-    % resample background 2dfft data onto same grid as current 2dfft data
-    sensor_data_fftTX_background_resample = permute(interp1(freqT_background, sensor_data_fftTX_background', freqT), [2 1]);
-    
-    % subtract background 2dfft data
-    sensor_data_fftTX = sensor_data_fftTX - sensor_data_fftTX_background_resample;
-    
-    % plot 2dfft data
-    x_min = 4;
-    fig_2dfft = figure('Position',[300,300,750,450]);
-    imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
-        title('2D FFT of sensor.data')
-        xlabel('Temporal frequency \omega [MHz]')
-        ylabel('Spatial frequency k_x [mm^{-1}]')
-        xlim([0,70])
-    	ylim([0,20])
-        colorbar
-        set(gca,'FontSize',13)
-        % caxis([-0.5e-5, 1e-5])
+% plot 2dfft data
+fig_2dfft = plot_2dfft_sensor_data(freqT, freqX, sensor_data_fftTX);
     saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.fig'])
-	saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.jpg'])
-    
-end
+    saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.jpg'])
 
 
 %% transform 2dfft data to angle of incidence \theta dependence
 
 disp('Transforming 2dfft data to angle-of-incidence dependence..')
 
-c = 1500;
+[theta_new, freqT_new, sensor_data_fftTA] = transforming_2dfft_data_to_aoi(sensor_data_fftTX, freqT, freqX);
 
-% make sin(theta) matrix and make non-physical values NaNs
-sintheta = freqX' * c ./ freqT;
-sintheta(sintheta>1) = NaN;
-
-% convert to theta in degrees
-theta = asin(sintheta);
-theta = theta / pi * 180;
-
-% % plot theta matrix in k-space axes
-% figure('Position',[300,300,750,450]);
-% imagesc(freqT/1e6, freqX/1e3, theta)
-%     title('theta')
-%     xlabel('Temporal frequency \omega [MHz]')
-%     ylabel('Spatial frequency k_x [mm^{-1}]')
-%     xlim([0,70])
-% 	ylim([0,5])
-%     colorbar
-%     set(gca,'FontSize',13)
-
-% mask of theta is not non-physical/NaN
-mask = not(isnan(theta));
-
-% extract theta, freqT and sensor_data_fftTX at mask
-theta_ar             = theta(mask);
-sensor_data_fftTX_ar = sensor_data_fftTX(mask);
-freqT_mat            = repmat(freqT, [length(freqX), 1]);
-freqT_ar             = freqT_mat(mask);
-
-% % plot freqT matrix in k-space axes
-% figure('Position',[300,300,750,450]);
-% imagesc(freqT/1e6, freqX/1e3, freqT_mat/1e6)
-%     title('freqT \omega [MHz]')
-%     xlabel('Temporal frequency \omega [MHz]')
-%     ylabel('Spatial frequency k_x [mm^{-1}]')
-%     xlim([0,70])
-%     ylim([0,5])
-%     caxis([0,70])
-%     colorbar
-%     set(gca,'FontSize',13)
-
-% make function for interpolating sensor_data_fftTX
-F = scatteredInterpolant(theta_ar, freqT_ar, sensor_data_fftTX_ar);
-
-% resample sensor_data_fftTX at regular theta and freqT arrays
-theta_new = 0:0.1:90;
-freqT_new = (0:0.1:75)*1e6;
-sensor_data_fftTA = F({theta_new, freqT_new});
-
-% % plot sensor_data_fft(theta,freqT) as scatter plot
-% figure
-% scatter(freqT_ar/1e6, theta_ar, 1, sensor_data_fftTX_ar)
-%     title('sensor.data')
-%     xlabel('Temporal frequency \omega [MHz]')
-%     ylabel('Angle of incidence [deg]')
-%     xlim([0,75])
-%     ylim([0,90])
-%     colorbar
-%     set(gca,'FontSize',13)
-
-% plot sensor_data_fft(theta,freqT) as interpolated scatter data
-f_min = 5;
-fig_2dfft_aoi = figure('Position',[300,300,750,450]);
-imagesc(freqT_new(f_min:end)/1e6, theta_new, sensor_data_fftTA(:,f_min:end))
-    title('sensor.data')
-    xlabel('Temporal frequency \omega [MHz]')
-    ylabel('Angle of incidence [deg]')
-    xlim([0,75])
-    ylim([0,90])
-    colorbar
-    set(gca,'FontSize',13)
-saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.fig'])
-saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.jpg'])
+% plot 2dfft data with angle of incidence dependence
+fig_2dfft_aoi = plot_2dfft_aoi_sensor_data(theta_new, freqT_new, sensor_data_fftTA);
+    saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.fig'])
+    saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.jpg'])
 
 
 %% FUNCTIONS
@@ -943,6 +821,97 @@ function sensor = subtract_source_contribution(sensor, simu)
     
 end
 
+function [freqT, freqX, sensor_data_fftTX] = fourier_transform_sensor_data(sensor)
+
+    [size_x, size_t] = size(sensor.data);
+
+    size_t_fft = round((size_t+1)/2);
+    size_x_fft = round((size_x+1)/2);
+
+    sensor_data_fftT  = zeros(size_x    , size_t_fft);
+    sensor_data_fftTX = zeros(size_x_fft, size_t_fft);
+
+    for x = 1 : sensor.params.Nx
+        [freqT, sensor_data_fftT(x,:) ] = spect(sensor.data(x,:), 1/sensor.params.dt);
+    end
+
+    for t = 1 : size_t_fft
+        [freqX, sensor_data_fftTX(:,t)] = spect(sensor_data_fftT(:,t), 1/sensor.params.dx);
+    end
+
+    % cut out super high freq
+    omegarange = 1:round(length(freqT)/2);
+    freqT = freqT(omegarange);
+    sensor_data_fftTX = sensor_data_fftTX(:,omegarange);
+
+end
+
+function sensor_data_fftTX = save_or_subtract_2dfft_source_contribution(sensor_data_fftTX, freqT, freqX, simu)
+
+    % file location for background 2dfft data
+    file_background_2dfft = ['D:\PROJECT\data\simulations\scattTMM\non-scattering _no object_\' ...
+                                num2str(simu.params.sensor_spacing*1e6) ' um\sensor_data_2dfft.mat'];
+    
+    % if empty target: save background 2dfft data
+    if strcmp(simu.params.scatt_type,'non-scattering') && strcmp(simu.params.object_shape,'no object')
+        % only save if not already exists
+        if ~exist(file_background_2dfft,'file')
+            disp('Saving background 2dfft data..')
+            sensor_data_fftTX_background = sensor_data_fftTX;
+            freqT_background = freqT;
+            freqX_background = freqX;
+            save(file_background_2dfft, 'sensor_data_fftTX_background', 'freqT_background', 'freqX_background')
+        else
+            disp('Background 2dfft data already exists.')
+        end
+    
+    % else: subtract it from current data
+    else
+        disp('Subtracting background 2dfft data..')
+        
+        % loading background 2dfft data
+        load(file_background_2dfft, 'sensor_data_fftTX_background', 'freqT_background');
+        
+        % resample background 2dfft data onto same grid as current 2dfft data
+        sensor_data_fftTX_background_resample = permute(interp1(freqT_background, sensor_data_fftTX_background', freqT), [2 1]);
+        
+        % subtract background 2dfft data
+        sensor_data_fftTX = sensor_data_fftTX - sensor_data_fftTX_background_resample;
+    end
+
+end
+
+function [theta_new, freqT_new, sensor_data_fftTA] = transforming_2dfft_data_to_aoi(sensor_data_fftTX, freqT, freqX)
+
+    c = 1500;
+    
+    % make sin(theta) matrix and make non-physical values NaNs
+    sintheta = freqX' * c ./ freqT;
+    sintheta(sintheta>1) = NaN;
+    
+    % convert to theta in degrees
+    theta = asin(sintheta);
+    theta = theta / pi * 180;
+    
+    % mask of theta is not non-physical/NaN
+    mask = not(isnan(theta));
+    
+    % extract theta, freqT and sensor_data_fftTX at mask
+    theta_ar             = theta(mask);
+    sensor_data_fftTX_ar = sensor_data_fftTX(mask);
+    freqT_mat            = repmat(freqT, [length(freqX), 1]);
+    freqT_ar             = freqT_mat(mask);
+    
+    % make function for interpolating sensor_data_fftTX
+    F = scatteredInterpolant(theta_ar, freqT_ar, sensor_data_fftTX_ar);
+    
+    % resample sensor_data_fftTX at regular theta and freqT arrays
+    theta_new = 0:0.1:90;
+    freqT_new = (0:0.1:75)*1e6;
+    sensor_data_fftTA = F({theta_new, freqT_new});
+    
+end
+
 function fig_sens = plot_sensor_data(sensor, simu)
 % plots:    sensor.data
 % requires: sensor.data
@@ -962,6 +931,37 @@ function fig_sens = plot_sensor_data(sensor, simu)
         xlabel('x position / mm')
         ylabel('time / \mus')
         colorbar
+    
+end
+
+function fig_2dfft = plot_2dfft_sensor_data(freqT, freqX, sensor_data_fftTX)
+
+    x_min = 4;
+    fig_2dfft = figure('Position',[300,300,750,450]);
+    imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
+        title('2D FFT of sensor.data')
+        xlabel('Temporal frequency \omega [MHz]')
+        ylabel('Spatial frequency k_x [mm^{-1}]')
+        xlim([0,70])
+        ylim([0,20])
+        colorbar
+        set(gca,'FontSize',13)
+        % caxis([-0.5e-5, 1e-5])
+    
+end
+
+function fig_2dfft_aoi = plot_2dfft_aoi_sensor_data(theta_new, freqT_new, sensor_data_fftTA)
+
+    f_min = 5;
+    fig_2dfft_aoi = figure('Position',[300,300,750,450]);
+    imagesc(freqT_new(f_min:end)/1e6, theta_new, sensor_data_fftTA(:,f_min:end))
+        title('sensor.data')
+        xlabel('Temporal frequency \omega [MHz]')
+        ylabel('Angle of incidence [deg]')
+        xlim([0,75])
+        ylim([0,90])
+        colorbar
+        set(gca,'FontSize',13)
     
 end
 
@@ -1064,7 +1064,7 @@ function fig_imag = plot_image_data(image, simu)
     
 end
 
-function save_image_for_sliceViewer(image, sensor, simu, image_file_path) %#ok<DEFNU>
+function save_image_for_sliceViewer(image, sensor, simu, image_file_path)  %#ok<DEFNU>
 % saves:    image.data reshaped to 3D
 % requires: image.data
 %           image.kgrid   - for volume spacing
