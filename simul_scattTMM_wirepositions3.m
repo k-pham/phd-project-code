@@ -15,7 +15,7 @@ imgqual.resoAxi      = zeros(length(xpositions),length(ypositions));
 
 for xidx = 1:length(xpositions)
 for yidx = 1:length(ypositions)
-    
+
 xpos = xpositions(xidx);
 ypos = ypositions(yidx);
 
@@ -42,7 +42,7 @@ simu.params.scatt_rho  = 80;                         % [kg/m^3]
 % define object
 simu.params.object_shape = 'wire';             % options: 'hole', 'slab', 'wire', 'no object'
 simu.params.object_c     = 1500;                    % [m/s]
-simu.params.object_rho   = 2000;                    % [kg/m^3]
+simu.params.object_rho   = 5000;                    % [kg/m^3]
 simu.params.object_x     = xpos;                    % [grid points]
 simu.params.object_y     = ypos;                    % [grid points]
 
@@ -57,7 +57,7 @@ end
 simu.params.shorten_time = 1;                       % [fraction]
 
 % sensor spacing
-simu.params.sensor_spacing = 10e-6;                % [m]
+simu.params.sensor_spacing = 100e-6;                % [m]
 
 % params for sensor must be set to false here, can change later on
 simu.params.sensor_freq_filtered = false;
