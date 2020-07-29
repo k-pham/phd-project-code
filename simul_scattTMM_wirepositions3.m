@@ -354,6 +354,27 @@ end
 save([file_dir_data file_name(simu.params) '_image_quality.mat'], 'xpositions', 'ypositions', 'imgqual')
 
 
+%% image quality vs position
+
+load('D:\PROJECT\data\simulations\scattTMM\random 40 80 with wire r0 1500 2000 - diff positions\10 um\random_SCATT_c40_rho80_wire_OBJECT_c1500_rho2000_x1408_y896_image_quality.mat')
+
+figure, imagesc(xpositions,ypositions,imgqual.signal_wire') , title('specular signal of wire')
+figure, imagesc(xpositions,ypositions,imgqual.scatter_mean'), title('scatter mean')
+figure, imagesc(xpositions,ypositions,imgqual.scatter_std') , title('scatter std')
+figure, imagesc(xpositions,ypositions,imgqual.SNR_wire')    , title('wire SNR')
+figure, imagesc(xpositions,ypositions,imgqual.resoLat'*1e6) , title('lateral resolution [\mum]')
+figure, imagesc(xpositions,ypositions,imgqual.resoAxi'*1e6) , title('axial resolution [\mum]')
+
+for i=1:6
+    figure(i)
+    xlabel('x axis [dx = 10 \mum]')
+    ylabel('depth y [dy = 10 \mum]')
+    set(gca,'FontSize',13)
+    set(gcf, 'Position',[300,300,750,450])
+    colorbar
+end
+
+
 %% FUNCTIONS
 
 function pointscatts = get_pointscatt_locations(Nx, Ny, dx, dy, num_points_per_voxel, vox_size)
