@@ -24,8 +24,8 @@ ypos = ypositions(yidx);
 % clear all
 close all
 
-file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random 40 80 with wire r0 1500 2000 - diff positions\';
-file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\random 40 80 with wire r0 1500 2000 - diff positions\';
+file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random 40 80 with wire r0 1500 5000 - diff positions\';
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\random 40 80 with wire r0 1500 5000 - diff positions\';
 
 
 %% (1-SPECIFY): simulation params -> struct SIMU.PARAMS
@@ -356,7 +356,8 @@ save([file_dir_data file_name(simu.params) '_image_quality.mat'], 'xpositions', 
 
 %% image quality vs position
 
-load('D:\PROJECT\data\simulations\scattTMM\random 40 80 with wire r0 1500 2000 - diff positions\10 um\random_SCATT_c40_rho80_wire_OBJECT_c1500_rho2000_x1408_y896_image_quality.mat')
+% load('D:\PROJECT\data\simulations\scattTMM\random 40 80 with wire r0 1500 2000 - diff positions\10 um\random_SCATT_c40_rho80_wire_OBJECT_c1500_rho2000_x1408_y896_image_quality.mat')
+load('D:\PROJECT\data\simulations\scattTMM\random 40 80 with wire r0 1500 5000 - diff positions\100 um\random_SCATT_c40_rho80_wire_OBJECT_c1500_rho5000_x1408_y896_image_quality.mat')
 
 figure, imagesc(xpositions,ypositions,imgqual.signal_wire') , title('specular signal of wire')
 figure, imagesc(xpositions,ypositions,imgqual.scatter_mean'), title('scatter mean')
