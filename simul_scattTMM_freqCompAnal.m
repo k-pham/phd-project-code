@@ -1,28 +1,39 @@
 % load simu
-load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_hole_OBJECT_c1500_rho1000_x768_y256_simu.mat')
+% load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_hole_OBJECT_c1500_rho1000_x768_y256_simu.mat')
+load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_wire_OBJECT_c1500_rho2000_x768_y256_simu.mat')
 
 % load various images
-load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_hole_OBJECT_c1500_rho1000_x768_y256_image.mat')
+% load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_hole_OBJECT_c1500_rho1000_x768_y256_image.mat')
+load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_wire_OBJECT_c1500_rho2000_x768_y256_image.mat')
 image_unfiltered = image;
 
-load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_hole_OBJECT_c1500_rho1000_x768_y256_FILTER_f1_bw20_image.mat')
-image_gaussian   = image;
+% load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_hole_OBJECT_c1500_rho1000_x768_y256_FILTER_f1_bw20_image.mat')
+% image_gaussian   = image;
 
-load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_hole_OBJECT_c1500_rho1000_x768_y256_COMPOUND_incoherent_f1-10_bw2_image.mat')
+% load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_hole_OBJECT_c1500_rho1000_x768_y256_COMPOUND_incoherent_f1-10_bw2_image.mat')
+load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_wire_OBJECT_c1500_rho2000_x768_y256_COMPOUND_incoherent_f1-10_bw2_image.mat')
 image_incoherent = image;
 
-load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_hole_OBJECT_c1500_rho1000_x768_y256_COMPOUND_coherent_f1-10_bw2_image.mat')
+% load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_hole_OBJECT_c1500_rho1000_x768_y256_COMPOUND_coherent_f1-10_bw2_image.mat')
+load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_wire_OBJECT_c1500_rho2000_x768_y256_COMPOUND_coherent_f1-10_bw2_image.mat')
 image_coherent   = image;
 
-load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_hole_OBJECT_c1500_rho1000_x768_y256_CFILTER_f1-10_bw2_image.mat')
+% load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_hole_OBJECT_c1500_rho1000_x768_y256_CFILTER_f1-10_bw2_image.mat')
+load('D:\PROJECT\data\simulations\scattTMM\freq compounding & coherent filter test2\random_SCATT_c40_rho80_wire_OBJECT_c1500_rho2000_x768_y256_CFILTER_f1-10_bw2_image.mat')
 image_cfilter    = image;
 
 clear image
 
-% subtract to get difference images
+% make difference image structures
 image_diff1 = image_unfiltered;
 image_diff2 = image_unfiltered;
 
+% normalise if necessary
+image_coherent.data   = image_coherent.data   / max(image_coherent.data,[],'all')   ;
+image_incoherent.data = image_incoherent.data / max(image_incoherent.data,[],'all') ;
+image_cfilter.data    = image_cfilter.data    / max(image_cfilter.data,[],'all')    ;
+
+% subtract to get difference images
 image_diff1.data = image_coherent.data - image_incoherent.data;
 image_diff2.data = image_coherent.data - image_cfilter.data;
 
