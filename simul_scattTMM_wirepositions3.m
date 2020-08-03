@@ -24,8 +24,8 @@ ypos = ypositions(yidx);
 % clear all
 close all
 
-file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random 40 80 with wire r0 1500 5000 - diff positions\';
-file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\random 40 80 with wire r0 1500 5000 - diff positions\';
+file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\random 40 80 with wire r0 1500 2000 - diff positions\10 um\';
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\random 40 80 with wire r0 1500 2000 - diff positions\10 um\';
 
 
 %% (1-SPECIFY): simulation params -> struct SIMU.PARAMS
@@ -42,7 +42,7 @@ simu.params.scatt_rho  = 80;                         % [kg/m^3]
 % define object
 simu.params.object_shape = 'wire';             % options: 'hole', 'slab', 'wire', 'no object'
 simu.params.object_c     = 1500;                    % [m/s]
-simu.params.object_rho   = 5000;                    % [kg/m^3]
+simu.params.object_rho   = 2000;                    % [kg/m^3]
 simu.params.object_x     = xpos;                    % [grid points]
 simu.params.object_y     = ypos;                    % [grid points]
 
@@ -57,7 +57,7 @@ end
 simu.params.shorten_time = 1;                       % [fraction]
 
 % sensor spacing
-simu.params.sensor_spacing = 100e-6;                % [m]
+simu.params.sensor_spacing = 10e-6;                % [m]
 
 % params for sensor must be set to false here, can change later on
 simu.params.sensor_freq_filtered = false;
@@ -213,10 +213,10 @@ end
 %% (3-SPECIFY): simulation params for reconstruction -> struct SIMU.PARAMS
 
 % recon with gaussian frequency filter
-simu.params.gaussian_freq_filtered = false;
+simu.params.gaussian_freq_filtered = true;
 if simu.params.gaussian_freq_filtered
     simu.params.freq_filter_cf = 1e6;               % [Hz]
-    simu.params.freq_filter_bw = 20e6;              % [Hz]
+    simu.params.freq_filter_bw = 10e6;              % [Hz]
 end
 
 % recon with custom (compound) frequency filter
@@ -356,24 +356,26 @@ save([file_dir_data file_name(simu.params) '_image_quality.mat'], 'xpositions', 
 
 %% image quality vs position
 
-% load('D:\PROJECT\data\simulations\scattTMM\random 40 80 with wire r0 1500 2000 - diff positions\10 um\random_SCATT_c40_rho80_wire_OBJECT_c1500_rho2000_x1408_y896_image_quality.mat')
-load('D:\PROJECT\data\simulations\scattTMM\random 40 80 with wire r0 1500 5000 - diff positions\100 um\random_SCATT_c40_rho80_wire_OBJECT_c1500_rho5000_x1408_y896_image_quality.mat')
-
-figure, imagesc(xpositions,ypositions,imgqual.signal_wire') , title('specular signal of wire')
-figure, imagesc(xpositions,ypositions,imgqual.scatter_mean'), title('scatter mean')
-figure, imagesc(xpositions,ypositions,imgqual.scatter_std') , title('scatter std')
-figure, imagesc(xpositions,ypositions,imgqual.SNR_wire')    , title('wire SNR')
-figure, imagesc(xpositions,ypositions,imgqual.resoLat'*1e6) , title('lateral resolution [\mum]')
-figure, imagesc(xpositions,ypositions,imgqual.resoAxi'*1e6) , title('axial resolution [\mum]')
-
-for i=1:6
-    figure(i)
-    xlabel('x axis [dx = 10 \mum]')
-    ylabel('depth y [dy = 10 \mum]')
-    set(gca,'FontSize',13)
-    set(gcf, 'Position',[300,300,750,450])
-    colorbar
-end
+% % load('D:\PROJECT\data\simulations\scattTMM\random 40 80 with wire r0 1500 2000 - diff positions\10 um\random_SCATT_c40_rho80_wire_OBJECT_c1500_rho2000_x1408_y896_image_quality.mat')
+% 
+% % load('D:\PROJECT\data\simulations\scattTMM\random 40 80 with wire r0 1500 5000 - diff positions\100 um\random_SCATT_c40_rho80_wire_OBJECT_c1500_rho5000_x1408_y896_image_quality.mat')
+% load('D:\PROJECT\data\simulations\scattTMM\random 40 80 with wire r0 1500 5000 - diff positions\100 um\random_SCATT_c40_rho80_wire_OBJECT_c1500_rho5000_x1408_y896_FILTER_f1_bw10_image_quality.mat')
+% 
+% figure, imagesc(xpositions,ypositions,imgqual.signal_wire') , title('specular signal of wire')
+% figure, imagesc(xpositions,ypositions,imgqual.scatter_mean'), title('scatter mean')
+% figure, imagesc(xpositions,ypositions,imgqual.scatter_std') , title('scatter std')
+% figure, imagesc(xpositions,ypositions,imgqual.SNR_wire')    , title('wire SNR')
+% figure, imagesc(xpositions,ypositions,imgqual.resoLat'*1e6) , title('lateral resolution [\mum]')
+% figure, imagesc(xpositions,ypositions,imgqual.resoAxi'*1e6) , title('axial resolution [\mum]')
+% 
+% for i=1:6
+%     figure(i)
+%     xlabel('x axis [dx = 10 \mum]')
+%     ylabel('depth y [dy = 10 \mum]')
+%     set(gca,'FontSize',13)
+%     set(gcf, 'Position',[300,300,750,450])
+%     colorbar
+% end
 
 
 %% FUNCTIONS
