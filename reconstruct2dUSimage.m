@@ -1,4 +1,4 @@
-function [reflection_image] = reconstruct2dUSimage(sensor_data, params, c0, varargin)
+function [reflection_image, varargout] = reconstruct2dUSimage(sensor_data, params, c0, varargin)
 
 %% read from varargin
 
@@ -208,6 +208,13 @@ if toSaveImage
     phantom_id = strtok(params.file_data,'@');  % parse string up to specified delimiter
     phantom_id = phantom_id(8:end);             % remove date folder from string
     save(['recon_data\' phantom_id '.mat'],'volume_data','volume_spacing','-v7.3')
+end
+
+
+%% optional output of sensor_data if requested
+
+if nargout > 1
+    varargout{1} = sensor_data;
 end
 
 
