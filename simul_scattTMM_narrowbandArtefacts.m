@@ -137,6 +137,10 @@ if ~exist([file_data_bckgrsubtr '.fig'],'file')
 fig_sens2 = plot_sensor_data(sensor, simu);
     saveas(fig_sens2, [file_data_bckgrsubtr '.fig'])
     saveas(fig_sens2, [file_data_bckgrsubtr '.jpg'])
+fig_sens1D = plot_sensor_data1D(sensor, simu);
+    xlim([3,3.4]), ylim([-0.15,0.15])
+    saveas(fig_sens1D, [file_dir_figs file_name(simu.params) '_data_1D.fig'])
+    saveas(fig_sens1D, [file_dir_figs file_name(simu.params) '_data_1D.jpg'])
 end
 
 
@@ -932,6 +936,27 @@ function fig_sens = plot_sensor_data(sensor, simu)
         xlabel('x position / mm')
         ylabel('time / \mus')
         colorbar
+    
+end
+
+function fig_sens1D = plot_sensor_data1D(sensor, simu)
+% plots:    sensor.data
+% requires: sensor.data
+%           sensor.kgrid   - for axes
+%           sensor.t_array - for axes
+%           simu.params    - for titles
+
+    % figure
+    % imagesc(sensor.data(:,1:50)')
+    %     xlabel('x position / dx')
+    %     ylabel('time / dt')
+    
+    fig_sens1D = figure;
+    plot(sensor.t_array(50:end)*1e6,sensor.data(round(sensor.kgrid.Nx/2),50:end))
+        title([simu.params.scatt_type   ' c ' num2str(simu.params.scatt_c)  ' rho ' num2str(simu.params.scatt_rho) ', ' ...
+               simu.params.object_shape ' c ' num2str(simu.params.object_c) ' rho ' num2str(simu.params.object_rho) ])
+        xlabel('time / \mus')
+        ylabel('pressure / Pa')
     
 end
 
