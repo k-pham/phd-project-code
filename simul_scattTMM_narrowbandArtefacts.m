@@ -6,8 +6,8 @@
 % clear all
 close all
 
-file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\';
-file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\';
+file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\narrowband artefacts\';
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\narrowband artefacts\';
 
 
 %% (1-SPECIFY): simulation params -> struct SIMU.PARAMS
@@ -70,7 +70,7 @@ end
 
 
 %% (1-OPTION): make *existing* non-attenuating medium attenuating & save simu
-% 
+%   
 % if simu.params.attenuating == false
 %     simu.params.attenuating = true;     % TOGGLE
 %     simu.params.medium_attenuation_coeff = 0.9;      % [dB MHz^-pow cm^-1]
@@ -135,12 +135,13 @@ sensor      = subtract_source_contribution(sensor, simu);
 file_data_bckgrsubtr = [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted'];
 if ~exist([file_data_bckgrsubtr '.fig'],'file')
 fig_sens2 = plot_sensor_data(sensor, simu);
+    xlim([-4,4]), ylim([2.8,5])
     saveas(fig_sens2, [file_data_bckgrsubtr '.fig'])
     saveas(fig_sens2, [file_data_bckgrsubtr '.jpg'])
 fig_sens1D = plot_sensor_data1D(sensor, simu);
     xlim([3,3.4]), ylim([-0.15,0.15])
-    saveas(fig_sens1D, [file_dir_figs file_name(simu.params) '_data_1D.fig'])
-    saveas(fig_sens1D, [file_dir_figs file_name(simu.params) '_data_1D.jpg'])
+    saveas(fig_sens1D, [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted_1D.fig'])
+    saveas(fig_sens1D, [file_dir_figs file_name(simu.params) '_data_bckgrsubtracted_1D.jpg'])
 end
 
 
@@ -202,7 +203,7 @@ end
 simu.params.gaussian_freq_filtered = false;
 if simu.params.gaussian_freq_filtered
     simu.params.freq_filter_cf = 1e6;               % [Hz]
-    simu.params.freq_filter_bw = 20e6;              % [Hz]
+    simu.params.freq_filter_bw = 2e6;              % [Hz]
 end
 
 % recon with custom (compound) frequency filter
@@ -236,13 +237,40 @@ if exist(image_file_path, 'file')
     load(image_file_path, 'image');
 else
     disp(['Reconstructing new image data: ' file_name(simu.params)])
-    image = recon_new_image(sensor, simu);
+    [image, sensor_data_proc] = recon_new_image(sensor, simu);
     save(image_file_path, 'image', '-v7.3')
     % save_image_for_sliceViewer(image, sensor, simu, [file_dir_data file_name(simu.params)])
     
     fig_imag = plot_image_data(image, simu);
         saveas(fig_imag, [file_dir_figs file_name(simu.params) '_image.fig'])
         saveas(fig_imag, [file_dir_figs file_name(simu.params) '_image.jpg'])
+        xlim([-1.2,1.2]), ylim([1.4,3.4])
+        saveas(fig_imag, [file_dir_figs file_name(simu.params) '_image_zoom.jpg'])
+    
+    %% plot sensor_data_proc
+    
+    fig_sens_proc = figure;
+    imagesc(image.kgrid.x_vec*1e3,image.t_array(50:end)*1e6*2,sensor_data_proc(:,50:end)')
+        title([simu.params.scatt_type   ' c ' num2str(simu.params.scatt_c)  ' rho ' num2str(simu.params.scatt_rho) ', ' ...
+               simu.params.object_shape ' c ' num2str(simu.params.object_c) ' rho ' num2str(simu.params.object_rho) ])
+        xlabel('x position / mm')
+        ylabel('time / \mus')
+        colorbar
+        xlim([-4,4]), ylim([2.5,5.5])
+        saveas(fig_sens_proc, [file_dir_figs file_name(simu.params) '_data_filtered.fig'])
+        saveas(fig_sens_proc, [file_dir_figs file_name(simu.params) '_data_filtered.jpg'])
+    
+    fig_sens_proc1D = figure;
+    t_axis = sensor.kgrid.dt*linspace(1,size(sensor_data_proc,2),size(sensor_data_proc,2));
+    plot(t_axis(50:end)*1e6,sensor_data_proc(round(image.kgrid.Nx/2),50:end))
+        title([simu.params.scatt_type   ' c ' num2str(simu.params.scatt_c)  ' rho ' num2str(simu.params.scatt_rho) ', ' ...
+               simu.params.object_shape ' c ' num2str(simu.params.object_c) ' rho ' num2str(simu.params.object_rho) ])
+        xlabel('time / \mus')
+        ylabel('pressure / Pa')
+        xlim([2,4.2]), ylim([1.2*min(sensor_data_proc(round(image.kgrid.Nx/2),:)),1.2*max(sensor_data_proc(round(image.kgrid.Nx/2),:))])
+        saveas(fig_sens_proc1D, [file_dir_figs file_name(simu.params) '_data_filtered_1D.fig'])
+        saveas(fig_sens_proc1D, [file_dir_figs file_name(simu.params) '_data_filtered_1D.jpg'])
+    
 end
 
 image.c0 = simu.params.c0;
@@ -994,7 +1022,7 @@ end
 
 %% METHODS FOR IMAGE
 
-function image = recon_new_image(sensor, simu)
+function [image, varargout] = recon_new_image(sensor, simu)
 
     % recon with frequency compounding
     if simu.params.freq_compound
@@ -1040,7 +1068,7 @@ function image = recon_new_image(sensor, simu)
         
         % recon with gaussian bandpass filter
         if simu.params.gaussian_freq_filtered
-            image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0, ...
+            [image.data, sensor_data_proc] = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0, ...
                                         'Upsample', true, ...
                                         'FreqBandFilter', {simu.params.freq_filter_cf, simu.params.freq_filter_bw}, ...
                                         'EnvelopeDetect', true, ...
@@ -1048,7 +1076,7 @@ function image = recon_new_image(sensor, simu)
         
         % recon with custom frequency filter
         elseif simu.params.custom_freq_filtered
-            image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0, ...
+            [image.data, sensor_data_proc] = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0, ...
                                         'Upsample', true, ...
                                         'FreqCustomFilter', simu.params.custom_freq_filter_data, ...
                                         'EnvelopeDetect', true, ...
@@ -1056,7 +1084,7 @@ function image = recon_new_image(sensor, simu)
         
         % recon without frequency filter
         else
-            image.data = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0, ...
+            [image.data, sensor_data_proc] = reconstruct2dUSimage(sensor.data, sensor.params, simu.params.c0, ...
                                         'Upsample', true, ...
                                         'EnvelopeDetect', true, ...
                                         'SaveImageToFile', false );
@@ -1068,6 +1096,10 @@ function image = recon_new_image(sensor, simu)
     global kgrid t_array
     image.kgrid   = kgrid;
     image.t_array = t_array;
+    
+    if nargout > 1
+        varargout{1} = sensor_data_proc;
+    end
     
 end
 
