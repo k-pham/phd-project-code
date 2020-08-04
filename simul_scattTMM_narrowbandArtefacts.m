@@ -1,6 +1,10 @@
 % Pulse-echo plane-wave US imaging - scattering TMM with non-scattering object
 % modified to make class-like structures
 
+centre_freqs = [1:1:10, 12:2:20, 24:4:40]*1e6;
+
+for cf = centre_freqs
+    
 %% (0) FILE PATHS
 
 % clear all
@@ -200,9 +204,9 @@ end
 %% (3-SPECIFY): simulation params for reconstruction -> struct SIMU.PARAMS
 
 % recon with gaussian frequency filter
-simu.params.gaussian_freq_filtered = false;
+simu.params.gaussian_freq_filtered = true;
 if simu.params.gaussian_freq_filtered
-    simu.params.freq_filter_cf = 1e6;               % [Hz]
+    simu.params.freq_filter_cf = cf;               % [Hz]
     simu.params.freq_filter_bw = 2e6;              % [Hz]
 end
 
@@ -350,6 +354,11 @@ disp('Transforming 2dfft data to angle-of-incidence dependence..')
 fig_2dfft_aoi = plot_2dfft_aoi_sensor_data(theta_new, freqT_new, sensor_data_fftTA);
     saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.fig'])
     saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.jpg'])
+
+
+%%
+
+end
 
 
 %% FUNCTIONS
