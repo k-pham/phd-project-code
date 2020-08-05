@@ -10,8 +10,8 @@ for cf = centre_freqs
 % clear all
 close all
 
-file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\narrowband artefacts\';
-file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\narrowband artefacts\';
+file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\narrowband artefacts\10 um\';
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\narrowband artefacts\10 um\';
 
 
 %% (1-SPECIFY): simulation params -> struct SIMU.PARAMS
@@ -43,7 +43,7 @@ end
 simu.params.shorten_time = 1;                       % [fraction]
 
 % sensor spacing
-simu.params.sensor_spacing = 100e-6;                % [m]
+simu.params.sensor_spacing = 10e-6;                % [m]
 
 % params for sensor must be set to false here, can change later on
 simu.params.sensor_freq_filtered = false;
@@ -239,6 +239,7 @@ image_file_path = [file_dir_data file_name(simu.params) '_image.mat'];
 if exist(image_file_path, 'file')
     disp(['Loading existing image data: ' file_name(simu.params)])
     load(image_file_path, 'image');
+    % [~, sensor_data_proc] = recon_new_image(sensor, simu);
 else
     disp(['Reconstructing new image data: ' file_name(simu.params)])
     [image, sensor_data_proc] = recon_new_image(sensor, simu);
