@@ -1,17 +1,17 @@
 % Pulse-echo plane-wave US imaging - scattering TMM with non-scattering object
 % modified to make class-like structures
 
-centre_freqs = [1:1:10, 12:2:20, 24:4:40]*1e6;
-
-for cf = centre_freqs
+% centre_freqs = [1:1:10, 12:2:20, 24:4:40]*1e6;
+% 
+% for cf = centre_freqs
     
 %% (0) FILE PATHS
 
 % clear all
 close all
 
-file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\narrowband artefacts\10 um\';
-file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\narrowband artefacts\10 um\';
+file_dir_data = 'D:\PROJECT\data\simulations\scattTMM\narrowband artefacts\100 um\';
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\scattTMM\narrowband artefacts\100 um\';
 
 
 %% (1-SPECIFY): simulation params -> struct SIMU.PARAMS
@@ -43,7 +43,7 @@ end
 simu.params.shorten_time = 1;                       % [fraction]
 
 % sensor spacing
-simu.params.sensor_spacing = 10e-6;                % [m]
+simu.params.sensor_spacing = 100e-6;                % [m]
 
 % params for sensor must be set to false here, can change later on
 simu.params.sensor_freq_filtered = false;
@@ -204,23 +204,25 @@ end
 %% (3-SPECIFY): simulation params for reconstruction -> struct SIMU.PARAMS
 
 % recon with gaussian frequency filter
-simu.params.gaussian_freq_filtered = true;
+simu.params.gaussian_freq_filtered = false;
 if simu.params.gaussian_freq_filtered
     simu.params.freq_filter_cf = cf;               % [Hz]
     simu.params.freq_filter_bw = 2e6;              % [Hz]
 end
 
 % recon with custom (compound) frequency filter
-simu.params.custom_freq_filtered = false;
+simu.params.custom_freq_filtered = true;
 if simu.params.custom_freq_filtered
     % manually define custom filter parameters for compound bandpass filter:
-    centre_freqs = (1:1:10)*1e6;        % [Hz]
+    centre_freqs = (8:1:28)*1e6;        % [Hz]
     bandwidth    = 2e6;                 % [Hz]
-    [f_compound, filter_compound] = get_compound_filter(centre_freqs, bandwidth);
+    [f_compound, filter_compound, fig_cfilt] = get_compound_filter(centre_freqs, bandwidth);
     
     simu.params.custom_freq_filter_cfs  = centre_freqs;
     simu.params.custom_freq_filter_bw   = bandwidth;
     simu.params.custom_freq_filter_data = {f_compound, filter_compound};    % [Hz]
+    
+    saveas(fig_cfilt, [file_dir_figs 'cfilter_f' num2str(centre_freqs(1)/1e6) '-' num2str(centre_freqs(end)/1e6) '_bw' num2str(bandwidth/1e6) '.jpg'])
 end
 
 % recon with frequency compounding
@@ -327,39 +329,39 @@ end
 
 
 %% (4) ANALYSE SENSOR DATA: frequency content in 2d-fft
-
-disp('Fourier transforming data in 2D..')
-
-% use source-unsubtracted data
-sensor.data = sensor_data;
-
-% fourier transform source-unsubtracted data
-[freqT, freqX, sensor_data_fftTX] = fourier_transform_sensor_data(sensor);
-
-% subtract source contribution from 2dfft data (or save it)
-sensor_data_fftTX = save_or_subtract_2dfft_source_contribution(sensor_data_fftTX, freqT, freqX, simu);
-
-% plot 2dfft data
-fig_2dfft = plot_2dfft_sensor_data(freqT, freqX, sensor_data_fftTX);
-    saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.fig'])
-    saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.jpg'])
+% 
+% disp('Fourier transforming data in 2D..')
+% 
+% % use source-unsubtracted data
+% sensor.data = sensor_data;
+% 
+% % fourier transform source-unsubtracted data
+% [freqT, freqX, sensor_data_fftTX] = fourier_transform_sensor_data(sensor);
+% 
+% % subtract source contribution from 2dfft data (or save it)
+% sensor_data_fftTX = save_or_subtract_2dfft_source_contribution(sensor_data_fftTX, freqT, freqX, simu);
+% 
+% % plot 2dfft data
+% fig_2dfft = plot_2dfft_sensor_data(freqT, freqX, sensor_data_fftTX);
+%     saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.fig'])
+%     saveas(fig_2dfft, [file_dir_figs file_name(simu.params) '_sensor_2dfft.jpg'])
 
 
 %% transform 2dfft data to angle of incidence \theta dependence
-
-disp('Transforming 2dfft data to angle-of-incidence dependence..')
-
-[theta_new, freqT_new, sensor_data_fftTA] = transforming_2dfft_data_to_aoi(sensor_data_fftTX, freqT, freqX);
-
-% plot 2dfft data with angle of incidence dependence
-fig_2dfft_aoi = plot_2dfft_aoi_sensor_data(theta_new, freqT_new, sensor_data_fftTA);
-    saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.fig'])
-    saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.jpg'])
+% 
+% disp('Transforming 2dfft data to angle-of-incidence dependence..')
+% 
+% [theta_new, freqT_new, sensor_data_fftTA] = transforming_2dfft_data_to_aoi(sensor_data_fftTX, freqT, freqX);
+% 
+% % plot 2dfft data with angle of incidence dependence
+% fig_2dfft_aoi = plot_2dfft_aoi_sensor_data(theta_new, freqT_new, sensor_data_fftTA);
+%     saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.fig'])
+%     saveas(fig_2dfft_aoi, [file_dir_figs file_name(simu.params) '_sensor_2dfft_aoi.jpg'])
 
 
 %%
 
-end
+% end
 
 
 %% FUNCTIONS
@@ -460,13 +462,15 @@ function t0_correct = find_t0_correct(sensordata)
 
 end
 
-function [f, compound_filter] = get_compound_filter(centre_freqs, bandwidth)
+function [f, compound_filter, fig_cfilt] = get_compound_filter(centre_freqs, bandwidth)
 
     f         = (0:0.05:400)*1e6;     % [Hz]
     magnitude = 1;
     variance  = (bandwidth / (2 * sqrt(2 * log(2)))).^2;
 
-    figure, hold on
+    fig_cfilt = figure;
+    set(gcf,'Position',[300,300,500,300])
+    hold on
     for mean = centre_freqs
         gauss_filter = max(gaussian(f, magnitude, mean, variance), gaussian(f, magnitude, -mean, variance));
 
@@ -485,6 +489,7 @@ function [f, compound_filter] = get_compound_filter(centre_freqs, bandwidth)
     plot(f/1e6, compound_filter, 'k-')
     title('compound filter')
     xlim([0,30])
+    set(gca,'FontSize',13)
     
 end
 
