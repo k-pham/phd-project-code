@@ -9,12 +9,12 @@ Nt = size(dataSGL,3);
 f_series_avg = zeros(1,Nt);
 
 figure(7)
-set(gcf,'Position',[70 180 700 800])
+set(gcf,'Position',[700 300 900 500])
 
 for slice_x = 1:Nx
     for slice_y = 1:Ny
         t_series = squeeze(dataSGL(slice_x,slice_y,:));
-        [frequency, f_series] = spect(t_series,freq_sampling); %,'Window','Cosine');
+        [frequency, f_series] = spect(t_series,freq_sampling,'Window','Tukey');
         f_series_avg = f_series_avg + f_series;
 
 %         subplot(3,1,1)
@@ -36,7 +36,11 @@ for slice_x = 1:Nx
     end
 end
 
+% average
 f_series_avg = f_series_avg / (Nx*Ny);
+
+% normalise to max
+f_series_avg = f_series_avg / max(f_series_avg);
 
 % subplot(3,1,3)
 semilogy(frequency/1e6, f_series_avg)
@@ -45,5 +49,7 @@ semilogy(frequency/1e6, f_series_avg)
     ylabel('signal amplitude / V')
     %xlim([0 1])    
     %ylim([0 1])
+    set(gca,'FontSize',13)
+hold on
 
 end
