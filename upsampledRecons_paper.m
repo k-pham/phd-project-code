@@ -8,11 +8,11 @@ file_dir = '..\data\imagingUS\';
 %     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\';
 
 % 180626 optiFibreKnot angled 4
-%     file_name = '180626\optifibreKnot_angled4_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_10s39m17h_26-06-18_avg1_2D_raw.SGL';
-%     trigger_delay = 5e-6;
-%     samples_cut_off = 0;
-%     samples_t0_correct = -6;
-%     c0 = 1484;
+    file_name = '180626\optifibreKnot_angled4_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_10s39m17h_26-06-18_avg1_2D_raw.SGL';
+    trigger_delay = 5e-6;
+    samples_cut_off = 0;
+    samples_t0_correct = -6;
+    c0 = 1484;
 %     trim_tz = 1:700;
 %     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\180626 optifibreKnot angled BK31[CNT]\';
 
@@ -82,7 +82,7 @@ params.file_data            = file_name;
 kgrid = kWaveGrid(params.Nx, params.dx, params.Ny, params.dy);
 t_array = trigger_delay + linspace(1,params.Nt,params.Nt)*params.dt;
 
-% trim_tz = 1:params.Nt;
+trim_tz = 1:1000;
 
 sensor_data = sensor_data(:,:,trim_tz);
 t_array = t_array(trim_tz);
@@ -90,7 +90,7 @@ t_array = t_array(trim_tz);
 disp(['Viewing: ' file_name])
 
 half_x = round(params.Nx/2);
-half_y = round(params.Ny/2*1.5);
+half_y = round(params.Ny/2);
 
 fig_data = figure;
 set(gcf,'Position',[100,50,600,800])
@@ -152,79 +152,104 @@ plot(t_array*1e6, squeeze(sensor_data(half_x,half_y,:)))
 
 
 %% 2dfft sensor data
-
-sensor.data   = squeeze(sensor_data(half_x,:,:));
-% sensor.data   = squeeze(mean(sensor_data,1));
-sensor.params = params;
-
-[size_x, size_t] = size(sensor.data);
-
-size_t_fft = round((size_t+1)/2);
-size_x_fft = round((size_x+1)/2);
-
-sensor_data_fftT  = zeros(size_x    , size_t_fft);
-sensor_data_fftTX = zeros(size_x_fft, size_t_fft);
-
-for x = 1 : sensor.params.Ny
-    [freqT, sensor_data_fftT(x,:) ] = spect(sensor.data(x,:), 1/sensor.params.dt);
-end
-
-for t = 1 : size_t_fft
-    [freqX, sensor_data_fftTX(:,t)] = spect(sensor_data_fftT(:,t), 1/sensor.params.dx);
-end
-
-% % cut out super high freq
-% omegarange = 1:round(length(freqT)/2);
-% freqT = freqT(omegarange);
-% sensor_data_fftTX = sensor_data_fftTX(:,omegarange);
-
-x_min = 4;
-fig_2dfft = figure('Position',[300,300,750,450]);
-imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
-    title(strtok(file_name,'@'),'Interpreter','None')
-    xlabel('Temporal frequency \omega [MHz]')
-    ylabel('Spatial frequency k_x [mm^{-1}]')
-%     xlim([0,70])
-%     ylim([0,20])
-    colorbar
-    set(gca,'FontSize',13)
-    % caxis([-0.5e-5, 1e-5])
-%     caxis([0,3e-5])
-%     caxis([0,1e-5])
+% 
+% sensor.data   = squeeze(sensor_data(half_x,:,:));
+% % sensor.data   = squeeze(mean(sensor_data,1));
+% sensor.params = params;
+% 
+% [size_x, size_t] = size(sensor.data);
+% 
+% size_t_fft = round((size_t+1)/2);
+% size_x_fft = round((size_x+1)/2);
+% 
+% sensor_data_fftT  = zeros(size_x    , size_t_fft);
+% sensor_data_fftTX = zeros(size_x_fft, size_t_fft);
+% 
+% for x = 1 : sensor.params.Ny
+%     [freqT, sensor_data_fftT(x,:) ] = spect(sensor.data(x,:), 1/sensor.params.dt);
+% end
+% 
+% for t = 1 : size_t_fft
+%     [freqX, sensor_data_fftTX(:,t)] = spect(sensor_data_fftT(:,t), 1/sensor.params.dx);
+% end
+% 
+% % % cut out super high freq
+% % omegarange = 1:round(length(freqT)/2);
+% % freqT = freqT(omegarange);
+% % sensor_data_fftTX = sensor_data_fftTX(:,omegarange);
+% 
+% x_min = 4;
+% fig_2dfft = figure('Position',[300,300,750,450]);
+% imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
+%     title(strtok(file_name,'@'),'Interpreter','None')
+%     xlabel('Temporal frequency \omega [MHz]')
+%     ylabel('Spatial frequency k_x [mm^{-1}]')
+% %     xlim([0,70])
+% %     ylim([0,20])
+%     colorbar
+%     set(gca,'FontSize',13)
+%     % caxis([-0.5e-5, 1e-5])
+% %     caxis([0,3e-5])
+% %     caxis([0,1e-5])
 
 
 %% save figs
-
-file_name_fig = [file_dir_figs strtok(file_name(8:end),'@')];
-
-saveas(fig_data   , [file_name_fig '_data.fig'])
-saveas(fig_data   , [file_name_fig '_data.jpg'])
-saveas(fig_data_1d, [file_name_fig '_data_1d.fig'])
-saveas(fig_data_1d, [file_name_fig '_data_1d.jpg'])
-saveas(fig_2dfft  , [file_name_fig '_data_fft.fig'])
-saveas(fig_2dfft  , [file_name_fig '_data_fft.jpg'])
+% 
+% file_name_fig = [file_dir_figs strtok(file_name(8:end),'@')];
+% 
+% saveas(fig_data   , [file_name_fig '_data.fig'])
+% saveas(fig_data   , [file_name_fig '_data.jpg'])
+% saveas(fig_data_1d, [file_name_fig '_data_1d.fig'])
+% saveas(fig_data_1d, [file_name_fig '_data_1d.jpg'])
+% saveas(fig_2dfft  , [file_name_fig '_data_fft.fig'])
+% saveas(fig_2dfft  , [file_name_fig '_data_fft.jpg'])
 
 
 %% run reconstruction
 
-% disp(['Reconstructing: ' file_name])
-% 
-% [reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, ...
-%                             'ZeroPad', 10, ...
-%                             'Upsample', true, ...
-%                             'Apodise', false, ...
-%                             'FreqBandFilter', {}, ... % 10e6, 15e6
-%                             'FreqLowFilter', {}, ... % 30e6
-%                             'TimeGainCompensate', {}, ...
-%                             'EnvelopeDetect', true, ...
-%                             'LogCompress', 0, ...
-%                             'SaveImageToFile', false ...
-%                         );
+disp(['Reconstructing: ' file_name])
+
+[reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, ...
+                            'ZeroPad', 10, ...
+                            'Upsample', true, ...
+                            'Apodise', false, ...
+                            'FreqBandFilter', {}, ... % 10e6, 15e6
+                            'FreqLowFilter', {}, ... % 30e6
+                            'TimeGainCompensate', {}, ...
+                            'EnvelopeDetect', true, ...
+                            'LogCompress', 0, ...
+                            'SaveImageToFile', false ...
+                        );
 
 
 %% post processing
 
 % sliceViewer
+
+
+%% log compress images
+
+file_dir  = 'D:\PROJECT\code\recon_data\USIPAPER backups\processed - trimmed interpolated tgc log\';
+
+% file_name = 'optifibreKnot_angled4_BK31[CNT]_fc30_trimmed-15-15-3_interpolated-25-25-10';
+% file_name = 'polymerLeaf2_BK31[CNT]_fc30_trimmed-15-15-3.5_interpolated-25-25-10';
+% file_name = 'gelwaxLayers_BK31[CNT]_fc30_trimmed-15-2-15.5_interpolated-50-50-10_tgc-100';
+% file_name = 'atmm_orgasol1_BK31[CNT]_compound_trimmed-10-2-8_interpolated-25-25-10_tgc150-50';
+% file_name = 'porkBelly3_BK31[CNT]_trimmed-15-2-11_interpolated-25-25-25_tgc150';
+% file_name = 'porkBelly3_BK31[CNT]_trimmed-15-2-11_interpolated-25-25-25_tgc200';
+file_name = 'lymphNode2_BK31[CNT]_f10_bw15_trimmed-13-15-4_interpolated-25-25-10_tgc150';
+
+% load volume data
+load([file_dir file_name '.mat'],'volume_data','volume_spacing')
+
+% scale volume data between 0 and 1
+volume_data = (volume_data - min(volume_data(:))) / (max(volume_data(:)) - min(volume_data(:)));
+
+% log compress volume data with factor 20
+volume_data = 20 * log10(volume_data);
+
+% save log compressed volume data
+save([file_dir file_name '_logcompressed.mat'],'volume_data','volume_spacing')
 
 
 %% fly through videos
