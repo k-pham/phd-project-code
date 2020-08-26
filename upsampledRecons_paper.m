@@ -2,6 +2,10 @@
 
 file_dir = '..\data\imagingUS\';
 
+% 191126 resolution27umPlanar (to look at sensor data only . reconstruction in separate script)
+%     file_name = '191126\resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_x-05_z0@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_29s48m13h_26-11-19_avg1_1D_raw.SGL'; trigger_delay = 0;
+%     file_name = '191126\resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_x-05_z3@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_13s32m14h_26-11-19_avg1_1D_raw.SGL'; trigger_delay = 3e-6;
+%     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\';
 
 % 180626 optiFibreKnot angled 4
 %     file_name = '180626\optifibreKnot_angled4_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_10s39m17h_26-06-18_avg1_2D_raw.SGL';
@@ -9,6 +13,8 @@ file_dir = '..\data\imagingUS\';
 %     samples_cut_off = 0;
 %     samples_t0_correct = -6;
 %     c0 = 1484;
+%     trim_tz = 1:700;
+%     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\180626 optifibreKnot angled BK31[CNT]\';
 
 % 180626 polymerLeaf curved
 %     file_name = '180626\polymerLeaf2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_51s28m20h_26-06-18_avg1_2D_raw.SGL';
@@ -16,6 +22,8 @@ file_dir = '..\data\imagingUS\';
 %     samples_cut_off = 0;
 %     samples_t0_correct = -6;
 %     c0 = 1484;
+%     trim_tz = 1:800;
+%     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\180626 polymerLeaf BK31[CNT]\';
 
 % 180629 gel wax tmm
 %     file_name = '180629\gelwaxLayers_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_39s51m16h_29-06-18_avg1_2D_raw.SGL';
@@ -23,6 +31,8 @@ file_dir = '..\data\imagingUS\';
 %     samples_cut_off = 10;
 %     samples_t0_correct = -6;
 %     c0 = 1470;
+%     trim_tz = 100:2200;
+%     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\180629 gelwaxLayers BK31[CNT]\';
 %         % clinical scanner:
 %         file_name_cli = '180629\clinical scanner\29-06-2018_17-41-25 DICOM +2 higher gain\17-38-33.dcm';
 
@@ -32,13 +42,17 @@ file_dir = '..\data\imagingUS\';
 %     samples_cut_off = 50;
 %     samples_t0_correct = -6;
 %     c0 = 1544;
+%     trim_tz = 200:2300;
+%     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\181204 atmm orgasol BK31[CNT]\';
 
 % 180828 pork belly 3
-    file_name = '180828\porkBelly3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[20ns]_26s20m19h_28-08-18_avg1_2D_raw.SGL';
-    trigger_delay = 0;
-    samples_cut_off = 10;
-    samples_t0_correct = -4;
-    c0 = 1460;
+%     file_name = '180828\porkBelly3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[20ns]_26s20m19h_28-08-18_avg1_2D_raw.SGL';
+%     trigger_delay = 0;
+%     samples_cut_off = 10;
+%     samples_t0_correct = -4;
+%     c0 = 1460;
+%     trim_tz = 100:1450;
+%     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\180828 porkBelly3 BK31[CNT]\';
 
 % 190114 lymph node (L3)
 %     file_name = '190114/lymphNode2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_13s51m16h_14-01-19_avg1_2D_raw.SGL';
@@ -46,6 +60,8 @@ file_dir = '..\data\imagingUS\';
 %     samples_cut_off = 50;
 %     samples_t0_correct = -6;
 %     c0 = 1520;
+%     trim_tz = 300:2500;
+%     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\190114 lymph node 2 BK31[CNT]\';
 
 
 %% load sensor data
@@ -63,27 +79,55 @@ params.file_data            = file_name;
 
 %% view sensor data
 
+kgrid = kWaveGrid(params.Nx, params.dx, params.Ny, params.dy);
+t_array = trigger_delay + linspace(1,params.Nt,params.Nt)*params.dt;
+
+% trim_tz = 1:params.Nt;
+
+sensor_data = sensor_data(:,:,trim_tz);
+t_array = t_array(trim_tz);
+
 disp(['Viewing: ' file_name])
+
+half_x = round(params.Nx/2);
+half_y = round(params.Ny/2*1.5);
 
 fig_data = figure;
 set(gcf,'Position',[100,50,600,800])
-imagesc(squeeze(sensor_data(40,:,:))')
+imagesc(kgrid.x_vec*1e3, t_array*1e6, squeeze(sensor_data(half_x,:,:))')
     colormap(gray)
     colorbar
     title(strtok(file_name,'@'),'Interpreter','None')
-    xlabel('x axis [dx]')
-    ylabel('time [dt]')
+    xlabel('x axis [mm]')
+    ylabel('time [\mum]')
+    set(gca,'FontSize',13)
+    drawnow
+
+fig_data_1d = figure;
+set(gcf,'Position',[450,100,800,500])
+plot(t_array*1e6, squeeze(sensor_data(half_x,half_y,:)))
+    title(strtok(file_name,'@'),'Interpreter','None')
+    xlabel('time [\mum]')
+    ylabel('signal amplitude [V]')
+    set(gca,'FontSize',13)
+    ylim([-0.1,0.14])
     drawnow
 
 % pause
-
-% sensor_data = sensor_data(:,:,1:1000);
 
 
 %% look at frequency content of data
 
 % [frequency, f_series_avg] = freqSpecSGLavg(sensor_data,1/params.dt);
-% 
+
+% legend('optiFibreKnot','polymerLeaf','gelwaxLayers','agarTMMorgasol','porkBelly','lymphNode')
+
+% file_name_fig = [file_dir_figs strtok(file_name(8:end),'@')];
+% saveas(gcf, [file_name_fig '_data_freq_avg.fig'])
+% saveas(gcf, [file_name_fig '_data_freq_avg.jpg'])
+
+% ---
+
 % f_series_avg = zeros(1,params.Nt);
 %  
 % figure
@@ -107,25 +151,80 @@ imagesc(squeeze(sensor_data(40,:,:))')
 % f_series_avg = f_series_avg / (Nx*Ny);
 
 
+%% 2dfft sensor data
+
+sensor.data   = squeeze(sensor_data(half_x,:,:));
+% sensor.data   = squeeze(mean(sensor_data,1));
+sensor.params = params;
+
+[size_x, size_t] = size(sensor.data);
+
+size_t_fft = round((size_t+1)/2);
+size_x_fft = round((size_x+1)/2);
+
+sensor_data_fftT  = zeros(size_x    , size_t_fft);
+sensor_data_fftTX = zeros(size_x_fft, size_t_fft);
+
+for x = 1 : sensor.params.Ny
+    [freqT, sensor_data_fftT(x,:) ] = spect(sensor.data(x,:), 1/sensor.params.dt);
+end
+
+for t = 1 : size_t_fft
+    [freqX, sensor_data_fftTX(:,t)] = spect(sensor_data_fftT(:,t), 1/sensor.params.dx);
+end
+
+% % cut out super high freq
+% omegarange = 1:round(length(freqT)/2);
+% freqT = freqT(omegarange);
+% sensor_data_fftTX = sensor_data_fftTX(:,omegarange);
+
+x_min = 4;
+fig_2dfft = figure('Position',[300,300,750,450]);
+imagesc(freqT/1e6, freqX(x_min:end)/1e3, sensor_data_fftTX(x_min:end,:))
+    title(strtok(file_name,'@'),'Interpreter','None')
+    xlabel('Temporal frequency \omega [MHz]')
+    ylabel('Spatial frequency k_x [mm^{-1}]')
+%     xlim([0,70])
+%     ylim([0,20])
+    colorbar
+    set(gca,'FontSize',13)
+    % caxis([-0.5e-5, 1e-5])
+%     caxis([0,3e-5])
+%     caxis([0,1e-5])
+
+
+%% save figs
+
+file_name_fig = [file_dir_figs strtok(file_name(8:end),'@')];
+
+saveas(fig_data   , [file_name_fig '_data.fig'])
+saveas(fig_data   , [file_name_fig '_data.jpg'])
+saveas(fig_data_1d, [file_name_fig '_data_1d.fig'])
+saveas(fig_data_1d, [file_name_fig '_data_1d.jpg'])
+saveas(fig_2dfft  , [file_name_fig '_data_fft.fig'])
+saveas(fig_2dfft  , [file_name_fig '_data_fft.jpg'])
+
+
 %% run reconstruction
 
-disp(['Reconstructing: ' file_name])
+% disp(['Reconstructing: ' file_name])
+% 
+% [reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, ...
+%                             'ZeroPad', 10, ...
+%                             'Upsample', true, ...
+%                             'Apodise', false, ...
+%                             'FreqBandFilter', {}, ... % 10e6, 15e6
+%                             'FreqLowFilter', {}, ... % 30e6
+%                             'TimeGainCompensate', {}, ...
+%                             'EnvelopeDetect', true, ...
+%                             'LogCompress', 0, ...
+%                             'SaveImageToFile', false ...
+%                         );
 
-[reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, ...
-                            'ZeroPad', 10, ...
-                            'Upsample', true, ...
-                            'Apodise', false, ...
-                            'FreqBandFilter', {}, ... % 10e6, 15e6
-                            'FreqLowFilter', {}, ... % 30e6
-                            'TimeGainCompensate', {}, ...
-                            'EnvelopeDetect', true, ...
-                            'LogCompress', 0, ...
-                            'SaveImageToFile', false ...
-                        );
 
 %% post processing
 
-sliceViewer
+% sliceViewer
 
 
 %% fly through videos
