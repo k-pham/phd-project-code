@@ -8,12 +8,13 @@ Nt = size(dataSGL,3);
 
 f_series_avg = zeros(1,Nt);
 
-figure(7)
+figure(1)
 set(gcf,'Position',[700 300 900 500])
 
 for slice_x = 1:Nx
     for slice_y = 1:Ny
         t_series = squeeze(dataSGL(slice_x,slice_y,:));
+        t_series = removeDCoffset(t_series,100);
         [frequency, f_series] = spect(t_series,freq_sampling,'Window','Tukey');
         f_series_avg = f_series_avg + f_series;
 
