@@ -111,20 +111,15 @@ for idx_x = 2 %1:num_lines
 
             display(['Reconstructing: ' file_name])
 
-            if dim == 2
-                [reflection_image] = reconstruct2dUSimage(sensor_data, params, c0);
-            elseif dim == 3
-                [reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, ...
-                                            'ZeroPad', 10, ...
-                                            'Upsample', true, ...
-                                            'Apodise', false, ...
-                                            'FreqBandFilter', {10e6,100e6}, ...
-                                            'TimeGainCompensate', {}, ...
-                                            'EnvelopeDetect', true, ...
-                                            'LogCompress', 0, ...
-                                            'SaveImageToFile', true ...
-                                        );
-            end
+            [reflection_image] = reconstruct2dUSimage(sensor_data, params, c0, ...
+                                        'Upsample', true, ...
+                                        'FreqBandFilter', {}, ...
+                                        'FreqCustomFilter', {}, ...
+                                        'TimeGainCompensate', {}, ...
+                                        'EnvelopeDetect', true, ...
+                                        'LogCompress', 0, ...
+                                        'SaveImageToFile', false ...
+                                    );
 
 
             %%
@@ -170,31 +165,31 @@ for idx_x = 2 %1:num_lines
 
             %% find image peaks and FWHM for resolution measurements
 
-            kgrid.dt = params.dt;
-
-            %-----
-            temp = load([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat']);
-            ROIstack = temp.ROIstack;
-            save([dir_figures 'ROIstack.mat'], 'ROIstack');
-            %-----
-            
-            threshold = 70;
-            [peaksInfo, ROI] = imagePeakFinder(reflection_image, c0, threshold, dir_figures, scanID, 'methodFWHM', '1DgaussianFitLat', 'reduceSensitivity', false);
-
-            % concatenate peaksInfo array for all line scans
-            if(~exist('peaksInfoAll','var'))
-                peaksInfoAll = peaksInfo;
-            else
-                peaksInfoAll = cat(2,peaksInfoAll,peaksInfo);
-            end
-
-            % stack ROI masks for all line scans
-            if(~exist([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'],'file'))
-                if(~exist('ROIstack','var'))
-                    ROIstack = cell(length(scanIDs));
-                end
-                ROIstack{scanID} = ROI;
-            end
+%             kgrid.dt = params.dt;
+% 
+%             %-----
+%             temp = load([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat']);
+%             ROIstack = temp.ROIstack;
+%             save([dir_figures 'ROIstack.mat'], 'ROIstack');
+%             %-----
+%             
+%             threshold = 70;
+%             [peaksInfo, ROI] = imagePeakFinder(reflection_image, c0, threshold, dir_figures, scanID, 'methodFWHM', '1DgaussianFitLat', 'reduceSensitivity', false);
+% 
+%             % concatenate peaksInfo array for all line scans
+%             if(~exist('peaksInfoAll','var'))
+%                 peaksInfoAll = peaksInfo;
+%             else
+%                 peaksInfoAll = cat(2,peaksInfoAll,peaksInfo);
+%             end
+% 
+%             % stack ROI masks for all line scans
+%             if(~exist([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'],'file'))
+%                 if(~exist('ROIstack','var'))
+%                     ROIstack = cell(length(scanIDs));
+%                 end
+%                 ROIstack{scanID} = ROI;
+%             end
 
 
             %% save figures
@@ -222,13 +217,13 @@ for idx_x = 2 %1:num_lines
 
         end     % of scanID / file_name loop
 
-        save( [dir_figures 'peaksInfoAll_x' file_name_xendings{idx_x} '_c' sprintf('%0.1f',c0) '_t0_' num2str(samples_t0_correct) '.mat'] , 'peaksInfoAll')
-        resoLat_contour_plot(peaksInfoAll, c0, samples_t0_correct, dir_figures)
-        clear peaksInfoAll
+%         save( [dir_figures 'peaksInfoAll_x' file_name_xendings{idx_x} '_c' sprintf('%0.1f',c0) '_t0_' num2str(samples_t0_correct) '.mat'] , 'peaksInfoAll')
+%         resoLat_contour_plot(peaksInfoAll, c0, samples_t0_correct, dir_figures)
+%         clear peaksInfoAll
         
-        if(~exist([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'],'file'))
-            save( [dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'] , 'ROIstack')
-        end
+%         if(~exist([dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'],'file'))
+%             save( [dir_figures 'ROIstack_t0_' num2str(samples_t0_correct) '.mat'] , 'ROIstack')
+%         end
     
     end     % of c0 loop
     end     % of t0 loop
