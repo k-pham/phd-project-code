@@ -229,6 +229,24 @@ for idx_x = 2 %1:num_lines
     end     % of t0 loop
     
     
+    %% plot compound_image
+    
+    global t_array Nt
+    
+    fig_image = figure;
+    set(gcf,'Position',[100,100,800,450])
+    imagesc(kgrid.x_vec, t_array*c0, compound_image(:,1:Nt)')
+    xlabel('x [m]')
+    ylabel('z [m]')
+    title(['reconstructed image with c0 = ' num2str(c0) ', t0 correction = ' num2str(params.Nt_t0_correct)])
+    cmap = colormap(gray);
+    colormap(cmap);
+    colorbar
+    axis image
+    xlim([-0.0030,-0.0022])
+    ylim([0.0032,0.0040])
+    
+    
     %% USimagingAnalysis - movie of resoLat/countour plots at diff sound speeds
     
 %     vidObj1 = VideoWriter([dir_figures '\vid_resoLat_c0.avi']);
