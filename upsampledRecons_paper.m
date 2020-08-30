@@ -252,6 +252,36 @@ plot(t_array*1e6, squeeze(sensor_data(half_x,half_y,:)))
 % save([file_dir file_name '_logcompressed.mat'],'volume_data','volume_spacing')
 
 
+%% get dB value of range of amplitudes (after 0->1 scaling)
+
+file_dir  = 'D:\PROJECT\code\recon_data\USIPAPER backups\processed - trimmed interpolated tgc log\';
+
+% file_name = 'optifibreKnot_angled4_BK31[CNT]_fc30_trimmed-15-15-3_interpolated-25-25-10'; % max 1, 2, 3
+file_name = 'polymerLeaf2_BK31[CNT]_fc30_trimmed-15-15-3.5_interpolated-25-25-10'; % max 1, 2, 3
+% file_name = 'gelwaxLayers_BK31[CNT]_fc30_trimmed-15-2-15.5_interpolated-50-50-10_tgc-100'; % mean 2
+% file_name = 'atmm_orgasol1_BK31[CNT]_compound_trimmed-10-2-8_interpolated-25-25-10_tgc150-50'; % mean 2
+% file_name = 'porkBelly3_BK31[CNT]_trimmed-15-2-11_interpolated-25-25-25_tgc200'; % mean 2
+% file_name = 'lymphNode2_BK31[CNT]_f10_bw15_trimmed-13-15-4_interpolated-25-25-10_tgc150'; % max 1, 2, 3 & slices 120:200 (+40:+40)
+
+% load volume data
+load([file_dir file_name '.mat'],'volume_data','volume_spacing')
+
+% scale volume data between 0 and 1
+volume_data = (volume_data - min(volume_data(:))) / (max(volume_data(:)) - min(volume_data(:)));
+
+% max or mean projection along dim (see above)
+MIP = mean(volume_data,2);
+% MIP = max(volume_data,[],2); % (:,320:400,:)
+
+% display min max values
+disp([min(volume_data(:)),max(volume_data(:))])
+disp([min(MIP(:)),max(MIP(:))])
+
+% dB value
+dBvalue = 20*log10(max(MIP(:))/min(MIP(:)));
+disp(dBvalue)
+
+
 %% fly through videos
 
 % % data = load('D:\PROJECT\code\recon_data\porkBelly3_BK31[CNT].mat');
