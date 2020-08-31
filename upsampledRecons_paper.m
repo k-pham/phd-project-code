@@ -8,13 +8,13 @@ file_dir = '..\data\imagingUS\';
 %     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\';
 
 % 180626 optiFibreKnot angled 4
-    file_name = '180626\optifibreKnot_angled4_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_10s39m17h_26-06-18_avg1_2D_raw.SGL';
-    trigger_delay = 5e-6;
-    samples_cut_off = 0;
-    samples_t0_correct = -6;
-    c0 = 1484;
-    trim_tz = 1:700;
-    file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\180626 optifibreKnot angled BK31[CNT]\';
+%     file_name = '180626\optifibreKnot_angled4_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_10s39m17h_26-06-18_avg1_2D_raw.SGL';
+%     trigger_delay = 5e-6;
+%     samples_cut_off = 0;
+%     samples_t0_correct = -6;
+%     c0 = 1484;
+%     trim_tz = 1:700;
+%     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\180626 optifibreKnot angled BK31[CNT]\';
 
 % 180626 polymerLeaf curved
     file_name = '180626\polymerLeaf2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_51s28m20h_26-06-18_avg1_2D_raw.SGL';
@@ -26,42 +26,42 @@ file_dir = '..\data\imagingUS\';
     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\180626 polymerLeaf BK31[CNT]\';
 
 % 180629 gel wax tmm
-    file_name = '180629\gelwaxLayers_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_39s51m16h_29-06-18_avg1_2D_raw.SGL';
-    trigger_delay = 0;
-    samples_cut_off = 10;
-    samples_t0_correct = -6;
-    c0 = 1470;
-    trim_tz = 100:1200; % 100:2200;
-    file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\180629 gelwaxLayers BK31[CNT]\';
+%     file_name = '180629\gelwaxLayers_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_39s51m16h_29-06-18_avg1_2D_raw.SGL';
+%     trigger_delay = 0;
+%     samples_cut_off = 10;
+%     samples_t0_correct = -6;
+%     c0 = 1470;
+%     trim_tz = 100:1200; % 100:2200;
+%     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\180629 gelwaxLayers BK31[CNT]\';
 %         % clinical scanner:
 %         file_name_cli = '180629\clinical scanner\29-06-2018_17-41-25 DICOM +2 higher gain\17-38-33.dcm';
 
 % 181204 atmm orgasol 1
-    file_name = '181204/atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
-    trigger_delay = 0;
-    samples_cut_off = 50;
-    samples_t0_correct = -6;
-    c0 = 1544;
-    trim_tz = 200:2300;
-    file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\181204 atmm orgasol BK31[CNT]\';
+%     file_name = '181204/atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
+%     trigger_delay = 0;
+%     samples_cut_off = 50;
+%     samples_t0_correct = -6;
+%     c0 = 1544;
+%     trim_tz = 200:2300;
+%     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\181204 atmm orgasol BK31[CNT]\';
 
 % 180828 pork belly 3
-    file_name = '180828\porkBelly3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[20ns]_26s20m19h_28-08-18_avg1_2D_raw.SGL';
-    trigger_delay = 0;
-    samples_cut_off = 10;
-    samples_t0_correct = -4;
-    c0 = 1460;
-    trim_tz = 150:550;
-    file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\180828 porkBelly3 BK31[CNT]\';
+%     file_name = '180828\porkBelly3_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[20ns]_26s20m19h_28-08-18_avg1_2D_raw.SGL';
+%     trigger_delay = 0;
+%     samples_cut_off = 10;
+%     samples_t0_correct = -4;
+%     c0 = 1460;
+%     trim_tz = 1:600; % 150:550;
+%     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\180828 porkBelly3 BK31[CNT]\';
 
 % 190114 lymph node (L3)
-    file_name = '190114/lymphNode2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_13s51m16h_14-01-19_avg1_2D_raw.SGL';
-    trigger_delay = 0;
-    samples_cut_off = 50;
-    samples_t0_correct = -6;
-    c0 = 1520;
-    trim_tz = 700:1500;
-    file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\190114 lymph node 2 BK31[CNT]\';
+%     file_name = '190114/lymphNode2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_13s51m16h_14-01-19_avg1_2D_raw.SGL';
+%     trigger_delay = 0;
+%     samples_cut_off = 50;
+%     samples_t0_correct = -6;
+%     c0 = 1520;
+%     trim_tz = 700:1500;
+%     file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\USimaging\190114 lymph node 2 BK31[CNT]\';
 
 
 %% load sensor data
@@ -90,29 +90,35 @@ t_array = t_array(trim_tz);
 disp(['Viewing: ' file_name])
 
 half_x = round(params.Nx/2);
-half_y = round(params.Ny/2);
+half_y = round(params.Ny/2*1.5);
 
-fig_data = figure;
-set(gcf,'Position',[100,50,600,800])
-imagesc(kgrid.x_vec*1e3, t_array*1e6, squeeze(sensor_data(half_x,:,:))')
-    colormap(gray)
-    colorbar
-    title(strtok(file_name,'@'),'Interpreter','None')
-    xlabel('x axis [mm]')
-    ylabel('time [\mum]')
-    set(gca,'FontSize',13)
-    drawnow
+% fig_data = figure;
+% set(gcf,'Position',[100,50,600,800])
+% imagesc(kgrid.x_vec*1e3, t_array*1e6, squeeze(sensor_data(half_x,:,:))')
+%     colormap(gray)
+%     colorbar
+%     title(strtok(file_name,'@'),'Interpreter','None')
+%     xlabel('x axis [mm]')
+%     ylabel('time [\mum]')
+%     set(gca,'FontSize',13)
+%     drawnow
+
+% for half_x = 50:2:100
+%     for half_y = 50:2:100
 
 fig_data_1d = figure;
 set(gcf,'Position',[450,100,800,500])
 plot(t_array*1e6, squeeze(sensor_data(half_x,half_y,:)))
-    title(strtok(file_name,'@'),'Interpreter','None')
+    title([strtok(file_name,'@') ' x' num2str(half_x) ' y' num2str(half_y)],'Interpreter','None')
     xlabel('time [\mum]')
     ylabel('signal amplitude [V]')
     set(gca,'FontSize',13)
     ylim([-0.1,0.14])
     drawnow
+%     pause
 
+%     end
+% end
 % pause
 
 
