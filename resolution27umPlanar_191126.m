@@ -336,9 +336,30 @@ end % of loop through 5 lines in x
 % end
 
 
-%% compound image with c0 = 1488, t0 = -13
+%% sensor data image zoom in on parasitic signal to show no reverberations
 
+file_dir = '..\data\imagingUS\191126\';
+file_name = 'resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_x-05_z0@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_29s48m13h_26-11-19_avg1_1D_raw.SGL';
 
+[sensor_data, params] = loadSGL([file_dir file_name]);
+sensor_data = - sensor_data; % flip for trolley
+
+time = linspace(1,params.Nt,params.Nt)*params.dt;
+time = time - time(14); % set t = 0 to 17 dt
+time = time * 1e6; % us
+
+grid = kWaveGrid(params.Nx,params.dx,params.Ny,params.dy);
+
+figure
+imagesc(grid.y_vec*1e3, time, sensor_data')
+    colormap(gray)
+    colorbar
+    xlabel('y axis [mm]')
+    ylabel('Time [\mus]')
+    xlim([2,7])
+    ylim([time(1),2.2])
+    set(gca,'FontName','Times New Roman')
+    set(gca,'FontSize',14)
 
 
 
