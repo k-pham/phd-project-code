@@ -117,6 +117,7 @@ w = c .* kgrid.kx;
 % to p(kx, ky). Only real w is taken to force kx (and thus x) to be
 % symmetrical about 0 after the interpolation. 
 %w_new = c .* kgrid.k;                      % photoacoustics
+kgrid = kWaveGrid(Nt, dt*c/2, Ny, dy);      % bug fix for pwUS 15 October 2020
 w_new = c .* kgrid.k.^2 ./ (2 * kgrid.kx) ; % planewave US
 w_new(kgrid.kx==0) = 0;                     % planewave US
 
