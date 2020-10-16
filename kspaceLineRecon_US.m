@@ -38,7 +38,8 @@ function p = kspaceLineRecon_US(p, dy, dt, c, varargin)
 % ABOUT:
 %     author      - Bradley Treeby and Ben Cox
 %     date        - 11th January 2009
-%     last update - 21st June 2017
+%     last update - 21st June 2017 (Ben)
+%     last update - 16 October 2020 (Khoa)
 
 
 
@@ -126,7 +127,8 @@ w_new(kgrid.kx==0) = 0;                     % planewave US
 % replacing the DC value with its limit otherwise NaN results 
 % sf = c.^2 .* sqrt( (w ./ c).^2 - kgrid.ky.^2) ./ (2 .* w); % photoacoustics
 % sf(w == 0 & kgrid.ky == 0) = c ./ 2;                       % photoacoustics
-sf = kgrid.k + sqrt(kgrid.k.^2 - kgrid.ky.^2);               % planewave US
+% sf = kgrid.k + sqrt(kgrid.k.^2 - kgrid.ky.^2);               % planewave US
+sf = sqrt( (w./c).^2 - kgrid.ky.^2 );                        % correction for pwUS 16 October 2020
 
 % compute the FFT of the input data p(t, y) to yield p(w, ky) and scale
 p = sf .* fftshift(fftn(ifftshift(p)));
