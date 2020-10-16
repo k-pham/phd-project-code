@@ -21,9 +21,9 @@ c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
 
 % define a couple of circular scattering regions
-scatterer1_radius = 10;          % [grid points]
+scatterer1_radius = 1;          % [grid points]
 scatterer1_x = Nx/2;            % [grid points]
-scatterer1_y = 3*Ny/4;            % [grid points]
+scatterer1_y = Ny/2;            % [grid points]
 scatterer1_c = 2 * c0;        % sound speed of scatterer [m/s]
 scatterer1_rho = 2 * rho0;    % density of scatterer [kg/m^3]
 scatterer1 = makeDisc(Nx, Ny, scatterer1_x, scatterer1_y, scatterer1_radius);
