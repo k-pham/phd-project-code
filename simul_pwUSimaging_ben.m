@@ -7,8 +7,8 @@ clearvars;
 % =========================================================================
 
 % create the computational grid
-Nx = 256;           % number of grid points in the x (row) direction
-Ny = 128;           % number of grid points in the y (column) direction
+Nx = 1024;          % number of grid points in the x (row) direction
+Ny = 512;           % number of grid points in the y (column) direction
 dx = 40e-3/Nx;    	% grid point spacing in the x direction [m]
 dy = dx;            % grid point spacing in the y direction [m]
 kgrid = kWaveGrid(Nx, dx, Ny, dy);
@@ -87,10 +87,10 @@ sensor_data = kspaceFirstOrder2D(kgrid, medium, source, sensor, inputs{:});
 cut_off = 40;       % time samples to remove from the beginning
 sensor_data = [zeros(N_sensors,cut_off) sensor_data(:,cut_off+1:end)];
 
-% window the data
-win = getWin(N_sensors, 'Cosine');
-sensor_data_apodised = bsxfun(@times, win, sensor_data);
-%sensor_data_apodised = sensor_data;
+% % window the data
+% win = getWin(N_sensors, 'Cosine');
+% sensor_data_apodised = bsxfun(@times, win, sensor_data);
+sensor_data_apodised = sensor_data;
 
 % reconstruct an image using a k-space method
 reflection_image = kspaceLineRecon_US(sensor_data_apodised', dx, kgrid.dt, c0);
