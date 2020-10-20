@@ -9,7 +9,7 @@ clearvars;
 % create the computational grid
 Nx = 1024;          % number of grid points in the x (row) direction
 Ny = 512;           % number of grid points in the y (column) direction
-dx = 40e-3/Nx;    	% grid point spacing in the x direction [m]
+dx = 10e-6;    	% grid point spacing in the x direction [m]
 dy = dx;            % grid point spacing in the y direction [m]
 kgrid = kWaveGrid(Nx, dx, Ny, dy);
 
@@ -36,15 +36,15 @@ scatterer1 = makeDisc(Nx, Ny, scatterer1_x, scatterer1_y, scatterer1_radius);
 
 % define sound speed of the propagation medium (scatterers random)
 medium.sound_speed = c0 * ones(Nx,Ny);          % [m/s]
-temp = rand(Nx,Ny);
-medium.sound_speed(scatterer1==1) = temp(scatterer1==1) .* scatterer1_c;
+% temp = rand(Nx,Ny);
+medium.sound_speed(scatterer1==1) = scatterer1_c;
 % temp = rand(Nx,Ny);
 % medium.sound_speed(scatterer2==1) = temp(scatterer2==1) .* scatterer2_c;
 
 % define mass density of the propagation medium (scatterers random)
 medium.density = rho0 * ones(Nx,Ny);            % [kg/m^3]
-temp = rand(Nx,Ny);
-medium.density(scatterer1==1) = temp(scatterer1==1) .* scatterer1_rho;
+% temp = rand(Nx,Ny);
+medium.density(scatterer1==1) = scatterer1_rho;
 % temp = rand(Nx,Ny);
 % medium.density(scatterer2==1) = temp(scatterer2==1) .* scatterer2_rho;
 
@@ -74,10 +74,10 @@ inputs = {'PMLSize', pml_size,'PlotLayout', true, 'PlotSim', true};
 sensor_data = kspaceFirstOrder2D(kgrid, medium, source, sensor, inputs{:});
 
 % plot the simulated data
-% figure
-% imagesc(kgrid.t_array*1e6,sensor_positions,sensor_data)
-% xlabel('time [\mus]')
-% ylabel('sensor number')
+figure
+imagesc(kgrid.t_array(40:end)*1e6,sensor_positions,sensor_data(:,40:end))
+xlabel('time [\mus]')
+ylabel('sensor number')
 
 % =========================================================================
 % IMAGE FORMATION
@@ -105,13 +105,14 @@ reflection_image = kspaceLineRecon_US(sensor_data_apodised', dx, kgrid.dt, c0);
 reflection_image = transpose(envelopeDetection(reflection_image'));
 
 % log compression
-compression_ratio = 3;
-reflection_image = logCompression(reflection_image, compression_ratio, true);
+% compression_ratio = 3;
+% reflection_image = logCompression(reflection_image, compression_ratio, true);
 
 % plot the reconstructed image
 figure
-imagesc((kgrid.t_array * c0/2)*1e3,kgrid.x_vec*1e3,reflection_image')
+imagesc((kgrid.t_array * c0/2*2)*1e3,kgrid.x_vec*1e3,reflection_image')
 xlabel('[mm]')
 ylabel('[mm]')
+axis image
 
 
