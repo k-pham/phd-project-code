@@ -130,7 +130,9 @@ clear sf;
 F(abs(w) < abs(c * kgrid_rec.ky)) = 0;
 
 % create a new computational grid that is evenly spaced in kz' and ky' (the
-% object k-space) where factor of 1/2 in dz due to reflection imaging depth
+% object k-space) where factor of 1/2 in dz' due to reflection imaging
+% (this step is not necessary for photoacoustics, since object kgrid
+% happens to be the same as receive kgrid)
 kgrid_obj = kWaveGrid(Nt, dt*c/2, Ny, dy);      % bug fix for pwUS 15 October 2020
 
 % remap the computational grid for kz' onto w using the dispersion relation
@@ -138,7 +140,7 @@ kgrid_obj = kWaveGrid(Nt, dt*c/2, Ny, dy);      % bug fix for pwUS 15 October 20
 % w/c = (kx^2 + ky^2)/(2*kx)    (planewave ultrasound)
 % This gives an w grid that is evenly spaced in kz'. This is used for the 
 % interpolation from F(w, ky) to F(kz', ky'). Only real w is taken to force
-% kx (and thus x) to be symmetrical about 0 after the interpolation.
+% kz' (and thus z) to be symmetrical about 0 after the interpolation.
 % w_new = c .* kgrid.k;                             % photoacoustics
 w_new = c .* kgrid_obj.k.^2 ./ (2 * kgrid_obj.kx) ; % planewave US
 w_new(kgrid_obj.kx==0) = 0;                         % planewave US
@@ -160,14 +162,13 @@ F = real(fftshift(ifftn(ifftshift(F))));
 % negative part of the mirrored time data
 F = F( ((Nt + 1) / 2):Nt, :);
 
-
 % correct the scaling - the forward FFT is computed with a spacing of dt
 % and the reverse requires a spacing of dy = dt*c, the reconstruction
 % assumes that p0 is symmetrical about y, and only half the plane collects
 % data (first approximation to correcting the limited view problem)
 F = 2 * 2 * F ./ c;
 
-% enfore positivity condition
+% enforce positivity condition
 if positivity_cond
     disp('  applying positivity condition...');
     F(F < 0) = 0;
