@@ -2,7 +2,7 @@
 
 clearvars;
 
-% =========================================================================
+%% =========================================================================
 % SIMULATING THE MEASUREMENTS
 % =========================================================================
 
@@ -79,7 +79,7 @@ imagesc(kgrid.t_array(40:end)*1e6,sensor_positions,sensor_data(:,40:end))
 xlabel('time [\mus]')
 ylabel('sensor number')
 
-% =========================================================================
+%% =========================================================================
 % IMAGE FORMATION
 % =========================================================================
 
@@ -92,7 +92,7 @@ sensor_data = [zeros(N_sensors,cut_off) sensor_data(:,cut_off+1:end)];
 % sensor_data_apodised = bsxfun(@times, win, sensor_data);
 sensor_data_apodised = sensor_data;
 
-% reconstruct an image using a k-space method
+%% reconstruct an image using a k-space method
 reflection_image = kspaceLineRecon_US(sensor_data_apodised', dx, kgrid.dt, c0);
 
 % % time gain compensation
@@ -110,7 +110,7 @@ reflection_image = transpose(envelopeDetection(reflection_image'));
 
 % plot the reconstructed image
 figure
-imagesc((kgrid.t_array * c0/2*2)*1e3,kgrid.x_vec*1e3,reflection_image')
+imagesc((kgrid.t_array * c0/2)*1e3,kgrid.x_vec*1e3,reflection_image')
 xlabel('[mm]')
 ylabel('[mm]')
 axis image
