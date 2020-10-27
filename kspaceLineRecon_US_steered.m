@@ -58,7 +58,7 @@ end
 tic;
 
 % define defaults
-num_req_inputs = 4;
+num_req_inputs = 5;
 data_order = 'ty';
 interp_method = '*nearest';
 plot_recon = false;
@@ -143,13 +143,17 @@ kgrid_obj = kWaveGrid(Nt, dt*c/2, Ny, dy);      % bug fix for pwUS 15 October 20
 % This gives an w grid that is evenly spaced in kz'. This is used for the 
 % interpolation from F(w, ky) to F(kz', ky'). Only real w is taken to force
 % kz' (and thus z) to be symmetrical about 0 after the interpolation.
-% w_new = c .* kgrid.k;                             % photoacoustics
-w_new = c .* kgrid_obj.k.^2 ./ (2 * kgrid_obj.kx) ; % planewave US
-w_new(kgrid_obj.kx==0) = 0;                         % planewave US
+% w_new = c .* kgrid.k;                               % photoacoustics
+% w_new = c .* kgrid_obj.k.^2 ./ (2 * kgrid_obj.kx) ; % planewave US
+% w_new(kgrid_obj.kx==0) = 0;                         % planewave US
+denominator = 2 * ( kgrid_obj.ky .* sin(angle) + kgrid_obj.kx .* cos(angle) );  % steered pw US
+w_new = c .* kgrid_obj.k.^2 ./ denominator;                                     % steered pw US
+w_new(denominator==0) = 0;                                                      % steered pw US
+ky_new = kgrid_obj.ky - w_new .* sin(angle) ./ c;                               % steered pw US
 
 % compute the interpolation from F(w, ky) to F(kz', ky') and then force to
 % be symmetrical
-F = interp2(kgrid_rec.ky, w, F, kgrid_obj.ky, w_new, interp_method);
+F = interp2(kgrid_rec.ky, w, F, ky_new, w_new, interp_method);
 
 % remove unused variables
 clear kgrid_rec kgrid_obj w;
