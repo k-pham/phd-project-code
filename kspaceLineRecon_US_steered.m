@@ -1,13 +1,13 @@
-function F = kspaceLineRecon_US_steered(p, dy, dt, c, varargin)
-%KSPACELINERECON_US 2D linear FFT reconstruction for plane wave ultrasound
-%                   reflection imaging 
+function F = kspaceLineRecon_US_steered(p, dy, dt, c, angle, varargin)
+%KSPACELINERECON_US_STEERED 2D linear FFT reconstruction for plane wave
+%                   ultrasound reflection imaging with steering angle
 %
 % DESCRIPTION
-%     based on kspaceLineRecon
+%     based on kspaceLineRecon_US
 % 
 % USAGE:
-%     F_xy = kspaceLineRecon_US(p_ty, dy, dt, c)
-%     F_xy = kspaceLineRecon_US(p_ty, dy, dt, c, ...)
+%     F_xy = kspaceLineRecon_US_steered(p_ty, dy, dt, c, angle)
+%     F_xy = kspaceLineRecon_US_steered(p_ty, dy, dt, c, angle, ...)
 %
 % INPUTS:
 %     p_ty        - pressure time-series recorded over an evenly spaced
@@ -15,6 +15,7 @@ function F = kspaceLineRecon_US_steered(p, dy, dt, c, varargin)
 %     dy          - spatial step [m]
 %     dt          - time step [s]
 %     c           - acoustically-homogeneous sound speed [m/s]
+%     angle       - steering angle of transmitted plane wave [rad]
 %
 % OPTIONAL INPUTS:
 %     Optional 'string', value pairs that may be used to modify the default
@@ -40,9 +41,10 @@ function F = kspaceLineRecon_US_steered(p, dy, dt, c, varargin)
 %     date        - 11th January 2009
 %     update      - 21st June 2017 (Ben - mod for pwUS)
 %     update      - 16 October 2020 (Khoa - corrections for pwUS)
-%     last update - 23 October 2020 (Khoa - rename output & tidy comments &
+%     update      - 23 October 2020 (Khoa - rename output & tidy comments &
 %                                           explicitly distinquish between
 %                                           receive and object k space)
+%     last update - 27 October 2020 (Khoa - mod for steered pwUS)
 
 
 
