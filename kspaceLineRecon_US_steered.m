@@ -142,9 +142,10 @@ kgrid_obj = kWaveGrid(Nt, dt*c/2, Ny, dy);      % bug fix for pwUS 15 October 20
 % w/c = (ky'^2 + kz'^2)/(2*kz')                        (planewave ultrasound)
 % w/c = (ky'^2 + kz'^2)/(2*ky'*sin(a)+2*kz'*cos(a))    (steered pw US)
 % ky  = ky' - w*sin(a)/c;                              (steered pw US)
-% This gives an w grid that is evenly spaced in kz'. This is used for the 
-% interpolation from F(w, ky) to F(kz', ky'). Only real w is taken to force
-% kz' (and thus z) to be symmetrical about 0 after the interpolation.
+% This gives a (ky, w) grid that is evenly spaced in ky' and kz'. This is
+% used for the interpolation from F(w, ky) to F(kz', ky'). Only real w is 
+% taken to force kz' (and thus z) to be symmetrical about 0 after the
+% interpolation.
 % w_new = c .* kgrid.k;                               % photoacoustics
 % w_new = c .* kgrid_obj.k.^2 ./ (2 * kgrid_obj.kx) ; % planewave US
 % w_new(kgrid_obj.kx==0) = 0;                         % planewave US
