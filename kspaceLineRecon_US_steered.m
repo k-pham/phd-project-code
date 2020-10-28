@@ -1,4 +1,4 @@
-function F = kspaceLineRecon_US_steered(p, dy, dt, c, angle, varargin)
+function F = kspaceLineRecon_US_steered(p, dy, dt, c, a, varargin)
 %KSPACELINERECON_US_STEERED 2D linear FFT reconstruction for plane wave
 %                   ultrasound reflection imaging with steering angle
 %
@@ -15,7 +15,7 @@ function F = kspaceLineRecon_US_steered(p, dy, dt, c, angle, varargin)
 %     dy          - spatial step [m]
 %     dt          - time step [s]
 %     c           - acoustically-homogeneous sound speed [m/s]
-%     angle       - steering angle of transmitted plane wave [rad]
+%     a           - steering angle of transmitted plane wave [rad]
 %
 % OPTIONAL INPUTS:
 %     Optional 'string', value pairs that may be used to modify the default
@@ -141,16 +141,17 @@ kgrid_obj = kWaveGrid(Nt, dt*c/2, Ny, dy);      % bug fix for pwUS 15 October 20
 % w/c = (ky'^2 + kz'^2)^1/2                            (photoacoustics)
 % w/c = (ky'^2 + kz'^2)/(2*kz')                        (planewave ultrasound)
 % w/c = (ky'^2 + kz'^2)/(2*ky'*sin(a)+2*kz'*cos(a))    (steered pw US)
+% ky  = ky' - w*sin(a)/c;                              (steered pw US)
 % This gives an w grid that is evenly spaced in kz'. This is used for the 
 % interpolation from F(w, ky) to F(kz', ky'). Only real w is taken to force
 % kz' (and thus z) to be symmetrical about 0 after the interpolation.
 % w_new = c .* kgrid.k;                               % photoacoustics
 % w_new = c .* kgrid_obj.k.^2 ./ (2 * kgrid_obj.kx) ; % planewave US
 % w_new(kgrid_obj.kx==0) = 0;                         % planewave US
-denominator = 2*kgrid_obj.ky.*sin(angle) + 2*kgrid_obj.kx.*cos(angle);   % steered pw US
-w_new = c .* kgrid_obj.k.^2 ./ denominator;                              % steered pw US
-w_new(denominator==0) = 0;                                               % steered pw US
-ky_new = kgrid_obj.ky - w_new .* sin(angle) ./ c;                        % steered pw US
+denominator = 2*kgrid_obj.ky.*sin(a) + 2*kgrid_obj.kx.*cos(a);   % steered pw US
+w_new = c .* kgrid_obj.k.^2 ./ denominator;                      % steered pw US
+w_new(denominator==0) = 0;                                       % steered pw US
+ky_new = kgrid_obj.ky - w_new .* sin(a) ./ c;                    % steered pw US
 
 % compute the interpolation from F(w, ky) to F(kz', ky') and then force to
 % be symmetrical
