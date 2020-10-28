@@ -136,8 +136,8 @@ F(abs(w) < abs(c * kgrid_rec.ky)) = 0;
 kgrid_obj = kWaveGrid(Nt, dt*c/2, Ny, dy);      % bug fix for pwUS 15 October 2020
 
 % remap the computational grid for kz' onto w using the dispersion relation
-% w/c = (kx^2 + ky^2)^1/2       (photoacoustics)
-% w/c = (kx^2 + ky^2)/(2*kx)    (planewave ultrasound)
+% w/c = (ky'^2 + kz'^2)^1/2        (photoacoustics)
+% w/c = (ky'^2 + kz'^2)/(2*kz')    (planewave ultrasound)
 % This gives an w grid that is evenly spaced in kz'. This is used for the 
 % interpolation from F(w, ky) to F(kz', ky'). Only real w is taken to force
 % kz' (and thus z) to be symmetrical about 0 after the interpolation.
