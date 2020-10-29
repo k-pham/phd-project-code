@@ -6,8 +6,8 @@ function F = kspaceLineRecon_US_steered(p, dy, dt, c, a, varargin)
 %     based on kspaceLineRecon_US
 % 
 % USAGE:
-%     F_xy = kspaceLineRecon_US_steered(p_ty, dy, dt, c, angle)
-%     F_xy = kspaceLineRecon_US_steered(p_ty, dy, dt, c, angle, ...)
+%     F_xy = kspaceLineRecon_US_steered(p_ty, dy, dt, c, a)
+%     F_xy = kspaceLineRecon_US_steered(p_ty, dy, dt, c, a, ...)
 %
 % INPUTS:
 %     p_ty        - pressure time-series recorded over an evenly spaced
@@ -44,7 +44,7 @@ function F = kspaceLineRecon_US_steered(p, dy, dt, c, a, varargin)
 %     update      - 23 October 2020 (Khoa - rename output & tidy comments &
 %                                           explicitly distinquish between
 %                                           receive and object k space)
-%     last update - 27 October 2020 (Khoa - mod for steered pwUS)
+%     last update - 29 October 2020 (Khoa - mod for steered pwUS)
 
 
 
