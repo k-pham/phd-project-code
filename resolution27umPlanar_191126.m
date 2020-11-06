@@ -243,8 +243,8 @@ for idx_x = 2 %1:num_lines
     colormap(cmap);
     colorbar
     axis image
-    xlim([-0.0030,-0.0022])
-    ylim([0.0032,0.0040])
+%     xlim([-0.0030,-0.0022])
+%     ylim([0.0032,0.0040])
     
     
     %% USimagingAnalysis - movie of resoLat/countour plots at diff sound speeds
@@ -284,6 +284,20 @@ for idx_x = 2 %1:num_lines
 %     close all
     
 end % of loop through 5 lines in x
+
+
+%% save compound_image in .mat
+
+filepath = 'D:\PROJECT\figures\_Matlab figs\USimaging\191126 resolution27umPlanar BK31[CNT] trolley scrambled fibre centralised parallel phantom\compound_image_x-05_c1489_t0-14.mat';
+
+save(filepath, 'compound_image', 'kgrid', 't_array', 'params', 'c0', 'Nt')
+
+
+%% load compound_image from .mat and imwrite to .tif
+
+load(filepath)
+
+
 
 
 %% t0 and c0 variation plots - grid overview
@@ -337,29 +351,29 @@ end % of loop through 5 lines in x
 
 
 %% sensor data image zoom in on parasitic signal to show no reverberations
-
-file_dir = '..\data\imagingUS\191126\';
-file_name = 'resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_x-05_z0@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_29s48m13h_26-11-19_avg1_1D_raw.SGL';
-
-[sensor_data, params] = loadSGL([file_dir file_name]);
-sensor_data = - sensor_data; % flip for trolley
-
-time = linspace(1,params.Nt,params.Nt)*params.dt;
-time = time - time(14); % set t = 0 to 17 dt
-time = time * 1e6; % us
-
-grid = kWaveGrid(params.Nx,params.dx,params.Ny,params.dy);
-
-figure
-imagesc(grid.y_vec*1e3, time, sensor_data')
-    colormap(gray)
-    colorbar
-    xlabel('y axis [mm]')
-    ylabel('Time [\mus]')
-    xlim([2,7])
-    ylim([time(1),2.2])
-    set(gca,'FontName','Times New Roman')
-    set(gca,'FontSize',14)
+% 
+% file_dir = '..\data\imagingUS\191126\';
+% file_name = 'resolution27umPlanar_BK31[CNT]_trolley_scrambled_1D_x-05_z0@0nm_t0[0]_dx[0µm]_dy[20µm]_dt[4ns]_29s48m13h_26-11-19_avg1_1D_raw.SGL';
+% 
+% [sensor_data, params] = loadSGL([file_dir file_name]);
+% sensor_data = - sensor_data; % flip for trolley
+% 
+% time = linspace(1,params.Nt,params.Nt)*params.dt;
+% time = time - time(14); % set t = 0 to 17 dt
+% time = time * 1e6; % us
+% 
+% grid = kWaveGrid(params.Nx,params.dx,params.Ny,params.dy);
+% 
+% figure
+% imagesc(grid.y_vec*1e3, time, sensor_data')
+%     colormap(gray)
+%     colorbar
+%     xlabel('y axis [mm]')
+%     ylabel('Time [\mus]')
+%     xlim([2,7])
+%     ylim([time(1),2.2])
+%     set(gca,'FontName','Times New Roman')
+%     set(gca,'FontSize',14)
 
 
 
