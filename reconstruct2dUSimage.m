@@ -156,7 +156,7 @@ end
 
 %% reconstruct an image using a k-space method
 
-reflection_image = kspaceLineRecon_US_backup(sensor_data', dx, dt, c0);            % input p_tx, output p_zx
+reflection_image = kspaceLineRecon_US(sensor_data', dx, dt, c0);            % input p_tx, output p_zx
 reflection_image = permute(reflection_image,[2 1]);                         % reorder p_zx to p_xz
 
 
