@@ -297,7 +297,14 @@ save(filepath, 'compound_image', 'kgrid', 't_array', 'params', 'c0', 'Nt')
 
 load(filepath)
 
+% scale between 0 and 1 for greyscale
+compound_image_1 = compound_image / max(compound_image,[],'all');
 
+% trim to 22 * 13 mm in y-z
+compound_image_1 = compound_image_1(:,1:2183)';
+
+% write image to .tif file
+imwrite(compound_image_1, [filepath(1:end-4) '_trim-22-13.tif'], 'tif', 'Resolution', [300 300]);
 
 
 %% t0 and c0 variation plots - grid overview
