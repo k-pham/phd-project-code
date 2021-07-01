@@ -3,7 +3,7 @@ close all
 
 %% Carbon nanotubes on BA58 (paths)
 
-file_dir = '../data/coatingCharac/';
+% file_dir = '../data/coatingCharac/';
 % file_name_p2p = '171101/heatingEffects_BA58[nanoparticle]_pulse2pulse.txt';
 %     dt_samples_p2p = 100e-9;
 %     num_samples_p2p = 700000;
@@ -67,8 +67,12 @@ file_dir = '../data/coatingCharac/';
 %     t_0 = 3e-6;
     
 %QuantumDots for Semyon
-file_name = '190531/OPO532nm_QD[glassslide]_AHD1@0nm_t0[-625]_dx[200µm]_dy[200µm]_dt[2ns]_15s57m13h_31-05-19_avg1_2D_raw.SGL';
-    t_0 = 3e-6;
+% file_name = '190531/OPO532nm_QD[glassslide]_AHD1@0nm_t0[-625]_dx[200µm]_dy[200µm]_dt[2ns]_15s57m13h_31-05-19_avg1_2D_raw.SGL';
+%     t_0 = 3e-6;
+
+file_dir  = 'D:\PROJECT\data\angleComp\210622\';
+file_name = 'ULTRA_CNT_angled_0_AHD1@0nm_t0[0]_dx[200µm]_dy[200µm]_dt[4ns]_07s23m18h_22-06-21_avg1_2D_raw.SGL';
+    t_0 = 0;
 
 %% heatingEffects: pulse2pulse
 % heatingEffects_p2p(file_dir,file_name_p2p,dt_samples_p2p,num_samples_p2p)
@@ -91,7 +95,7 @@ viewSGL(dataSGL,params,t_0,slice_x,slice_y)
 % [frequency, f_series_avg] = freqSpecSGLavgLine(dataSGL(:,700:999),params);
 
 %% get PMAX and TOA in 2d grid and vector
-[ PMAX_xy, TOA_xy ] = max(-dataSGL,[],3);
+[ PMAX_xy, TOA_xy ] = max(dataSGL,[],3);
 [Nx,Ny] = size(TOA_xy);
 x = 1:Nx;
 y = 1:Ny;
@@ -194,7 +198,7 @@ scatter3(Xv,Yv,TOA_vec,'.')
     xlabel('x')
     ylabel('y')
     zlabel('time index of arrival')
-    zlim([165,185])
+    %zlim([165,185])
 
 %2d plot of TOA in colour
 figure
@@ -229,15 +233,15 @@ deviation_mask = TOA_vec_mask - TOA_fit_vec_mask;
 
 %plot deviation of TOA from TOA_fit in 2d colour scatter
 figure
-scatter(Xv_mask,Yv_mask,[],deviation_mask,'.')
+scatter(Xv_mask,Yv_mask,[],deviation_mask,'o')
 hold on
     colorbar
-    caxis([-3,3])
+    %caxis([-3,3])
     title('time index of arrival: deviation from fit within ROI')
     xlabel('x')
     ylabel('y')
-    xlim([30,120])
-    ylim([20,120])
+    %xlim([30,120])
+    %ylim([20,120])
     axis equal
     
 %plot 3d scatter of TOA for whole scanning area with fit from masked data
@@ -251,7 +255,7 @@ mesh(X,Y,TOA_fit_xy)
     zlabel('time index of arrival')
     xlim([0,Nx])
     ylim([0,Ny])
-    zlim([160,180])
+    %zlim([160,180])
 
 
 %% viewSGL for all-optical US paper
