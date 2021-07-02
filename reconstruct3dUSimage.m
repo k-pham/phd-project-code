@@ -129,9 +129,9 @@ end
 %% reconstruct image using k-space method
 
 sensor_data = permute(sensor_data,[3 1 2]);                             % reorder p_xyt to p_txy
-% reflection_image = kspacePlaneRecon_US(sensor_data, dx, dy, dt, c0);    % output as p_zxy
-reflection_image = kspacePlaneReconMEX(single(sensor_data), single(dx), single(dy), single(dt), single(c0));
-reflection_image = double(reflection_image);
+reflection_image = kspacePlaneRecon_US(sensor_data, dx, dy, dt, c0);    % output as p_zxy
+% reflection_image = kspacePlaneReconMEX(single(sensor_data), single(dx), single(dy), single(dt), single(c0));
+% reflection_image = double(reflection_image);
 reflection_image = permute(reflection_image,[2 3 1]);                   % reorder p_zxy to p_xyz
 
 
