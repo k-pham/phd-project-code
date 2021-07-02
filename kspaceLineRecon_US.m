@@ -112,8 +112,8 @@ kgrid_rec = kWaveGrid(Nt, dt*c, Ny, dy);
 % relation dx = dt*c; this represents the initial sampling of p(w, ky)
 w = c .* kgrid_rec.kx;
 
-% calculate the scaling factor using the value of kz, where
-% kz = sqrt( (w/c)^2 - ky^2 )
+% calculate the scaling factor using the value of kx, where
+% kx = sqrt( (w/c)^2 - ky^2 )
 % sf = c.^2 .* sqrt( (w ./ c).^2 - kgrid.ky.^2) ./ (2 .* w); % photoacoustics
 % sf(w == 0 & kgrid.ky == 0) = c ./ 2;                       % photoacoustics
 % sf = kgrid.k + sqrt(kgrid.k.^2 - kgrid.ky.^2);             % planewave US
@@ -129,23 +129,23 @@ clear sf;
 % exclude the inhomogeneous part of the wave
 F(abs(w) < abs(c * kgrid_rec.ky)) = 0;
 
-% create a new computational grid that is evenly spaced in kz' and ky' (the
-% object k-space) where factor of 1/2 in dz' due to reflection imaging
+% create a new computational grid that is evenly spaced in kx' and ky' (the
+% object k-space) where factor of 1/2 in dx' due to reflection imaging
 % (this step is not necessary for photoacoustics, since object kgrid
 % happens to be the same as receive kgrid)
 kgrid_obj = kWaveGrid(Nt, dt*c/2, Ny, dy);      % bug fix for pwUS 15 October 2020
 
-% remap the computational grid for kz' onto w using the dispersion relation
-% w/c = (ky'^2 + kz'^2)^1/2        (photoacoustics)
-% w/c = (ky'^2 + kz'^2)/(2*kz')    (planewave ultrasound)
-% This gives an w grid that is evenly spaced in kz'. This is used for the 
-% interpolation from F(w, ky) to F(kz', ky'). Only real w is taken to force
-% kz' (and thus z) to be symmetrical about 0 after the interpolation.
+% remap the computational grid for kx' onto w using the dispersion relation
+% w/c = (kx'^2 + ky'^2)^1/2        (photoacoustics)
+% w/c = (kx'^2 + ky'^2)/(2*kx')    (planewave ultrasound)
+% This gives an w grid that is evenly spaced in kx'. This is used for the 
+% interpolation from F(w, ky) to F(kx', ky'). Only real w is taken to force
+% kx' (and thus x) to be symmetrical about 0 after the interpolation.
 % w_new = c .* kgrid.k;                             % photoacoustics
 w_new = c .* kgrid_obj.k.^2 ./ (2 * kgrid_obj.kx) ; % planewave US
 w_new(kgrid_obj.kx==0) = 0;                         % planewave US
 
-% compute the interpolation from F(w, ky) to F(kz', ky') and then force to
+% compute the interpolation from F(w, ky) to F(kx', ky') and then force to
 % be symmetrical
 F = interp2(kgrid_rec.ky, w, F, kgrid_obj.ky, w_new, interp_method);
 
@@ -155,7 +155,7 @@ clear kgrid_rec kgrid_obj w;
 % set values outside the interpolation range to zero
 F(isnan(F)) = 0;
 
-% compute the inverse FFT of p(kx, ky) to yield p(x, y)
+% compute the inverse FFT of F(kx, ky) to yield F(x, y)
 F = real(fftshift(ifftn(ifftshift(F))));
 
 % remove the left part of the mirrored data which corresponds to the
@@ -163,8 +163,8 @@ F = real(fftshift(ifftn(ifftshift(F))));
 F = F( ((Nt + 1) / 2):Nt, :);
 
 % correct the scaling - the forward FFT is computed with a spacing of dt
-% and the reverse requires a spacing of dy = dt*c, the reconstruction
-% assumes that p0 is symmetrical about y, and only half the plane collects
+% and the reverse requires a spacing of dx = dt*c, the reconstruction
+% assumes that p0 is symmetrical about x, and only half the plane collects
 % data (first approximation to correcting the limited view problem)
 F = 2 * 2 * F ./ c;
 
