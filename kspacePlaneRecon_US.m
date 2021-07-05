@@ -129,22 +129,29 @@ clear sf;
 % exclude the inhomogeneous part of the wave
 F(abs(w) < (c * sqrt(kgrid_rec.ky.^2 + kgrid_rec.kz.^2))) = 0;
 
+% create a new computational grid that is evenly spaced in kx' and ky' (the
+% object k-space) where factor of 1/2 in dx' due to reflection imaging
+% (this step is not necessary for photoacoustics, since object kgrid
+% happens to be the same as receive kgrid)
+% kgrid_obj = kWaveGrid(Nt, dt*c/2, Ny, dy, Nz, dz);      % bug fix for pwUS 5 July 2020
+kgrid_obj = kWaveGrid(Nt, dt * c, Ny, dy, Nz, dz);
+
 % remap the computational grid for kx onto w using the dispersion
 % relation w/c = (kx^2 + ky^2 + kz^2)^1/2. This gives an w grid that is
 % evenly spaced in kx. This is used for the interpolation from p(w, ky, kz)
 % to p(kx, ky, kz). Only real w is taken to force kx (and thus x) to be
 % symmetrical about 0 after the interpolation. 
 %w_new = c .* kgrid.k;                      % photoacoustics
-w_new = c .* kgrid_rec.k.^2 ./ (2 * kgrid_rec.kx) ; % reflection US
-w_new(kgrid_rec.kx==0) = 0;                     % reflection US
+w_new = c .* kgrid_obj.k.^2 ./ (2 * kgrid_obj.kx) ; % reflection US
+w_new(kgrid_obj.kx==0) = 0;                     % reflection US
 
 % compute the interpolation from p(w, ky, kz) to p(kx, ky, kz); for a
 % matrix indexed as [M, N, P], the axis variables must be given in the
 % order N, M, P
-F = interp3(kgrid_rec.ky, w, kgrid_rec.kz, F, kgrid_rec.ky, w_new, kgrid_rec.kz, interp_method);
+F = interp3(kgrid_rec.ky, w, kgrid_rec.kz, F, kgrid_obj.ky, w_new, kgrid_obj.kz, interp_method);
 
 % remove unused variables
-clear kgrid w;
+clear kgrid_rec kgrid_obj w;
 
 % set values outside the interpolation range to zero
 F(isnan(F)) = 0;
