@@ -149,7 +149,7 @@ w_new(kgrid_obj.kx==0) = 0;                         % planewave US
 % compute the interpolation from F(w, ky, kz) to F(kx', ky', kz'); for a
 % matrix indexed as [M, N, P], the axis variables must be given in the
 % order N, M, P
-p = interp3(kgrid_rec.ky, w, kgrid_rec.kz, F, kgrid_obj.ky, w_new, kgrid_obj.kz, interp_method);
+F = interp3(kgrid_rec.ky, w, kgrid_rec.kz, F, kgrid_obj.ky, w_new, kgrid_obj.kz, interp_method);
 
 % remove unused variables
 clear kgrid_rec kgrid_obj w;
