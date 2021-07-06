@@ -1,17 +1,17 @@
 
 file_dir = '../data/imagingUS/';
 
-% file_data = '180626\polymerLeaf2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_51s28m20h_26-06-18_avg1_2D_raw.SGL';
-% trigger_delay = 4e-6;
-% samples_cut_off = 0;
-% samples_t0_correct = -6;
-% c0 = 1484;
-
-file_data = '181204/atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
-trigger_delay = 0;
-samples_cut_off = 50;
+file_data = '180626\polymerLeaf2_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[10ns]_51s28m20h_26-06-18_avg1_2D_raw.SGL';
+trigger_delay = 4e-6;
+samples_cut_off = 0;
 samples_t0_correct = -6;
-c0 = 1544;
+c0 = 1484;
+
+% file_data = '181204/atmm_orgasol1_BK31[CNT]@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[8ns]_03s08m21h_04-12-18_avg1_2D_raw.SGL';
+% trigger_delay = 0;
+% samples_cut_off = 50;
+% samples_t0_correct = -6;
+% c0 = 1544;
 
 disp(['Loading: ' file_data])
 
@@ -25,7 +25,7 @@ params.file_data            = file_data;
 disp(['Reconstructing: ' file_data])
 
 [reflection_image] = reconstruct3dUSimage(sensor_data, params, c0, ...
-                            'ZeroPad', 5, ...
+                            'ZeroPad', 10, ...
                             'Upsample', false, ...
                             'Apodise', false, ...
                             'FreqBandFilter', {}, ...
@@ -37,32 +37,32 @@ disp(['Reconstructing: ' file_data])
                         );
 
 %% save control image data set
-% disp('Saving data to .mat ...'),
-% tic
-% 
-% global Nx Ny kgrid
-% Nz = size(reflection_image,3);
-% volume_data = reshape(reflection_image,Nx,Ny,Nz);
-% volume_spacing = [kgrid.dx, kgrid.dy, params.dt*c0];
-% 
-% phantom_id = strtok(file_data,'@'); % parse string up to specified delimiter
-% phantom_id = phantom_id(8:end);     % remove date folder from string
-% 
-% % file_image = ['recon_data\' phantom_id '_control.mat'];
+disp('Saving data to .mat ...'),
+tic
+
+global Nx Ny kgrid
+Nz = size(reflection_image,3);
+volume_data = reshape(reflection_image,Nx,Ny,Nz);
+volume_spacing = [kgrid.dx, kgrid.dy, params.dt*c0];
+
+phantom_id = strtok(file_data,'@'); % parse string up to specified delimiter
+phantom_id = phantom_id(8:end);     % remove date folder from string
+
+file_image = ['recon_data\' phantom_id '_test.mat'];
 % file_image = ['recon_data/' phantom_id '_control.mat'];
-% 
-% save(file_image,'volume_data','volume_spacing','-v7.3')
-% 
-% disp(['  completed in ' scaleTime(toc)]);
-% 
-% % sliceViewer
+
+save(file_image,'volume_data','volume_spacing','-v7.3')
+
+disp(['  completed in ' scaleTime(toc)]);
+
+sliceViewer
 
 %% load control image data set
 
 disp('Loading control image')
 
-% file_control    = 'D:\PROJECT\code\recon_data\polymerLeaf2_BK31[CNT]_control.mat';
-file_control    = 'recon_data/atmm_orgasol1_BK31[CNT]_control.mat';
+file_control    = 'D:\PROJECT\code\recon_data\polymerLeaf2_BK31[CNT]_control.mat';
+% file_control    = 'recon_data/atmm_orgasol1_BK31[CNT]_control.mat';
 control         = load(file_control);
 control_image   = control.volume_data;
 control_spacing = control.volume_spacing;
