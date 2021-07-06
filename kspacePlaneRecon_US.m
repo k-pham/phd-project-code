@@ -39,7 +39,7 @@ function F = kspacePlaneRecon_US(p, dy, dz, dt, c, varargin)
 %     author      - Bradley Treeby and Ben Cox
 %     date        - 2nd July 2009
 %     update      - 21st June 2017 (Ben - mod for pwUS)
-%     last update - 5 July 2021 (Khoa - corrections for pwUS, 
+%     last update - 6 July 2021 (Khoa - corrections for pwUS, 
 %                                       rename output & tidy comments &
 %                                       explicitly distinquish between
 %                                       receive and object k space)
@@ -133,7 +133,7 @@ F(abs(w) < (c * sqrt(kgrid_rec.ky.^2 + kgrid_rec.kz.^2))) = 0;
 % (the object k-space) where factor of 1/2 in dx' due to reflection imaging
 % (this step is not necessary for photoacoustics, since object kgrid
 % happens to be the same as receive kgrid)
-% kgrid_obj = kWaveGrid(Nt, dt*c/2, Ny, dy, Nz, dz);      % bug fix for pwUS 6 July 2020
+% kgrid_obj = kWaveGrid(Nt, dt*c/2, Ny, dy, Nz, dz);      % bug fix for pwUS 6 July 2021
 kgrid_obj = kWaveGrid(Nt, dt*c, Ny, dy, Nz, dz);          % however image better with full length kgrid
 
 % remap the computational grid for kx' onto w using the dispersion relation
