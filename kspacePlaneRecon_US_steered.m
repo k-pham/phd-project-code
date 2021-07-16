@@ -1,4 +1,4 @@
-function F = kspacePlaneRecon_US_steered(p, dy, dz, dt, c, varargin)
+function F = kspacePlaneRecon_US_steered(p, dy, dz, dt, c, a, b, varargin)
 %KSPACEPLANERECON_US_STEERED 3D linear FFT reconstruction for plane wave
 %                   ultrasound reflection imaging with steering angle
 %
@@ -6,8 +6,8 @@ function F = kspacePlaneRecon_US_steered(p, dy, dz, dt, c, varargin)
 %     based on kspacePlaneRecon_US
 %
 % USAGE:
-%     F_xyz = kspacePlaneRecon_US_steered(p_tyz, dy, dz, dt, c)
-%     F_xyz = kspacePlaneRecon_US_steered(p_tyz, dy, dz, dt, c, ...)
+%     F_xyz = kspacePlaneRecon_US_steered(p_tyz, dy, dz, dt, c, a, b)
+%     F_xyz = kspacePlaneRecon_US_steered(p_tyz, dy, dz, dt, c, a, b, ...)
 %
 % INPUTS:
 %     p_tyz       - pressure time-series recorded over an evenly spaced
@@ -59,7 +59,7 @@ end
 tic;
 
 % define defaults
-num_req_inputs = 5;
+num_req_inputs = 7;
 data_order = 'tyz';
 interp_method = '*nearest';
 plot_recon = false;
@@ -149,13 +149,21 @@ kgrid_obj = kWaveGrid(Nt, dt*c, Ny, dy, Nz, dz);          % however image better
 % interpolation from F(w, ky, kz) to F(kx', ky', kz'). Only real w is taken
 % to force kx' (and thus x) to be symmetrical about 0 after the interpolation.
 % w_new = c .* kgrid.k;                             % photoacoustics
-w_new = c .* kgrid_obj.k.^2 ./ (2 * kgrid_obj.kx) ; % planewave US
-w_new(kgrid_obj.kx==0) = 0;                         % planewave US
+% w_new = c .* kgrid_obj.k.^2 ./ (2 * kgrid_obj.kx);% planewave US
+% w_new(kgrid_obj.kx==0) = 0;                       % planewave US
+denominator_y         = 2 * kgrid_obj.ky .* sin(a) * cos(b);            % steered pw US
+denominator_z         = 2 * kgrid_obj.kz .* sin(a) * sin(b);            % steered pw US
+denominator_x         = 2 * kgrid_obj.kx .* cos(a);                     % steered pw US
+denominator           = denominator_x + denominator_y + denominator_z;  % steered pw US
+w_new                 = c .* kgrid_obj.k.^2 ./ denominator;             % steered pw US
+w_new(denominator==0) = 0;                                              % steered pw US
+ky_new                = kgrid_obj.ky - w_new .* sin(a) .* cos(b) ./ c;  % steered pw US
+kz_new                = kgrid_obj.kz - w_new .* sin(a) .* sin(b) ./ c;  % steered pw US
 
 % compute the interpolation from F(w, ky, kz) to F(kx', ky', kz'); for a
 % matrix indexed as [M, N, P], the axis variables must be given in the
 % order N, M, P
-F = interp3(kgrid_rec.ky, w, kgrid_rec.kz, F, kgrid_obj.ky, w_new, kgrid_obj.kz, interp_method);
+F = interp3(kgrid_rec.ky, w, kgrid_rec.kz, F, ky_new, w_new, kz_new, interp_method);
 
 % remove unused variables
 clear kgrid_rec kgrid_obj w;
