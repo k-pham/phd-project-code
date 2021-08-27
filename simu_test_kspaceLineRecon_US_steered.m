@@ -18,7 +18,7 @@ rho0 = 1000;    % density [kg/m^3]
 % define scatterers
 scatterer1_radius = 1;          % [grid points]
 scatterer1_x = Nx/2;            % [grid points]
-scatterer1_y = Ny*3/8;            % [grid points]
+scatterer1_y = Ny*3/8;          % [grid points]
 scatterer1_c = 2 * c0;        % sound speed of scatterer [m/s]
 scatterer1_rho = 2 * rho0;    % density of scatterer [kg/m^3]
 scatterer1 = makeDisc(Nx, Ny, scatterer1_x, scatterer1_y, scatterer1_radius);
@@ -71,7 +71,7 @@ source.p = karray.getDistributedSourceSignal(kgrid, source_signal);
 % =========================================================================
 
 % make sensor
-sensor_positions = pml_size:(Nx-pml_size);
+sensor_positions = pml_size:(Nx-pml_size);    % sensor points spaced by dx
 sensor.mask = zeros(Nx, Ny);
 sensor.mask(sensor_positions, pml_size+1) = 1;
 
@@ -87,6 +87,41 @@ imagesc(kgrid.t_array*1e6,sensor_positions,sensor_data)
 xlabel('time [\mus]')
 ylabel('sensor number')
 
+% make sensor kgrid
+sensor_kgrid = kWaveGrid(size(sensor_data,1),dx);
 
-%% 
+
+%% extract TOA from timeseries data
+
+[~,TOA_x_idx] = max(sensor_data,[],2);     % [time index]
+TOA_x = TOA_x_idx * kgrid.dt;              % [s]
+
+
+%% fit plane wave (line) to source
+
+% regression in 1d TOA(x) = p1 + p2*x
+Model = [ones(length(sensor_kgrid.x_vec),1) sensor_kgrid.x_vec];
+params = Model \ TOA_x;
+
+% evaluate fit over scanning area
+TOA_fit = params(1) + params(2) * kgrid.x_vec;
+
+% plot TOA & fit
+figure
+hold on
+plot(sensor_kgrid.x_vec*1e3,TOA_x*1e6,'.')
+plot(kgrid.x_vec*1e3,TOA_fit*1e6,'--')
+xlabel('x axis / mm')
+ylabel('TOA [\mus]')
+
+
+%% calculate steering angle a
+% TOA(x) = p1 + p2*x
+% c*p2 = sin(a)
+
+a = asin(c0*params(2));
+
+disp(['steering angle of plane wave is: ' num2str(rad2deg(a)) ' deg'])
+
+
 
