@@ -124,4 +124,24 @@ a = asin(c0*params(2));
 disp(['steering angle of plane wave is: ' num2str(rad2deg(a)) ' deg'])
 
 
+%% t0 correction
+
+
+
+%% zero padding source offset to sensor plane
+
+
+
+%% reconstruction
+
+
+
+% envelope detection
+
+
+
+% plot image
+
+
+
 
