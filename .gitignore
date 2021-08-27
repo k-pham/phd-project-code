@@ -7,6 +7,7 @@
 /recon_data/
 
 # packages
+/k-wave-matlab-development/
 /k-wave-matlab-feat_polishing_release_V1.3/
 /k-wave-toolbox-version-1.2.1/
 /k-wave-toolbox-version-1.2-cpp-windows-executable-avx2/
@@ -14,6 +15,7 @@
 /multiSliceGui/
 /field2/
 /ustb/
+/off-grid-sources-development/
 
 # other people code
 /@Medium/
