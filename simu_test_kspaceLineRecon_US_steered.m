@@ -18,7 +18,7 @@ rho0 = 1000;    % density [kg/m^3]
 % define scatterers
 scatterer1_radius = 1;          % [grid points]
 scatterer1_x = Nx/2;            % [grid points]
-scatterer1_y = Ny/2;            % [grid points]
+scatterer1_y = Ny*3/8;            % [grid points]
 scatterer1_c = 2 * c0;        % sound speed of scatterer [m/s]
 scatterer1_rho = 2 * rho0;    % density of scatterer [kg/m^3]
 scatterer1 = makeDisc(Nx, Ny, scatterer1_x, scatterer1_y, scatterer1_radius);
@@ -30,8 +30,8 @@ medium.sound_speed(scatterer1==1) = scatterer1_c;
 medium.density(scatterer1==1) = scatterer1_rho;
 
 % create the time array
-cfl = 0.2;              % CFL number
-t_end = 2*Ny*dy/c0;     % end time of the simulation [s]
+cfl = 0.2;                  % CFL number
+t_end = 0.75*2*Ny*dy/c0;    % end time of the simulation [s]
 kgrid.makeTime(medium.sound_speed,cfl,t_end);
 
 % =========================================================================
@@ -89,5 +89,4 @@ ylabel('sensor number')
 
 
 %% 
-
 
