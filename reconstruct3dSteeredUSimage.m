@@ -7,28 +7,32 @@ c = 1484; % [m/s]
 
 file_dir  = 'D:\PROJECT\data\angleComp\';
 % file_data = '210630\polymerLeaf_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_26s35m20h_30-06-21_avg1_2D_raw.SGL';
+file_data = '210827\wire_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_26s04m19h_27-08-21_avg1_2D_raw.SGL';
 
-file_data_list = {
-'210818\Full_scan1_wire27_CNT_angle0@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_41s11m16h_18-08-21_avg1_2D_raw.SGL'
-'210818\Full_scan1_wire27_CNT_angle2@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_28s14m16h_18-08-21_avg1_2D_raw.SGL'
-'210818\Full_scan1_wire27_CNT_angle4@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_53s17m16h_18-08-21_avg1_2D_raw.SGL'
-'210818\Full_scan1_wire27_CNT_angle6@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_51s20m16h_18-08-21_avg1_2D_raw.SGL'
-'210818\Full_scan1_wire27_CNT_angle8@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_37s24m16h_18-08-21_avg1_2D_raw.SGL'
-'210818\Full_scan1_wire27_CNT_angle-2@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_58s26m16h_18-08-21_avg1_2D_raw.SGL'
-'210818\Full_scan1_wire27_CNT_angle-4@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_08s29m16h_18-08-21_avg1_2D_raw.SGL'
-'210818\Full_scan1_wire27_CNT_angle-6@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_40s32m16h_18-08-21_avg1_2D_raw.SGL'
-'210818\Full_scan1_wire27_CNT_angle-8@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_37s35m16h_18-08-21_avg1_2D_raw.SGL'
-};
-file_data_list = reshape(file_data_list,[1 length(file_data_list)]);
+% load data for wire 3D scans on 16-beam
+% --------------------------------------
+% file_data_list = {
+% '210818\Full_scan1_wire27_CNT_angle0@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_41s11m16h_18-08-21_avg1_2D_raw.SGL'
+% '210818\Full_scan1_wire27_CNT_angle2@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_28s14m16h_18-08-21_avg1_2D_raw.SGL'
+% '210818\Full_scan1_wire27_CNT_angle4@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_53s17m16h_18-08-21_avg1_2D_raw.SGL'
+% '210818\Full_scan1_wire27_CNT_angle6@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_51s20m16h_18-08-21_avg1_2D_raw.SGL'
+% '210818\Full_scan1_wire27_CNT_angle8@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_37s24m16h_18-08-21_avg1_2D_raw.SGL'
+% '210818\Full_scan1_wire27_CNT_angle-2@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_58s26m16h_18-08-21_avg1_2D_raw.SGL'
+% '210818\Full_scan1_wire27_CNT_angle-4@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_08s29m16h_18-08-21_avg1_2D_raw.SGL'
+% '210818\Full_scan1_wire27_CNT_angle-6@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_40s32m16h_18-08-21_avg1_2D_raw.SGL'
+% '210818\Full_scan1_wire27_CNT_angle-8@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_37s35m16h_18-08-21_avg1_2D_raw.SGL'
+% };
+% file_data_list = reshape(file_data_list,[1 length(file_data_list)]);
+% 
+% for file_data_cell = file_data_list(1)
+% 
+%     file_data = file_data_cell{1};
+%     id = strtok(file_data,'@');
+% 	id = str2double(id(35:end));
+%     
+%     disp(['angle id: ' num2str(id)])
+% --------------------------------------
 
-%%
-for file_data_cell = file_data_list(1)
-
-    file_data = file_data_cell{1};
-    id = strtok(file_data,'@');
-	id = str2double(id(35:end));
-    
-    disp(['angle id: ' num2str(id)])
 
 %%
 [sensor_data, sensor_params] = loadSGL([file_dir file_data]);
@@ -92,7 +96,7 @@ TOA_vec  = reshape(TOA_xy, [kgrid.Nx*kgrid.Ny 1]);
 
 %% maybe apply mask for central area to avoid outliers at edge ruining fit
 
-apply_mask = true;
+apply_mask = false;
 
 switch apply_mask
     case true
@@ -145,7 +149,7 @@ TOA_fit_vec = params(1) + params(2) * Xv + params(3) * Yv;
 %TOA_fit_xy = reshape(TOA_fit_vec,[kgrid.Nx kgrid.Ny]);
 
 % get deviation in time index of arrival from fit within mask
-TOA_fit_vec_mask = TOA_fit_vec(mask);
+TOA_fit_vec_mask = TOA_fit_vec;%(mask);
 deviation_mask = TOA_vec_mask - TOA_fit_vec_mask;
 
 
@@ -169,7 +173,7 @@ TOA_fit_vec = params(1) + params(2) * Xv + params(3) * Yv;
 TOA_fit_xy = reshape(TOA_fit_vec,[kgrid.Nx kgrid.Ny]);
 
 % get deviation in time index of arrival from fit within mask
-TOA_fit_vec_mask = TOA_fit_vec(mask);
+TOA_fit_vec_mask = TOA_fit_vec;%(mask);
 TOA_fit_vec_mask = TOA_fit_vec_mask(pointsToKeep);
 deviation_mask = TOA_vec_mask - TOA_fit_vec_mask;
 
@@ -241,7 +245,7 @@ nyc = round(sensor_params.Ny/2);
 TOA_source = TOA_xy_idx(nxc,nyc);
 
 %% set t0(excitation) in dt
-for t0_excitation = -15:5:20
+for t0_excitation = 0 %-15:5:20
 
 % set t0(source) in dt
 t0_source = t0_excitation - (TOA_source - t0_excitation);
@@ -258,6 +262,10 @@ assert(pads>0)
 % reload sensor_data and _params to avoid reapplying t0 correction
 [sensor_data, sensor_params] = loadSGL([file_dir file_data]);
 
+% source padding with zeros
+% source_pads = 2000;
+% sensor_data = cat(3, zeros(kgrid.Nx,kgrid.Ny,source_pads), sensor_data(:,:,source_pads+1:end));
+
 % apply t0 correction
 sensor_data_padded = cat(3, zeros(sensor_params.Nx,sensor_params.Ny,pads), sensor_data);
 sensor_params.Nt   = sensor_params.Nt + pads;
@@ -265,7 +273,8 @@ sensor_params.Nt   = sensor_params.Nt + pads;
 
 %% reconstruction
 
-reflection_image = kspacePlaneRecon_US_steered(sensor_data_padded,sensor_params.dx,sensor_params.dy,sensor_params.dt,c,a,b);
+% reflection_image = kspacePlaneRecon_US_steered(sensor_data_padded,sensor_params.dx,sensor_params.dy,sensor_params.dt,c,a,b);
+reflection_image = kspacePlaneRecon_US(sensor_data_padded,sensor_params.dx,sensor_params.dy,sensor_params.dt,c);
 
 
 %% envelope detection
@@ -298,7 +307,7 @@ save(file_image,'volume_data','volume_spacing','-v7.3')
 
 %% generate MIP yz and xz
 
-z_range = 1:1050;
+z_range = 1:size(reflection_image_env,3);% 1050;
 
 MIP_yz = squeeze(max(reflection_image_env(:,:,z_range),[],1));
 MIP_xz = squeeze(max(reflection_image_env(:,:,z_range),[],2));
@@ -324,7 +333,7 @@ drawnow
 %%
 % pause
 end % t0
-end % angles
+% end % angles
 
 
 %% save MIPS
@@ -359,4 +368,13 @@ end % angles
 % end
 
 
+%% fly-through data in time
+
+figure
+for frame = 1:size(sensor_data_padded,3)
+    slice = squeeze(sensor_data_padded(:,:,frame));
+    imagesc(slice)
+    title(num2str(frame))
+    drawnow
+end
 
