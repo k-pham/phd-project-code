@@ -22,7 +22,7 @@ file_data_list = {
 };
 file_data_list = reshape(file_data_list,[1 length(file_data_list)]);
 
-for file_data_cell = file_data_list(1)
+for file_data_cell = file_data_list(5)
 
     file_data = file_data_cell{1};
     id = strtok(file_data,'@');
@@ -98,11 +98,11 @@ deviation = TOA_y - TOA_fit;
 
 % plot deviation of TOA from TOA_fit in 2d colour scatter
 figure(4)
-plot(y_vec*1e3,deviation*1e6)
+plot(y_vec*1e3,deviation*1e9)
 % hold on
     title('time of arrival: deviation from fit within ROI [s]')
     xlabel('y axis / mm')
-    ylabel('deviation from fit [\mus]')
+    ylabel('deviation from fit [ns]')
     
 % plot 3d scatter of TOA for whole scanning area with fit from masked data
 figure(5)
@@ -113,7 +113,7 @@ plot(y_vec*1e3,TOA_fit*1e6)
     xlabel('y axis / mm')
     ylabel('time of arrival / \mus')
     drawnow
-
+hold off
 
 %% calculate steering angle components ax and ay
 % TOA(x) = p1 + p2*x
@@ -125,21 +125,20 @@ disp(['steering angle of plane wave is: ' num2str(rad2deg(a)) ' deg'])
 
 
 %%
-pause
-end % angles
-pause
+% pause
+% end % angles
+% pause
 
 %% t0 correction
 
 % indeces for central timeseries
-nxc = round(sensor_params.Nx/2);
 nyc = round(sensor_params.Ny/2);
 
 % get TOA(source) in central timeseries
-TOA_source = TOA_y_idx(nxc,nyc);
+TOA_source = TOA_y_idx(nyc);
 
 %% set t0(excitation) in dt
-for t0_excitation = 0 %-15:5:20
+for t0_excitation = -15:5:20
 
 % set t0(source) in dt
 t0_source = t0_excitation - (TOA_source - t0_excitation);
@@ -157,118 +156,45 @@ assert(pads>0)
 [sensor_data, sensor_params] = loadSGL([file_dir file_data]);
 
 % source padding with zeros
-% source_pads = 2000;
-% sensor_data = cat(3, zeros(kgrid.Nx,kgrid.Ny,source_pads), sensor_data(:,:,source_pads+1:end));
+source_pads = 1000;
+sensor_data = cat(2, zeros(kgrid.Ny,source_pads), sensor_data(:,source_pads+1:end));
 
 % apply t0 correction
-sensor_data_padded = cat(3, zeros(sensor_params.Nx,sensor_params.Ny,pads), sensor_data);
+sensor_data_padded = cat(2, zeros(sensor_params.Ny,pads), sensor_data);
 sensor_params.Nt   = sensor_params.Nt + pads;
 
 
 %% reconstruction
 
-% reflection_image = kspacePlaneRecon_US_steered(sensor_data_padded,sensor_params.dx,sensor_params.dy,sensor_params.dt,c,a,b);
-reflection_image = kspacePlaneRecon_US(sensor_data_padded,sensor_params.dx,sensor_params.dy,sensor_params.dt,c);
+reflection_image = kspaceLineRecon_US_steered(sensor_data_padded,sensor_params.dy,sensor_params.dt,c,a);
+% reflection_image = kspaceLineRecon_US(sensor_data_padded,sensor_params.dy,sensor_params.dt,c);
 
 
 %% envelope detection
 
 disp('Envelope detecting ...')
 tic
-
-reflection_image_env = zeros(size(reflection_image));
-for i = 1:sensor_params.Ny
-    reflection_image_env(:,i,:) = envelopeDetection(squeeze(reflection_image(:,i,:)));
-end
+reflection_image_env = envelopeDetection(reflection_image);
 assert(isequal( size(reflection_image_env), size(reflection_image) ))
-
 disp(['  completed in ' scaleTime(toc)]);
 
 
-%% save for sliceViewer
+%% plot image
 
-volume_data = reshape(reflection_image_env,sensor_params.Nx,sensor_params.Ny,sensor_params.Nt);
-volume_spacing = [sensor_params.dx,sensor_params.dy,sensor_params.dt*c];
-
-phantom_id = strtok(file_data,'@'); % parse string up to specified delimiter
-phantom_id = phantom_id(8:end);     % remove date folder from string
-file_image = ['recon_data\' phantom_id '_t0_' num2str(t0_excitation) 'dt.mat'];
-
-save(file_image,'volume_data','volume_spacing','-v7.3')
-
-% sliceViewer
-
-
-%% generate MIP yz and xz
-
-z_range = 1:size(reflection_image_env,3);% 1050;
-
-MIP_yz = squeeze(max(reflection_image_env(:,:,z_range),[],1));
-MIP_xz = squeeze(max(reflection_image_env(:,:,z_range),[],2));
-z_axis = z_range * sensor_params.dt * c;
+t_array = sensor_params.dt * (1:1:sensor_params.Nt);
+z_vec   = t_array * c;% / 2;
 
 figure
-sgtitle(['t0(excitation) = ' num2str(t0_excitation) '*dt'])
-
-subplot(1,2,1)
-imagesc(kgrid.y_vec'*1e3, z_axis*1e3, MIP_yz')
-title('MIP yz')
+imagesc(kgrid.y_vec*1e3,z_vec*1e3,reflection_image_env')
+title(['angle ' num2str(id) ' ' num2str(rad2deg(a)) ', t0 = ' num2str(t0_excitation) '*dt'])
 xlabel('y axis / mm')
 ylabel('depth / mm')
 
-subplot(1,2,2)
-imagesc(kgrid.x_vec'*1e3, z_axis*1e3, MIP_xz')
-title('MIP xz')
-xlabel('x axis / mm')
-ylabel('depth / mm')
-
-drawnow
 
 %%
 % pause
 end % t0
-% end % angles
+end % angles
 
 
-%% save MIPS
-
-% fignums = 8:15;
-% t0_excitations = -15:5:20;
-% for i=1:8
-% fignum = fignums(i);
-% t0_excitation = t0_excitations(i);
-% figure(fignum)
-% file_fig = [file_dir phantom_id '_t0_' num2str(t0_excitation) 'dt'];
-% savefig(fignum,[file_fig '.fig'])
-% saveas(fignum,[file_fig '.jpg'])
-% end
-
-%% maximum intensity projection in xy
-
-% MIP_xy = max(reflection_image_env(:,:,2000:end),[],3);
-% 
-% figure
-% imagesc(MIP_xy)
-
-
-%% fly-through in z direction
-
-% figure
-% for frame = 1:size(reflection_image_env,3)
-%     slice = squeeze(reflection_image_env(:,:,frame));
-%     imagesc(slice)
-%     title(num2str(frame))
-%     drawnow
-% end
-
-
-%% fly-through data in time
-
-figure
-for frame = 1:size(sensor_data_padded,3)
-    slice = squeeze(sensor_data_padded(:,:,frame));
-    imagesc(slice)
-    title(num2str(frame))
-    drawnow
-end
 
