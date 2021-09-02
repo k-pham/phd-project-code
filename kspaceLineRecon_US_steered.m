@@ -135,8 +135,8 @@ F(abs(w) < abs(c * kgrid_rec.ky)) = 0;
 % object k-space) where factor of 1/2 in dz' due to reflection imaging
 % (this step is not necessary for photoacoustics, since object kgrid
 % happens to be the same as receive kgrid)
-% kgrid_obj = kWaveGrid(Nt, dt*c/2, Ny, dy);      % bug fix for pwUS 15 October 2020
-kgrid_obj = kWaveGrid(Nt, dt*c, Ny, dy);        % keep doubled depth for better k sampling
+kgrid_obj = kWaveGrid(Nt, dt*c/2, Ny, dy);      % bug fix for pwUS 15 October 2020
+% kgrid_obj = kWaveGrid(Nt, dt*c, Ny, dy);        % keep doubled depth for better k sampling
 
 % remap the computational grid for kz' onto w using the dispersion relation
 % w/c = (ky'^2 + kz'^2)^1/2                            (photoacoustics)
