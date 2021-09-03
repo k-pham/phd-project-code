@@ -40,7 +40,7 @@ kgrid.makeTime(medium.sound_speed,cfl,t_end);
 
 source_angle    = 0;                        % [deg]
 source_centre_x = 0;                        % [m]
-source_centre_y = 2.36e-3+kgrid.y_vec(1);   % [m]
+source_centre_y = kgrid.y_vec(1)+pml_size*dy; % 2.36e-3+kgrid.y_vec(1);   % [m]
 source_width_x  = (Nx-2*pml_size)*dx;       % [m]
 source_width_y  = source_width_x * tan(deg2rad(source_angle));      % [m]
 
