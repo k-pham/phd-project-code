@@ -22,7 +22,7 @@ file_data_list = {
 };
 file_data_list = reshape(file_data_list,[1 length(file_data_list)]);
 
-for file_data_cell = file_data_list(5)
+for file_data_cell = file_data_list
 
     file_data = file_data_cell{1};
     id = strtok(file_data,'@');
@@ -46,7 +46,7 @@ imagesc(sensor_data')
     ylabel('time [dt]')
     drawnow
 
-fig_data3 = figure(3);
+fig_data2 = figure(2);
 plot(squeeze(sensor_data(y_line,:)))
     xlabel('time [dt]')
     ylabel('y axis [dx]')
@@ -59,6 +59,7 @@ TOA_y = TOA_y_idx * sensor_params.dt;      % [s]
 
 kgrid = kWaveGrid(sensor_params.Nx,sensor_params.dx,sensor_params.Ny,sensor_params.dy);
 y_vec = kgrid.y_vec;
+
 
 %% initial fit of plane wave to source
 
@@ -97,7 +98,7 @@ deviation = TOA_y - TOA_fit;
 %% plot fits and deviation
 
 % plot deviation of TOA from TOA_fit in 2d colour scatter
-figure(4)
+figure(3)
 plot(y_vec*1e3,deviation*1e9)
 % hold on
     title('time of arrival: deviation from fit within ROI [s]')
@@ -105,7 +106,7 @@ plot(y_vec*1e3,deviation*1e9)
     ylabel('deviation from fit [ns]')
     
 % plot 3d scatter of TOA for whole scanning area with fit from masked data
-figure(5)
+figure(4)
 plot(y_vec*1e3,TOA_y*1e6,'.')
 hold on
 plot(y_vec*1e3,TOA_fit*1e6)
@@ -113,7 +114,8 @@ plot(y_vec*1e3,TOA_fit*1e6)
     xlabel('y axis / mm')
     ylabel('time of arrival / \mus')
     drawnow
-hold off
+% hold off
+
 
 %% calculate steering angle components ax and ay
 % TOA(x) = p1 + p2*x
@@ -122,6 +124,7 @@ hold off
 a = asin(c*params(2));
 
 disp(['steering angle of plane wave is: ' num2str(rad2deg(a)) ' deg'])
+disp('=====================================')
 
 
 %%
@@ -138,7 +141,9 @@ nyc = round(sensor_params.Ny/2);
 TOA_source = TOA_y_idx(nyc);
 
 %% set t0(excitation) in dt
-for t0_excitation = -15:5:20
+for t0_excitation = 8 % 5:1:11 % -15:5:20
+
+disp(['t0(excitation) = ' num2str(t0_excitation) '*dt'])
 
 % reload sensor_data and _params to avoid reapplying t0 correction
 [sensor_data, sensor_params] = loadSGL([file_dir file_data]);
@@ -146,7 +151,7 @@ for t0_excitation = -15:5:20
 
 %% remove acoustic source from signal
 
-source_pads = 1000;
+source_pads = 2000;
 sensor_data = cat(2, zeros(kgrid.Ny,source_pads), sensor_data(:,source_pads+1:end));
 
 % check that padding did not change length of sensor_data
@@ -172,8 +177,11 @@ sensor_params.Nt   = sensor_params.Nt + pads;
 
 %% reconstruction
 
-reflection_image = kspaceLineRecon_US_steered(sensor_data_padded,sensor_params.dy,sensor_params.dt,c,a);
-% reflection_image = kspaceLineRecon_US(sensor_data_padded,sensor_params.dy,sensor_params.dt,c);
+reflection_image = kspaceLineRecon_US_steered(sensor_data_padded',sensor_params.dy,sensor_params.dt,c,a);
+% reflection_image = kspaceLineRecon_US(sensor_data_padded',sensor_params.dy,sensor_params.dt,c);
+                                                        % input p_tx, output p_zx
+reflection_image = permute(reflection_image,[2 1]);     % reorder p_zx to p_xz
+reflection_image = reflection_image(:,1:round(size(reflection_image,2)/2));  % trim half of z if using doubled depth kgrid
 
 
 %% envelope detection
@@ -181,6 +189,7 @@ reflection_image = kspaceLineRecon_US_steered(sensor_data_padded,sensor_params.d
 disp('Envelope detecting ...')
 tic
 reflection_image_env = envelopeDetection(reflection_image);
+% reflection_image_env = transpose(envelopeDetection(reflection_image'));
 assert(isequal( size(reflection_image_env), size(reflection_image) ))
 disp(['  completed in ' scaleTime(toc)]);
 
@@ -188,16 +197,26 @@ disp(['  completed in ' scaleTime(toc)]);
 %% plot image
 
 t_array = sensor_params.dt * (1:1:sensor_params.Nt);
-z_vec   = t_array * c;% / 2;
+z_vec   = t_array * c / 2;
 
 figure
 imagesc(kgrid.y_vec*1e3,z_vec*1e3,reflection_image_env')
 title(['angle ' num2str(id) ' ' num2str(rad2deg(a)) ', t0 = ' num2str(t0_excitation) '*dt'])
 xlabel('y axis / mm')
 ylabel('depth / mm')
+xlim([-1.1,-0.9])
+ylim([10.1,10.5])
+drawnow
+
+
+%% peak analysis of wire
+
+wire_peak = max(reflection_image_env,[],'all');
+disp(['MAX OF WIRE = ' num2str(wire_peak)])
 
 
 %%
+disp('=====================================')
 % pause
 end % t0
 end % angles
