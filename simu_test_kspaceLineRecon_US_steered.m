@@ -1,10 +1,14 @@
+%% ========================================================================
+%                               SIMULATION
+% =========================================================================
+
 %% set up simulation
 
 % make grid
-dx = 10e-6*2;                 % grid point spacing in the x direction [m]
+dx = 10e-6*4;                 % grid point spacing in the x direction [m]
 dy = dx;                      % grid point spacing in the y direction [m]
-Nx = 1536/2;                  % number of grid points in the x (row) direction
-Ny = 1024/2;                  % number of grid points in the y (column) direction
+Nx = 1536/4;                  % number of grid points in the x (row) direction
+Ny = 1024/4;                  % number of grid points in the y (column) direction
 
 kgrid = kWaveGrid(Nx,dx,Ny,dy);
 
@@ -16,7 +20,7 @@ c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
 
 % define scatterers
-scatterer1_radius = 10;          % [grid points]
+scatterer1_radius = 10;         % [grid points]
 scatterer1_x = Nx/2;            % [grid points]
 scatterer1_y = Ny*3/8;          % [grid points]
 scatterer1_c = 2 * c0;        % sound speed of scatterer [m/s]
@@ -31,12 +35,12 @@ medium.density(scatterer1==1) = scatterer1_rho;
 
 % create the time array
 cfl = 0.2;                  % CFL number
-t_end = 0.75*2*Ny*dy/c0;    % end time of the simulation [s]
+t_end = 0.6*2*Ny*dy/c0;     % end time of the simulation [s]
 kgrid.makeTime(medium.sound_speed,cfl,t_end);
 
-% =========================================================================
-% make *angled plane wave* source
-% =========================================================================
+% -------------------------------------------------------------------------
+%                   make *angled plane wave* source
+% -------------------------------------------------------------------------
 
 source_angle    = 0;                        % [deg]
 source_centre_x = 0;                        % [m]
@@ -67,8 +71,7 @@ source_signal = source_amplitude * source_apodisation * source_pulse;
 
 source.p = karray.getDistributedSourceSignal(kgrid, source_signal);
 
-% =========================================================================
-% =========================================================================
+% -------------------------------------------------------------------------
 
 % make sensor
 sensor_positions = pml_size:(Nx-pml_size);    % sensor points spaced by dx
@@ -90,6 +93,10 @@ ylabel('sensor number')
 % make sensor kgrid
 sensor_kgrid = kWaveGrid(size(sensor_data,1),dx);
 
+
+%% ========================================================================
+%                        PROCESS DATA (T_0 & ANGLE)
+% =========================================================================
 
 %% extract TOA from timeseries data
 
@@ -124,6 +131,10 @@ a = asin(c0*params(2));
 disp(['steering angle of plane wave is: ' num2str(rad2deg(a)) ' deg'])
 
 
+%% ========================================================================
+%                              RECONSTRUCTION
+% =========================================================================
+
 %% reconstruction with t0 correction loop
 
 % indeces for central timeseries
@@ -134,6 +145,7 @@ TOA_source = TOA_x_idx(nxc);
 
 % determine true t0 of excitation
 t0_excitation_true = source_pulse_tpeak / kgrid.dt;
+
 
 %% t0 correction loop
 % pretend t0 of excitation is unknown and loop through to find out
@@ -183,6 +195,7 @@ disp(['  completed in ' scaleTime(toc)]);
 z_vec = kgrid.t_array * c0 / 2;
 
 figure
+%imagesc(reflection_image_env')
 imagesc(sensor_kgrid.x_vec*1e3,z_vec*1e3,reflection_image_env')
 title(['angle ' num2str(source_angle) ', t0 = ' num2str(t0_excitation) '*dt'])
 ylabel('depth / mm')
