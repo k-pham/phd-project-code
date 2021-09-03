@@ -23,8 +23,8 @@ rho0 = 1000;    % density [kg/m^3]
 scatterer1_radius = 10;         % [grid points]
 scatterer1_x = Nx/2;            % [grid points]
 scatterer1_y = Ny*3/8;          % [grid points]
-scatterer1_c = 2 * c0;        % sound speed of scatterer [m/s]
-scatterer1_rho = 2 * rho0;    % density of scatterer [kg/m^3]
+scatterer1_c = c0;              % sound speed of scatterer [m/s]
+scatterer1_rho = 2*rho0;        % density of scatterer [kg/m^3]
 scatterer1 = makeDisc(Nx, Ny, scatterer1_x, scatterer1_y, scatterer1_radius);
 
 % make medium
@@ -131,6 +131,20 @@ a = asin(c0*params(2));
 disp(['steering angle of plane wave is: ' num2str(rad2deg(a)) ' deg'])
 
 
+%% subtract source from data using saved data
+
+sensor_data_sourceOnly = load('D:\PROJECT\data\simulations\angleComp\test_kspaceLineRecon_US_steered\sensor_data_sourceOnly_40um_0.6t_end.mat','sensor_data_sourceOnly');
+sensor_data_sourceOnly = sensor_data_sourceOnly.sensor_data_sourceOnly;
+
+sensor_data = sensor_data - sensor_data_sourceOnly;
+
+
+%% remove acoustic source from signal by zero padding
+
+% source_pads = 1000;
+% sensor_data = cat(2, zeros(kgrid.Ny,source_pads), sensor_data(:,source_pads+1:end));
+
+
 %% ========================================================================
 %                              RECONSTRUCTION
 % =========================================================================
@@ -150,12 +164,6 @@ t0_excitation_true = source_pulse_tpeak / kgrid.dt;
 %% t0 correction loop
 % pretend t0 of excitation is unknown and loop through to find out
 for t0_excitation = 0%-500:200:500 % [dt]
-
-
-%% remove acoustic source from signal
-
-% source_pads = 1000;
-% sensor_data = cat(2, zeros(kgrid.Ny,source_pads), sensor_data(:,source_pads+1:end));
 
 
 %% zero padding source offset to sensor plane
@@ -205,6 +213,6 @@ axis image
 
 
 %%
-pause
+% pause
 end % t0
 
