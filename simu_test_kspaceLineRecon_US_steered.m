@@ -191,10 +191,11 @@ end
 
 %% reconstruction
 
-% reflection_image = kspaceLineRecon_US_steered(sensor_data_padded',sensor_kgrid.dx,kgrid.dt,c0,a);
-reflection_image = kspaceLineRecon_US_backup(sensor_data_padded',sensor_kgrid.dx,kgrid.dt,c0);
+reflection_image = kspaceLineRecon_US_steered(sensor_data_padded',sensor_kgrid.dx,kgrid.dt,c0,a);
+% reflection_image = kspaceLineRecon_US(sensor_data_padded',sensor_kgrid.dx,kgrid.dt,c0);
                                                         % input p_tx, output p_zx
 reflection_image = permute(reflection_image,[2 1]);     % reorder p_zx to p_xz
+reflection_image = reflection_image(:,1:round(kgrid.Nt/2));  % trim half of z if using doubled depth kgrid
 
 
 %% envelope detection
