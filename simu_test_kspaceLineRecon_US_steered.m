@@ -20,7 +20,7 @@ c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
 
 % define scatterers
-scatterer1_radius = 10;         % [grid points]
+scatterer1_radius = 5;         % [grid points]
 scatterer1_x = Nx/2;            % [grid points]
 scatterer1_y = Ny*3/8;          % [grid points]
 scatterer1_c = c0;              % sound speed of scatterer [m/s]
@@ -131,12 +131,18 @@ a = asin(c0*params(2));
 disp(['steering angle of plane wave is: ' num2str(rad2deg(a)) ' deg'])
 
 
-%% subtract source from data using saved data
+%% subtract acoustic source from data using saved data
 
 sensor_data_sourceOnly = load('D:\PROJECT\data\simulations\angleComp\test_kspaceLineRecon_US_steered\sensor_data_sourceOnly_40um_0.6t_end.mat','sensor_data_sourceOnly');
 sensor_data_sourceOnly = sensor_data_sourceOnly.sensor_data_sourceOnly;
 
 sensor_data = sensor_data - sensor_data_sourceOnly;
+
+% plot the source-subtracted data
+figure
+imagesc(kgrid.t_array*1e6,sensor_positions,sensor_data)
+xlabel('time [\mus]')
+ylabel('sensor number')
 
 
 %% remove acoustic source from signal by zero padding
@@ -163,29 +169,32 @@ t0_excitation_true = source_pulse_tpeak / kgrid.dt;
 
 %% t0 correction loop
 % pretend t0 of excitation is unknown and loop through to find out
-for t0_excitation = 0%-500:200:500 % [dt]
+for t0_excitation = 3%-500:200:500 % [dt]
 
 
 %% zero padding source offset to sensor plane
 % assumes that correction involves zero padding rather than trimming
 
 % set t0(source) in dt
-t0_source = t0_excitation - (TOA_source - t0_excitation);
+% t0_source = t0_excitation - (TOA_source - t0_excitation);
 
 % number of pads
-pads = -t0_source;
+% pads = -t0_source;
+pads = -t0_excitation;
 
-% check that correction requires zero-padding and not trimming
-assert(pads>0)
-
-% apply t0 correction
-sensor_data_padded = cat(2, zeros(sensor_kgrid.Nx,pads), sensor_data);
+if pads >= 0
+    sensor_data_padded = [ zeros(sensor_kgrid.Nx,pads) sensor_data ];
+elseif pads < 0
+    sensor_data_padded = sensor_data(:,-pads+1:end);
+end
 
 
 %% reconstruction
 
-% reflection_image = kspaceLineRecon_US_steered(sensor_data_padded,sensor_kgrid.dx,kgrid.dt,c0,a);
-reflection_image = kspaceLineRecon_US(sensor_data_padded,sensor_kgrid.dx,kgrid.dt,c0);
+% reflection_image = kspaceLineRecon_US_steered(sensor_data_padded',sensor_kgrid.dx,kgrid.dt,c0,a);
+reflection_image = kspaceLineRecon_US_backup(sensor_data_padded',sensor_kgrid.dx,kgrid.dt,c0);
+                                                        % input p_tx, output p_zx
+reflection_image = permute(reflection_image,[2 1]);     % reorder p_zx to p_xz
 
 
 %% envelope detection
