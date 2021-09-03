@@ -42,7 +42,7 @@ kgrid.makeTime(medium.sound_speed,cfl,t_end);
 %                   make *angled plane wave* source
 % -------------------------------------------------------------------------
 
-source_angle    = 0;                        % [deg]
+source_angle    = 5;                        % [deg]
 source_centre_x = 0;                        % [m]
 source_centre_y = 2.36e-3+kgrid.y_vec(1);   % [m] % kgrid.y_vec(1)+pml_size*dy;
 source_width_x  = (Nx-2*pml_size)*dx;       % [m]
@@ -134,7 +134,8 @@ disp(['steering angle of plane wave is: ' num2str(rad2deg(a)) ' deg'])
 %% subtract acoustic source from data using saved data
 
 % sensor_data_sourceOnly = load('D:\PROJECT\data\simulations\angleComp\test_kspaceLineRecon_US_steered\sensor_data_sourceOnly_40um_0.6t_end.mat','sensor_data_sourceOnly');
-sensor_data_sourceOnly = load('D:\PROJECT\data\simulations\angleComp\test_kspaceLineRecon_US_steered\sensor_data_sourceOnly_40um_0.6t_end_offsetSource2.36e-3.mat','sensor_data_sourceOnly');
+% sensor_data_sourceOnly = load('D:\PROJECT\data\simulations\angleComp\test_kspaceLineRecon_US_steered\sensor_data_sourceOnly_40um_0.6t_end_offsetSource2.36e-3.mat','sensor_data_sourceOnly');
+sensor_data_sourceOnly = load('D:\PROJECT\data\simulations\angleComp\test_kspaceLineRecon_US_steered\sensor_data_sourceOnly_40um_0.6t_end_offsetSource2.36e-3_angle5.mat','sensor_data_sourceOnly');
 sensor_data_sourceOnly = sensor_data_sourceOnly.sensor_data_sourceOnly;
 
 sensor_data = sensor_data - sensor_data_sourceOnly;
