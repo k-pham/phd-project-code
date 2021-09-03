@@ -6,8 +6,8 @@ c = 1484; % [m/s]
 %% load data
 
 file_dir  = 'D:\PROJECT\data\angleComp\';
-% file_data = '210630\polymerLeaf_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_26s35m20h_30-06-21_avg1_2D_raw.SGL';
-file_data = '210827\wire_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_26s04m19h_27-08-21_avg1_2D_raw.SGL';
+file_data = '210630\polymerLeaf_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_26s35m20h_30-06-21_avg1_2D_raw.SGL';
+% file_data = '210827\wire_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_26s04m19h_27-08-21_avg1_2D_raw.SGL';
 
 % load data for wire 3D scans on 16-beam
 % --------------------------------------
@@ -263,8 +263,8 @@ assert(pads>0)
 [sensor_data, sensor_params] = loadSGL([file_dir file_data]);
 
 % source padding with zeros
-% source_pads = 2000;
-% sensor_data = cat(3, zeros(kgrid.Nx,kgrid.Ny,source_pads), sensor_data(:,:,source_pads+1:end));
+source_pads = 1000;
+sensor_data = cat(3, zeros(kgrid.Nx,kgrid.Ny,source_pads), sensor_data(:,:,source_pads+1:end));
 
 % apply t0 correction
 sensor_data_padded = cat(3, zeros(sensor_params.Nx,sensor_params.Ny,pads), sensor_data);
@@ -273,8 +273,12 @@ sensor_params.Nt   = sensor_params.Nt + pads;
 
 %% reconstruction
 
-% reflection_image = kspacePlaneRecon_US_steered(sensor_data_padded,sensor_params.dx,sensor_params.dy,sensor_params.dt,c,a,b);
-reflection_image = kspacePlaneRecon_US(sensor_data_padded,sensor_params.dx,sensor_params.dy,sensor_params.dt,c);
+sensor_data_padded = permute(sensor_data_padded,[3 1 2]);   % reorder p_xyt to p_txy
+
+reflection_image = kspacePlaneRecon_US_steered(sensor_data_padded,sensor_params.dx,sensor_params.dy,sensor_params.dt,c,a,b);
+% reflection_image = kspacePlaneRecon_US(sensor_data_padded,sensor_params.dx,sensor_params.dy,sensor_params.dt,c);
+                                                            % output as p_zxy
+reflection_image = permute(reflection_image,[2 3 1]);       % reorder p_zxy to p_xyz
 
 
 %% envelope detection
@@ -370,11 +374,11 @@ end % t0
 
 %% fly-through data in time
 
-figure
-for frame = 1:size(sensor_data_padded,3)
-    slice = squeeze(sensor_data_padded(:,:,frame));
-    imagesc(slice)
-    title(num2str(frame))
-    drawnow
-end
+% figure
+% for frame = 1:size(sensor_data_padded,3)
+%     slice = squeeze(sensor_data_padded(:,:,frame));
+%     imagesc(slice)
+%     title(num2str(frame))
+%     drawnow
+% end
 
