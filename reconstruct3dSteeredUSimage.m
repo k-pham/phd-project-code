@@ -259,24 +259,32 @@ TOA_source = TOA_xy_idx(nxc,nyc);
 %% set t0(excitation) in dt
 for t0_excitation = 0 %-15:5:20
 
-% set t0(source) in dt
-t0_source = t0_excitation - (TOA_source - t0_excitation);
+disp(['t0(excitation) = ' num2str(t0_excitation) '*dt'])
+
+% reload sensor_data and _params to avoid reapplying t0 correction
+[sensor_data, sensor_params] = loadSGL([file_dir file_data]);
+
+
+%% remove acoustic source from signal
+
+source_pads = 2000;
+sensor_data = cat(3, zeros(kgrid.Nx,kgrid.Ny,source_pads), sensor_data(:,:,source_pads+1:end));
+
+% check that padding did not change length of sensor_data
+assert(size(sensor_data,3) == sensor_params.Nt)
 
 
 %% zero padding source offset to sensor plane
 % assumes that correction involves zero padding rather than trimming
 
+% set t0(source) in dt
+t0_source = t0_excitation - (TOA_source - t0_excitation);
+
+% number of pads
 pads = -t0_source;
 
 % check that correction requires zero-padding and not trimming
 assert(pads>0)
-
-% reload sensor_data and _params to avoid reapplying t0 correction
-[sensor_data, sensor_params] = loadSGL([file_dir file_data]);
-
-% source padding with zeros
-source_pads = 1000;
-sensor_data = cat(3, zeros(kgrid.Nx,kgrid.Ny,source_pads), sensor_data(:,:,source_pads+1:end));
 
 % apply t0 correction
 sensor_data_padded = cat(3, zeros(sensor_params.Nx,sensor_params.Ny,pads), sensor_data);
