@@ -256,8 +256,12 @@ nyc = round(sensor_params.Ny/2);
 % get TOA(source) in central timeseries
 TOA_source = TOA_xy_idx(nxc,nyc);
 
+% t0 test values & array for peak in each slice
+t0_excitations = [-15:5:0,2,4,6:1:10,12:2:16,20];
+peaks_average  = zeros(2,length(t0_excitations));
+iter = 0;
 %% set t0(excitation) in dt
-for t0_excitation = 0 %-15:5:20
+for t0_excitation = t0_excitations %-15:5:20
 
 disp(['t0(excitation) = ' num2str(t0_excitation) '*dt'])
 
@@ -342,22 +346,44 @@ sgtitle(['t0(excitation) = ' num2str(t0_excitation) '*dt'])
 
 subplot(1,2,1)
 imagesc(kgrid.y_vec'*1e3, z_axis*1e3, MIP_yz')
+% imagesc(MIP_yz')
 title('MIP yz')
 xlabel('y axis / mm')
 ylabel('depth / mm')
 
 subplot(1,2,2)
 imagesc(kgrid.x_vec'*1e3, z_axis*1e3, MIP_xz')
+% imagesc(MIP_xz')
 title('MIP xz')
 xlabel('x axis / mm')
 ylabel('depth / mm')
 
 drawnow
 
+
+%% save peak in slice averaged over many slices in an array for each t0_exc
+
+iter = iter + 1;
+x_roi = 40:100;
+y_roi = 50:70;
+z_roi = 1500:1900;
+roi = reflection_image_env(x_roi,y_roi,z_roi);
+roi_MIP_xy = max(roi,[],3);
+% figure, imagesc(MIP_xy)
+roi_MIP_x  = max(roi_MIP_xy,[],2);
+% figure, plot(roi_MIP_x)
+peaks_average(1,iter) = mean(roi_MIP_x);
+peaks_average(2,iter) = std( roi_MIP_x);
+
+
 %%
 % pause
 end % t0
 end % angles
+
+%% plot peaks statistics for t0 excitation
+figure
+errorbar(t0_excitations,peaks_average(1,:),peaks_average(2,:))
 
 
 %% save MIPS
