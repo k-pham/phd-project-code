@@ -22,16 +22,28 @@ file_data = '210630\polymerLeaf_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns
 % '210818\Full_scan1_wire27_CNT_angle-6@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_40s32m16h_18-08-21_avg1_2D_raw.SGL'
 % '210818\Full_scan1_wire27_CNT_angle-8@850nm_t0[0]_dx[109µm]_dy[108µm]_dt[17ns]_37s35m16h_18-08-21_avg1_2D_raw.SGL'
 % };
-% file_data_list = reshape(file_data_list,[1 length(file_data_list)]);
-% 
-% for file_data_cell = file_data_list(1)
-% 
-%     file_data = file_data_cell{1};
-%     id = strtok(file_data,'@');
-% 	id = str2double(id(35:end));
-%     
-%     disp(['angle id: ' num2str(id)])
 % --------------------------------------
+
+% load data for wire 3D scans on bench-top scanner
+% --------------------------------------
+file_data_list = {
+'210906\wire_angledCNT_8@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_05s39m17h_06-09-21_avg1_2D_raw.SGL'
+'210906\wire_angledCNT_4@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_35s18m17h_06-09-21_avg1_2D_raw.SGL'
+'210906\wire_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_04s47m16h_06-09-21_avg1_2D_raw.SGL'
+'210906\wire_angledCNT_-4@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_54s59m17h_06-09-21_avg1_2D_raw.SGL'
+'210906\wire_angledCNT_-8@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_28s20m18h_06-09-21_avg1_2D_raw.SGL'
+};
+% --------------------------------------
+
+file_data_list = reshape(file_data_list,[1 length(file_data_list)]);
+
+for file_data_cell = file_data_list(1)
+
+    file_data = file_data_cell{1};
+    id = strtok(file_data,'@');
+	id = str2double(id(23:end)); % 35
+    
+    disp(['angle id: ' num2str(id)])
 
 
 %%
@@ -337,7 +349,7 @@ drawnow
 %%
 % pause
 end % t0
-% end % angles
+end % angles
 
 
 %% save MIPS
