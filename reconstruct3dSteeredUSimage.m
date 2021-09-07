@@ -37,7 +37,7 @@ file_data_list = {
 
 file_data_list = reshape(file_data_list,[1 length(file_data_list)]);
 
-for file_data_cell = file_data_list
+for file_data_cell = file_data_list(1)
 
     file_data = file_data_cell{1};
     id = strtok(file_data,'@');
@@ -256,12 +256,12 @@ nyc = round(sensor_params.Ny/2);
 % get TOA(source) in central timeseries
 TOA_source = TOA_xy_idx(nxc,nyc);
 
-% % t0 test values & array for peak in each slice
-% t0_excitations = [-15:5:0,2,4,6:1:10,12:2:16,20];
-% peaks_average  = zeros(2,length(t0_excitations));
-% iter = 0;
+% t0 test values & array for peak in each slice
+t0_excitations = [-300:100:-100,-80:20:-20,0:5:40,60:20:100,200,300];
+peaks_average  = zeros(2,length(t0_excitations));
+iter = 0;
 %% set t0(excitation) in dt
-for t0_excitation = 8 % t0_excitations %-15:5:20
+for t0_excitation = t0_excitations
 
 disp(['t0(excitation) = ' num2str(t0_excitation) '*dt'])
 
@@ -363,17 +363,17 @@ drawnow
 
 %% save peak in slice averaged over many slices in an array for each t0_exc
 
-% iter = iter + 1;
-% x_roi = 40:100;
-% y_roi = 50:70;
-% z_roi = 1500:1900;
-% roi = reflection_image_env(x_roi,y_roi,z_roi);
-% roi_MIP_xy = max(roi,[],3);
-% % figure, imagesc(roi_MIP_xy)
-% roi_MIP_x  = max(roi_MIP_xy,[],2);
-% % figure, plot(roi_MIP_x)
-% peaks_average(1,iter) = mean(roi_MIP_x);
-% peaks_average(2,iter) = std( roi_MIP_x);
+iter = iter + 1;
+x_roi = 40:100;
+y_roi = 50:70;
+z_roi = 1500:1900;
+roi = reflection_image_env(x_roi,y_roi,z_roi);
+roi_MIP_xy = max(roi,[],3);
+% figure, imagesc(roi_MIP_xy)
+roi_MIP_x  = max(roi_MIP_xy,[],2);
+% figure, plot(roi_MIP_x)
+peaks_average(1,iter) = mean(roi_MIP_x);
+peaks_average(2,iter) = std( roi_MIP_x);
 
 
 %%
@@ -383,8 +383,8 @@ end % angles
 
 %% plot peaks statistics for t0 excitation
 
-% figure
-% errorbar(t0_excitations,peaks_average(1,:),peaks_average(2,:))
+figure
+errorbar(t0_excitations,peaks_average(1,:),peaks_average(2,:))
 
 
 %% save MIPS
@@ -432,36 +432,36 @@ end % angles
 
 %% display slices to view alignment/co-registration
 
-for file_data_cell = file_data_list
-
-    file_data = file_data_cell{1};
-    phantom_id = strtok(file_data,'@'); % parse string up to specified delimiter
-    phantom_id = phantom_id(8:end);     % remove date folder from string
-    file_image = ['recon_data\' phantom_id '_t0_' num2str(t0_excitation) 'dt.mat'];
-    
-    image_data = load(file_image,'volume_data');
-    image_data = image_data.volume_data;
-    
-    z_range = 1:size(image_data,3);
-    z_axis  = z_range * sensor_params.dt * c;
-    
-    x_roi = 72;
-    y_roi = 50:70;
-    z_roi = 1650:1750;
-    roi = squeeze(image_data(x_roi,y_roi,z_roi));
-    
-    figure, imagesc(kgrid.y_vec(y_roi)*1e3,z_axis(z_roi)*1e3,roi')
-    title(phantom_id,'Interpreter','none')
-    xlabel('y axis / mm')
-    ylabel('depth / mm')
-    xlim([-1.4,-0.7])
-    ylim([9.9,10.05])
-    
-    file_fig = ['D:\PROJECT\figures\_Matlab figs\angleComp\210906\' phantom_id '_slice_x72'];
-    savefig(gcf,[file_fig '.fig'])
-    saveas( gcf,[file_fig '.jpg'])
-
-end
+% for file_data_cell = file_data_list
+% 
+%     file_data = file_data_cell{1};
+%     phantom_id = strtok(file_data,'@'); % parse string up to specified delimiter
+%     phantom_id = phantom_id(8:end);     % remove date folder from string
+%     file_image = ['recon_data\' phantom_id '_t0_' num2str(t0_excitation) 'dt.mat'];
+%     
+%     image_data = load(file_image,'volume_data');
+%     image_data = image_data.volume_data;
+%     
+%     z_range = 1:size(image_data,3);
+%     z_axis  = z_range * sensor_params.dt * c;
+%     
+%     x_roi = 72;
+%     y_roi = 50:70;
+%     z_roi = 1650:1750;
+%     roi = squeeze(image_data(x_roi,y_roi,z_roi));
+%     
+%     figure, imagesc(kgrid.y_vec(y_roi)*1e3,z_axis(z_roi)*1e3,roi')
+%     title(phantom_id,'Interpreter','none')
+%     xlabel('y axis / mm')
+%     ylabel('depth / mm')
+%     xlim([-1.4,-0.7])
+%     ylim([9.9,10.05])
+%     
+%     file_fig = ['D:\PROJECT\figures\_Matlab figs\angleComp\210906\' phantom_id '_slice_x72'];
+%     savefig(gcf,[file_fig '.fig'])
+%     saveas( gcf,[file_fig '.jpg'])
+% 
+% end
 
 
 
