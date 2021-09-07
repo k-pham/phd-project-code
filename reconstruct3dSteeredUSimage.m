@@ -429,3 +429,40 @@ end % angles
 %     drawnow
 % end
 
+
+%% display slices to view alignment/co-registration
+
+for file_data_cell = file_data_list
+
+    file_data = file_data_cell{1};
+    phantom_id = strtok(file_data,'@'); % parse string up to specified delimiter
+    phantom_id = phantom_id(8:end);     % remove date folder from string
+    file_image = ['recon_data\' phantom_id '_t0_' num2str(t0_excitation) 'dt.mat'];
+    
+    image_data = load(file_image,'volume_data');
+    image_data = image_data.volume_data;
+    
+    z_range = 1:size(image_data,3);
+    z_axis  = z_range * sensor_params.dt * c;
+    
+    x_roi = 72;
+    y_roi = 50:70;
+    z_roi = 1650:1750;
+    roi = squeeze(image_data(x_roi,y_roi,z_roi));
+    
+    figure, imagesc(kgrid.y_vec(y_roi)*1e3,z_axis(z_roi)*1e3,roi')
+    title(phantom_id,'Interpreter','none')
+    xlabel('y axis / mm')
+    ylabel('depth / mm')
+    xlim([-1.4,-0.7])
+    ylim([9.9,10.05])
+    
+    file_fig = ['D:\PROJECT\figures\_Matlab figs\angleComp\210906\' phantom_id '_slice_x72'];
+    savefig(gcf,[file_fig '.fig'])
+    saveas( gcf,[file_fig '.jpg'])
+
+end
+
+
+
+
