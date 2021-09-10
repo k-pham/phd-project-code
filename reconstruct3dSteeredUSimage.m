@@ -8,6 +8,7 @@ c = 1484; % [m/s]
 file_dir  = 'D:\PROJECT\data\angleComp\';
 % file_data = '210630\polymerLeaf_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_26s35m20h_30-06-21_avg1_2D_raw.SGL';
 % file_data = '210827\wire_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_26s04m19h_27-08-21_avg1_2D_raw.SGL';
+% file_data = '210908\agarTMMorgasol2_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_08s42m18h_08-09-21_avg1_2D_raw.SGL';
 
 % load data for wire 3D scans on 16-beam
 % --------------------------------------
@@ -26,24 +27,39 @@ file_dir  = 'D:\PROJECT\data\angleComp\';
 
 % load data for wire 3D scans on bench-top scanner
 % --------------------------------------
+% file_data_list = {
+% '210906\wire_angledCNT_8@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_05s39m17h_06-09-21_avg1_2D_raw.SGL'
+% '210906\wire_angledCNT_4@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_35s18m17h_06-09-21_avg1_2D_raw.SGL'
+% '210906\wire_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_04s47m16h_06-09-21_avg1_2D_raw.SGL'
+% '210906\wire_angledCNT_-4@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_54s59m17h_06-09-21_avg1_2D_raw.SGL'
+% '210906\wire_angledCNT_-8@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_28s20m18h_06-09-21_avg1_2D_raw.SGL'
+% };
+% --------------------------------------
+
+% load data for agarTMMorgasol 3D scans on bench-top scanner
+% --------------------------------------
 file_data_list = {
-'210906\wire_angledCNT_8@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_05s39m17h_06-09-21_avg1_2D_raw.SGL'
-'210906\wire_angledCNT_4@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_35s18m17h_06-09-21_avg1_2D_raw.SGL'
-'210906\wire_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_04s47m16h_06-09-21_avg1_2D_raw.SGL'
-'210906\wire_angledCNT_-4@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_54s59m17h_06-09-21_avg1_2D_raw.SGL'
-'210906\wire_angledCNT_-8@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_28s20m18h_06-09-21_avg1_2D_raw.SGL'
+'210910\agarTMMorgasol3_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_02s30m13h_10-09-21_avg1_2D_raw.SGL';
+'210910\agarTMMorgasol3_angledCNT_8@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_39s56m13h_10-09-21_avg1_2D_raw.SGL';
+'210910\agarTMMorgasol3_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_48s49m17h_10-09-21_avg1_2D_raw.SGL';
+'210910\agarTMMorgasol3_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_09s42m18h_10-09-21_avg1_2D_raw.SGL';
+'210910\agarTMMorgasol3_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_13s37m19h_10-09-21_avg1_2D_raw.SGL';
+'210910\agarTMMorgasol3_angledCNT_4@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_35s02m21h_10-09-21_avg1_2D_raw.SGL'
 };
 % --------------------------------------
 
+
 file_data_list = reshape(file_data_list,[1 length(file_data_list)]);
 
-for file_data_cell = file_data_list(1)
+for file_data_cell = file_data_list(6)
 
     file_data = file_data_cell{1};
-    id = strtok(file_data,'@');
-	id = str2double(id(23:end)); % 35
+    angle_id = strtok(file_data,'@');
+    angle_id = split(angle_id,'_');
+    angle_id = angle_id{3};
+	% id = str2double(id(23:end)); % 35
     
-    disp(['angle id: ' num2str(id)])
+    disp(['angle id: ' num2str(angle_id)])
 
 
 %%
@@ -257,11 +273,11 @@ nyc = round(sensor_params.Ny/2);
 TOA_source = TOA_xy_idx(nxc,nyc);
 
 % t0 test values & array for peak in each slice
-t0_excitations = [-300:100:-100,-80:20:-20,0:5:40,60:20:100,200,300];
-peaks_average  = zeros(2,length(t0_excitations));
-iter = 0;
+% t0_excitations = [-60:20:-20,0:5:40,60:20:100,200,300];
+% peaks_average  = zeros(2,length(t0_excitations));
+% iter = 0;
 %% set t0(excitation) in dt
-for t0_excitation = t0_excitations
+for t0_excitation = 8 %t0_excitations
 
 disp(['t0(excitation) = ' num2str(t0_excitation) '*dt'])
 
@@ -363,17 +379,17 @@ drawnow
 
 %% save peak in slice averaged over many slices in an array for each t0_exc
 
-iter = iter + 1;
-x_roi = 40:100;
-y_roi = 50:70;
-z_roi = 1500:1900;
-roi = reflection_image_env(x_roi,y_roi,z_roi);
-roi_MIP_xy = max(roi,[],3);
-% figure, imagesc(roi_MIP_xy)
-roi_MIP_x  = max(roi_MIP_xy,[],2);
-% figure, plot(roi_MIP_x)
-peaks_average(1,iter) = mean(roi_MIP_x);
-peaks_average(2,iter) = std( roi_MIP_x);
+% iter = iter + 1;
+% x_roi = 40:100;
+% y_roi = 50:70;
+% z_roi = 1500:1900;
+% roi = reflection_image_env(x_roi,y_roi,z_roi);
+% roi_MIP_xy = max(roi,[],3);
+% % figure, imagesc(roi_MIP_xy)
+% roi_MIP_x  = max(roi_MIP_xy,[],2);
+% % figure, plot(roi_MIP_x)
+% peaks_average(1,iter) = mean(roi_MIP_x);
+% peaks_average(2,iter) = std( roi_MIP_x);
 
 
 %%
@@ -383,8 +399,8 @@ end % angles
 
 %% plot peaks statistics for t0 excitation
 
-figure
-errorbar(t0_excitations,peaks_average(1,:),peaks_average(2,:))
+% figure
+% errorbar(t0_excitations,peaks_average(1,:),peaks_average(2,:))
 
 
 %% save MIPS
