@@ -1,3 +1,9 @@
+%% file directory paths
+
+file_dir_data = 'D:\PROJECT\data\simulations\angleComp\2dAngleCompounding\';
+file_dir_figs = 'D:\PROJECT\figures\_Matlab figs\simulations\angleComp\2dAngleCompounding\';
+
+
 %% ========================================================================
 %                               SIMULATION
 % =========================================================================
@@ -62,6 +68,8 @@ kgrid.makeTime(medium.sound_speed,cfl,t_end);
 % -------------------------------------------------------------------------
 %% anle loop
 for source_angle = -20:5:20
+    disp('=================================================')
+	disp(['SOURCE ANGLE = ' num2str(source_angle) ' deg'])
 % source_angle    = 5;                        % [deg]
 source_centre_x = 0;                        % [m]
 source_offset_y = 2.36e-3;                  % [m]
@@ -118,7 +126,7 @@ sensor_kgrid = kWaveGrid(size(sensor_data,1),dx);
 
 %% (save) sensor_data for sourceOnly
 
-file_data_sourceOnly = 'D:\PROJECT\data\simulations\angleComp\2dAngleCompounding\sensor_data_sourceOnly';
+file_data_sourceOnly = [file_dir_data 'sensor_data_sourceOnly\sensor_data_sourceOnly'];
 file_data_sourceOnly = [file_data_sourceOnly ...
                         '_' num2str(dx*1e6) 'um' ...
                         '_' num2str(shorten_time) 't_end' ...
@@ -251,7 +259,7 @@ disp(['  completed in ' scaleTime(toc)]);
 y_vec = kgrid.t_array * c0;
 y_vec = y_vec(1:round(kgrid.Nt/2));
 
-figure
+fig_img = figure;
 %imagesc(reflection_image_env')
 imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,reflection_image_env')
 title(['angle ' num2str(source_angle) ', t0 = ' num2str(t0_excitation) '*dt'])
@@ -259,6 +267,24 @@ ylabel('depth / mm')
 xlabel('x axis / mm')
 colorbar
 axis image
+
+
+%% save image data and images
+
+file_specifier = ['_' num2str(dx*1e6) 'um' ...
+                  '_' num2str(shorten_time) 't_end' ...
+                  '_offsetSource' num2str(source_offset_y*1e3) 'e-3' ...
+                  '_angle' num2str(source_angle) ...
+                  '_scatt_c' num2str(scatt_c) '_rho' num2str(scatt_rho) ];
+
+file_data_image = [file_dir_data 'image_data_scattTMM' file_specifier];
+file_figs_image = [file_dir_figs 'image_scattTMM'      file_specifier];
+
+save([file_data_image '_raw.mat']      ,reflection_image    );
+save([file_data_image '_envDetect.mat'],reflection_image_env);
+
+savefig(fig_img,[file_figs_image '.fig'])
+saveas( fig_img,[file_figs_image '.jpg'])
 
 
 %%
@@ -284,8 +310,8 @@ mask_outside    = not(mask_notoutside);
 mask_largehole  = distance < 2   * hole_r_img;
 mask_outerring  = and(mask_outside,mask_largehole);
 
-figure,imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,mask_inside')   , axis image
-figure,imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,mask_outerring'), axis image
+% figure,imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,mask_inside')   , axis image
+% figure,imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,mask_outerring'), axis image
 
 ROI_hole = reflection_image_env(mask_inside);
 ROI_stmm = reflection_image_env(mask_outerring);
