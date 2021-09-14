@@ -67,7 +67,7 @@ kgrid.makeTime(medium.sound_speed,cfl,t_end);
 %                   make *angled plane wave* source
 % -------------------------------------------------------------------------
 %% anle loop
-for source_angle = -20:5:20
+for source_angle = -20%:5:20
     disp('=================================================')
 	disp(['SOURCE ANGLE = ' num2str(source_angle) ' deg'])
 % source_angle    = 5;                        % [deg]
@@ -126,12 +126,12 @@ sensor_kgrid = kWaveGrid(size(sensor_data,1),dx);
 
 %% (save) sensor_data for sourceOnly
 
-file_data_sourceOnly = [file_dir_data 'sensor_data_sourceOnly\sensor_data_sourceOnly'];
-file_data_sourceOnly = [file_data_sourceOnly ...
+file_data_sourceOnly = [file_dir_data 'sensor_data_sourceOnly\scattTMM' ...
                         '_' num2str(dx*1e6) 'um' ...
                         '_' num2str(shorten_time) 't_end' ...
                         '_offsetSource' num2str(source_offset_y*1e3) 'e-3' ...
-                        '_angle' num2str(source_angle) '.mat'];
+                        '_angle' num2str(source_angle) ...
+                        '_sensor_data_sourceOnly.mat'];
 % sensor_data_sourceOnly = sensor_data;
 % save(file_data_sourceOnly,'sensor_data_sourceOnly')
 % end
@@ -277,11 +277,12 @@ file_specifier = ['_' num2str(dx*1e6) 'um' ...
                   '_angle' num2str(source_angle) ...
                   '_scatt_c' num2str(scatt_c) '_rho' num2str(scatt_rho) ];
 
-file_data_image = [file_dir_data 'image_data_scattTMM' file_specifier];
-file_figs_image = [file_dir_figs 'image_scattTMM'      file_specifier];
+file_data_image = [file_dir_data 'scattTMM' file_specifier];
+file_figs_image = [file_dir_figs 'scattTMM' file_specifier];
 
-save([file_data_image '_raw.mat']      ,reflection_image    );
-save([file_data_image '_envDetect.mat'],reflection_image_env);
+save([file_data_image '_image_data_raw.mat']      ,'reflection_image'    );
+save([file_data_image '_image_data_envDetect.mat'],'reflection_image_env');
+save([file_data_image '_image_data_params.mat']   ,'kgrid','sensor_kgrid','y_vec');
 
 savefig(fig_img,[file_figs_image '.fig'])
 saveas( fig_img,[file_figs_image '.jpg'])
