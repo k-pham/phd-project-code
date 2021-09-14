@@ -19,19 +19,37 @@ pml_size = 20;
 c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
 
-% define scatterers
-scatterer1_radius = 5;         % [grid points]
-scatterer1_x = Nx/2;            % [grid points]
-scatterer1_y = Ny*3/8;          % [grid points]
-scatterer1_c = c0;              % sound speed of scatterer [m/s]
-scatterer1_rho = 2*rho0;        % density of scatterer [kg/m^3]
-scatterer1 = makeDisc(Nx, Ny, scatterer1_x, scatterer1_y, scatterer1_radius);
+% % define scatterers
+% scatterer1_radius = 5;         % [grid points]
+% scatterer1_x = Nx/2;            % [grid points]
+% scatterer1_y = Ny*3/8;          % [grid points]
+% scatterer1_c = c0;              % sound speed of scatterer [m/s]
+% scatterer1_rho = 2*rho0;        % density of scatterer [kg/m^3]
+% scatterer1 = makeDisc(Nx, Ny, scatterer1_x, scatterer1_y, scatterer1_radius);
+
+% define scattering medium
+scatt_c   = 0;
+scatt_rho = 80;
+c_rand    = ( rand(Nx,Ny) - 0.5 ) * scatt_c;
+rho_rand  = ( rand(Nx,Ny) - 0.5 ) * scatt_rho;
+
+% define non-scattering hole
+hole_radius = 15;
+hole_x      = Nx/2;
+hole_y      = Ny*3/8;
+hole_c      = c0;
+hole_rho    = rho0;
+hole = makeDisc(Nx,Ny,hole_x,hole_y,hole_radius);
 
 % make medium
-medium.sound_speed = c0 * ones(Nx,Ny);
-medium.density = rho0 * ones(Nx,Ny);
-medium.sound_speed(scatterer1==1) = scatterer1_c;
-medium.density(scatterer1==1) = scatterer1_rho;
+medium.sound_speed = c0   * ones(Nx,Ny);
+medium.density     = rho0 * ones(Nx,Ny);
+% medium.sound_speed(scatterer1==1) = scatterer1_c;
+% medium.density(scatterer1==1)     = scatterer1_rho;
+medium.sound_speed = medium.sound_speed + c_rand;
+medium.density     = medium.density     + rho_rand;
+medium.sound_speed(hole==1) = hole_c;
+medium.density(hole==1)     = hole_rho;
 
 % create the time array
 cfl = 0.2;                  % CFL number
@@ -171,7 +189,7 @@ t0_excitation_true = source_pulse_tpeak / kgrid.dt;
 
 %% t0 correction loop
 % pretend t0 of excitation is unknown and loop through to find out
-for t0_excitation = 3%-500:200:500 % [dt]
+for t0_excitation = floor(t0_excitation_true)%3%-500:200:500 % [dt]
 
 
 %% zero padding source offset to sensor plane
@@ -227,4 +245,6 @@ axis image
 %%
 % pause
 end % t0
+
+
 
