@@ -46,23 +46,26 @@ medium.sound_speed = c0   * ones(Nx,Ny);
 medium.density     = rho0 * ones(Nx,Ny);
 % medium.sound_speed(scatterer1==1) = scatterer1_c;
 % medium.density(scatterer1==1)     = scatterer1_rho;
-medium.sound_speed = medium.sound_speed + c_rand;
-medium.density     = medium.density     + rho_rand;
-medium.sound_speed(hole==1) = hole_c;
-medium.density(hole==1)     = hole_rho;
+% medium.sound_speed = medium.sound_speed + c_rand;
+% medium.density     = medium.density     + rho_rand;
+% medium.sound_speed(hole==1) = hole_c;
+% medium.density(hole==1)     = hole_rho;
 
 % create the time array
 cfl = 0.2;                  % CFL number
-t_end = 0.6*2*Ny*dy/c0;     % end time of the simulation [s]
+shorten_time = 0.6;         % fraction to shorten length of time array
+t_end = shorten_time*2*Ny*dy/c0;     % end time of the simulation [s]
 kgrid.makeTime(medium.sound_speed,cfl,t_end);
 
 % -------------------------------------------------------------------------
 %                   make *angled plane wave* source
 % -------------------------------------------------------------------------
-
-source_angle    = 5;                        % [deg]
+%% anle loop
+for source_angle = -20:5:20
+% source_angle    = 5;                        % [deg]
 source_centre_x = 0;                        % [m]
-source_centre_y = 2.36e-3+kgrid.y_vec(1);   % [m] % kgrid.y_vec(1)+pml_size*dy;
+source_offset_y = 2.36e-3;                  % [m]
+source_centre_y = source_offset_y+kgrid.y_vec(1);   % [m] % kgrid.y_vec(1)+pml_size*dy;
 source_width_x  = (Nx-2*pml_size)*dx;       % [m]
 source_width_y  = source_width_x * tan(deg2rad(source_angle));      % [m]
 
@@ -112,6 +115,19 @@ ylabel('sensor number')
 sensor_kgrid = kWaveGrid(size(sensor_data,1),dx);
 
 
+%% (save) sensor_data for sourceOnly
+
+file_data_sourceOnly = 'D:\PROJECT\data\simulations\angleComp\2dAngleCompounding\sensor_data_sourceOnly';
+file_data_sourceOnly = [file_data_sourceOnly ...
+                        '_' num2str(dx*1e6) 'um' ...
+                        '_' num2str(shorten_time) 't_end' ...
+                        '_offsetSource' num2str(source_offset_y*1e3) 'e-3' ...
+                        '_angle' num2str(source_angle) '.mat'];
+sensor_data_sourceOnly = sensor_data;
+save(file_data_sourceOnly,'sensor_data_sourceOnly')
+end
+
+
 %% ========================================================================
 %                        PROCESS DATA (T_0 & ANGLE)
 % =========================================================================
@@ -151,9 +167,7 @@ disp(['steering angle of plane wave is: ' num2str(rad2deg(a)) ' deg'])
 
 %% subtract acoustic source from data using saved data
 
-% sensor_data_sourceOnly = load('D:\PROJECT\data\simulations\angleComp\test_kspaceLineRecon_US_steered\sensor_data_sourceOnly_40um_0.6t_end.mat','sensor_data_sourceOnly');
-% sensor_data_sourceOnly = load('D:\PROJECT\data\simulations\angleComp\test_kspaceLineRecon_US_steered\sensor_data_sourceOnly_40um_0.6t_end_offsetSource2.36e-3.mat','sensor_data_sourceOnly');
-sensor_data_sourceOnly = load('D:\PROJECT\data\simulations\angleComp\test_kspaceLineRecon_US_steered\sensor_data_sourceOnly_40um_0.6t_end_offsetSource2.36e-3_angle5.mat','sensor_data_sourceOnly');
+sensor_data_sourceOnly = load(file_data_sourceOnly,'sensor_data_sourceOnly');
 sensor_data_sourceOnly = sensor_data_sourceOnly.sensor_data_sourceOnly;
 
 sensor_data = sensor_data - sensor_data_sourceOnly;
@@ -291,6 +305,8 @@ legend(gca,'show')
 
 disp('  scatSNR   scatCNR')
 disp([scatSNR,scatCNR])
+
+end
 
 
 %% FUNCTIONS
