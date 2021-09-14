@@ -142,7 +142,7 @@ TOA_x = TOA_x_idx * kgrid.dt;              % [s]
 %% fit plane wave (line) to source
 
 % restrict fit range to exclude outliers at the edge
-fit_mask = 42:302;
+fit_mask = 62:282;
 
 % regression in 1d TOA(x) = p1 + p2*x
 Model = [ones(length(sensor_kgrid.x_vec(fit_mask)),1) sensor_kgrid.x_vec(fit_mask)];
