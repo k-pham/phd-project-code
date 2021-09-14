@@ -67,7 +67,7 @@ kgrid.makeTime(medium.sound_speed,cfl,t_end);
 %                   make *angled plane wave* source
 % -------------------------------------------------------------------------
 %% anle loop
-for source_angle = [-20:5:20,-14:2:14]
+for source_angle = -14:2:14 %[-20:5:20] 
     disp('=================================================')
 	disp(['SOURCE ANGLE = ' num2str(source_angle) ' deg'])
 % source_angle    = 5;                        % [deg]
@@ -300,48 +300,140 @@ end % t0
 
 %% get hole location in image
 
-hole_x_img = kgrid.x_vec(hole_x);                   % x position [m]
-hole_y_img = (hole_y - pml_size -1) * kgrid.dy;     % y position [m]
-hole_r_img = hole_radius * kgrid.dx;                % radius [m]
-
-distance = sqrt((sensor_kgrid.x_vec - hole_x_img).^2 + (y_vec - hole_y_img).^2);    % [m]
-
-mask_inside     = distance < 0.8 * hole_r_img;
-mask_notoutside = distance < 1.2 * hole_r_img;
-mask_outside    = not(mask_notoutside);
-mask_largehole  = distance < 2   * hole_r_img;
-mask_outerring  = and(mask_outside,mask_largehole);
-
-% figure,imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,mask_inside')   , axis image
-% figure,imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,mask_outerring'), axis image
-
-ROI_hole = reflection_image_env(mask_inside);
-ROI_stmm = reflection_image_env(mask_outerring);
-
-scatter_hole_mean = mean(ROI_hole(:));
-scatter_hole_std  = std(ROI_hole(:));
-
-scatter_stmm_mean = mean(ROI_stmm(:));
-scatter_stmm_std  = std(ROI_stmm(:));
-
-scatSNR = scatter_stmm_mean / scatter_hole_mean;
-scatCNR = (scatter_stmm_mean - scatter_hole_mean) / (scatter_stmm_std + scatter_hole_std);
-
-figure, hold on
-plot_histogram_of_scattering_distr(ROI_hole, 'hole', 'Normalise', true)
-plot_histogram_of_scattering_distr(ROI_stmm, 'stmm', 'Normalise', true)
-title(['scattering distributions, SNR = ' num2str(scatSNR) ', CNR = ' num2str(scatCNR)])
-xlabel('pixel intensity')
-ylabel('count')
-legend(gca,'show')
+[scatSNR,scatCNR] = get_scattering_image_quality(reflection_image_env,kgrid,sensor_kgrid,y_vec,hole_x,hole_y,hole_radius,pml_size);
 
 disp('  scatSNR   scatCNR')
 disp([scatSNR,scatCNR])
 
+
 end
 
 
+%% ========================================================================
+%                              COMPOUNDING
+% =========================================================================
+
+%% loop and load
+
+file_dir_data = 'D:\PROJECT\data\simulations\angleComp\2dAngleCompounding\';
+dx = 40e-6;
+shorten_time = 0.6;
+source_offset_y = 2.36e-3;
+scatt_c = 0;
+scatt_rho = 80;
+compound_step = 5;
+compound_angles = -20:compound_step:20;
+
+for source_angle = compound_angles
+
+file_specifier = ['_' num2str(dx*1e6) 'um' ...
+                  '_' num2str(shorten_time) 't_end' ...
+                  '_offsetSource' num2str(source_offset_y*1e3) 'e-3' ...
+                  '_angle' num2str(source_angle) ...
+                  '_scatt_c' num2str(scatt_c) '_rho' num2str(scatt_rho) ];
+
+file_data_image = [file_dir_data 'scattTMM' file_specifier];
+
+load([file_data_image '_data.mat'],'kgrid','sensor_kgrid','sensor_data','sensor_data_padded','y_vec','reflection_image','reflection_image_env');
+
+%% compound coherently and incoherently
+
+if ~exist('compound_image_coherent','var')
+    compound_image_coherent   = reflection_image    ;
+    compound_image_incoherent = reflection_image_env;
+else
+    compound_image_coherent   = compound_image_coherent   + reflection_image    ;
+    compound_image_incoherent = compound_image_incoherent + reflection_image_env;
+end
+
+end
+
+%% envelope detect coherent compound image
+
+disp('Envelope detecting compound image...')
+tic
+% compound_image_coherent_env = envelopeDetection(compound_image_coherent);
+compound_image_coherent_env = transpose(envelopeDetection(compound_image_coherent'));
+assert(isequal( size(compound_image_coherent_env), size(compound_image_coherent) ))
+disp(['  completed in ' scaleTime(toc)]);
+
+
+%% plot compound images
+
+fig_cmp_coh = figure;
+%imagesc(compound_image_coherent_env')
+imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,compound_image_coherent_env')
+title(['coherent compound ' num2str(min(compound_angles)) ':' num2str(compound_step) ':' num2str(max(compound_angles))])
+ylabel('depth / mm')
+xlabel('x axis / mm')
+colorbar
+axis image
+
+fig_cmp_inc = figure;
+%imagesc(compound_image_incoherent')
+imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,compound_image_incoherent')
+title(['incoherent compound ' num2str(min(compound_angles)) ':' num2str(compound_step) ':' num2str(max(compound_angles))])
+ylabel('depth / mm')
+xlabel('x axis / mm')
+colorbar
+axis image
+
+
+%% compound image quality
+
+[scatSNR_coh,scatCNR_coh] = get_scattering_image_quality(compound_image_coherent_env,kgrid,sensor_kgrid,y_vec,hole_x,hole_y,hole_radius,pml_size);
+[scatSNR_inc,scatCNR_inc] = get_scattering_image_quality(compound_image_incoherent,kgrid,sensor_kgrid,y_vec,hole_x,hole_y,hole_radius,pml_size);
+
+disp('coherent compound:')
+disp('  scatSNR   scatCNR')
+disp([scatSNR_coh,scatCNR_coh])
+
+disp('incoherent compound:')
+disp('  scatSNR   scatCNR')
+disp([scatSNR_inc,scatCNR_inc])
+
+
+
 %% FUNCTIONS
+
+function [scatSNR,scatCNR] = get_scattering_image_quality(image,kgrid,sensor_kgrid,y_vec,hole_x,hole_y,hole_radius,pml_size)
+    
+    hole_x_img = kgrid.x_vec(hole_x);                   % x position [m]
+    hole_y_img = (hole_y - pml_size -1) * kgrid.dy;     % y position [m]
+    hole_r_img = hole_radius * kgrid.dx;                % radius [m]
+
+    distance = sqrt((sensor_kgrid.x_vec - hole_x_img).^2 + (y_vec - hole_y_img).^2);    % [m]
+
+    mask_inside     = distance < 0.8 * hole_r_img;
+    mask_notoutside = distance < 1.2 * hole_r_img;
+    mask_outside    = not(mask_notoutside);
+    mask_largehole  = distance < 2   * hole_r_img;
+    mask_outerring  = and(mask_outside,mask_largehole);
+
+    % figure,imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,mask_inside')   , axis image
+    % figure,imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,mask_outerring'), axis image
+
+    ROI_hole = image(mask_inside);
+    ROI_stmm = image(mask_outerring);
+
+    scatter_hole_mean = mean(ROI_hole(:));
+    scatter_hole_std  = std(ROI_hole(:));
+
+    scatter_stmm_mean = mean(ROI_stmm(:));
+    scatter_stmm_std  = std(ROI_stmm(:));
+
+    scatSNR = scatter_stmm_mean / scatter_hole_mean;
+    scatCNR = (scatter_stmm_mean - scatter_hole_mean) / (scatter_stmm_std + scatter_hole_std);
+
+    figure, hold on
+    plot_histogram_of_scattering_distr(ROI_hole, 'hole', 'Normalise', true)
+    plot_histogram_of_scattering_distr(ROI_stmm, 'stmm', 'Normalise', true)
+    title(['scattering distributions, SNR = ' num2str(scatSNR) ', CNR = ' num2str(scatCNR)])
+    xlabel('pixel intensity')
+    ylabel('count')
+    legend(gca,'show')
+
+end
 
 function plot_histogram_of_scattering_distr(ROI, legend_entry, varargin)
 
