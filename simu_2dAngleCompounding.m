@@ -46,10 +46,10 @@ medium.sound_speed = c0   * ones(Nx,Ny);
 medium.density     = rho0 * ones(Nx,Ny);
 % medium.sound_speed(scatterer1==1) = scatterer1_c;
 % medium.density(scatterer1==1)     = scatterer1_rho;
-% medium.sound_speed = medium.sound_speed + c_rand;
-% medium.density     = medium.density     + rho_rand;
-% medium.sound_speed(hole==1) = hole_c;
-% medium.density(hole==1)     = hole_rho;
+medium.sound_speed = medium.sound_speed + c_rand;
+medium.density     = medium.density     + rho_rand;
+medium.sound_speed(hole==1) = hole_c;
+medium.density(hole==1)     = hole_rho;
 
 % create the time array
 cfl = 0.2;                  % CFL number
@@ -96,6 +96,7 @@ source.p = karray.getDistributedSourceSignal(kgrid, source_signal);
 
 % make sensor
 sensor_positions = pml_size:(Nx-pml_size);    % sensor points spaced by dx
+num_sensors = length(sensor_positions);
 sensor.mask = zeros(Nx, Ny);
 sensor.mask(sensor_positions, pml_size+1) = 1;
 
@@ -123,9 +124,9 @@ file_data_sourceOnly = [file_data_sourceOnly ...
                         '_' num2str(shorten_time) 't_end' ...
                         '_offsetSource' num2str(source_offset_y*1e3) 'e-3' ...
                         '_angle' num2str(source_angle) '.mat'];
-sensor_data_sourceOnly = sensor_data;
-save(file_data_sourceOnly,'sensor_data_sourceOnly')
-end
+% sensor_data_sourceOnly = sensor_data;
+% save(file_data_sourceOnly,'sensor_data_sourceOnly')
+% end
 
 
 %% ========================================================================
@@ -140,9 +141,12 @@ TOA_x = TOA_x_idx * kgrid.dt;              % [s]
 
 %% fit plane wave (line) to source
 
+% restrict fit range to exclude outliers at the edge
+fit_mask = 42:302;
+
 % regression in 1d TOA(x) = p1 + p2*x
-Model = [ones(length(sensor_kgrid.x_vec),1) sensor_kgrid.x_vec];
-params = Model \ TOA_x;
+Model = [ones(length(sensor_kgrid.x_vec(fit_mask)),1) sensor_kgrid.x_vec(fit_mask)];
+params = Model \ TOA_x(fit_mask);
 
 % evaluate fit over scanning area
 TOA_fit = params(1) + params(2) * kgrid.x_vec;
