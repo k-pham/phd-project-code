@@ -230,11 +230,12 @@ disp(['  completed in ' scaleTime(toc)]);
 
 %% plot image
 
-z_vec = kgrid.t_array * c0 / 2;
+y_vec = kgrid.t_array * c0;
+y_vec = y_vec(1:round(kgrid.Nt/2));
 
 figure
 %imagesc(reflection_image_env')
-imagesc(sensor_kgrid.x_vec*1e3,z_vec*1e3,reflection_image_env')
+imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,reflection_image_env')
 title(['angle ' num2str(source_angle) ', t0 = ' num2str(t0_excitation) '*dt'])
 ylabel('depth / mm')
 xlabel('x axis / mm')
@@ -247,4 +248,83 @@ axis image
 end % t0
 
 
+%% ========================================================================
+%                              IMAGE QUALITY
+% =========================================================================
 
+%% get hole location in image
+
+hole_x_img = kgrid.x_vec(hole_x);                   % x position [m]
+hole_y_img = (hole_y - pml_size -1) * kgrid.dy;     % y position [m]
+hole_r_img = hole_radius * kgrid.dx;                % radius [m]
+
+distance = sqrt((sensor_kgrid.x_vec - hole_x_img).^2 + (y_vec - hole_y_img).^2);    % [m]
+
+mask_inside     = distance < 0.8 * hole_r_img;
+mask_notoutside = distance < 1.2 * hole_r_img;
+mask_outside    = not(mask_notoutside);
+mask_largehole  = distance < 2   * hole_r_img;
+mask_outerring  = and(mask_outside,mask_largehole);
+
+figure,imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,mask_inside')   , axis image
+figure,imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,mask_outerring'), axis image
+
+ROI_hole = reflection_image_env(mask_inside);
+ROI_stmm = reflection_image_env(mask_outerring);
+
+scatter_hole_mean = mean(ROI_hole(:));
+scatter_hole_std  = std(ROI_hole(:));
+
+scatter_stmm_mean = mean(ROI_stmm(:));
+scatter_stmm_std  = std(ROI_stmm(:));
+
+scatSNR = scatter_stmm_mean / scatter_hole_mean;
+scatCNR = (scatter_stmm_mean - scatter_hole_mean) / (scatter_stmm_std + scatter_hole_std);
+
+figure, hold on
+plot_histogram_of_scattering_distr(ROI_hole, 'hole', 'Normalise', true)
+plot_histogram_of_scattering_distr(ROI_stmm, 'stmm', 'Normalise', true)
+title(['scattering distributions, SNR = ' num2str(scatSNR) ', CNR = ' num2str(scatCNR)])
+xlabel('pixel intensity')
+ylabel('count')
+legend(gca,'show')
+
+disp('  scatSNR   scatCNR')
+disp([scatSNR,scatCNR])
+
+
+%% FUNCTIONS
+
+function plot_histogram_of_scattering_distr(ROI, legend_entry, varargin)
+
+    % set default
+    num_req_input_variables = 2;
+    toNormalise = false;
+    
+    if nargin < num_req_input_variables
+        error('Incorrect number of inputs.');
+    elseif ~isempty(varargin)
+        for input_index = 1:2:length(varargin)
+            switch varargin{input_index}
+                case 'Normalise'
+                    toNormalise = varargin{input_index + 1};
+                otherwise
+                    error('Unknown optional input.');
+            end
+        end
+    end
+    
+    binwidth   = max(ROI(:))/100;    
+    binedges   = 0:binwidth:max(ROI(:))*1.1+binwidth;
+    bincount   = histcounts(ROI,binedges);
+    bincentres = 0.5*(binedges(2:end)+binedges(1:end-1));
+	
+    if toNormalise
+        bincount = bincount / max(bincount);
+    end
+    
+    figure(gcf)
+    % histogram(ROI,'BinWidth',10,'DisplayStyle','stairs','DisplayName',legend_entry)
+    plot(bincentres,bincount,'DisplayName',legend_entry)
+    
+end
