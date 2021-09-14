@@ -52,10 +52,10 @@ medium.sound_speed = c0   * ones(Nx,Ny);
 medium.density     = rho0 * ones(Nx,Ny);
 % medium.sound_speed(scatterer1==1) = scatterer1_c;
 % medium.density(scatterer1==1)     = scatterer1_rho;
-medium.sound_speed = medium.sound_speed + c_rand;
-medium.density     = medium.density     + rho_rand;
-medium.sound_speed(hole==1) = hole_c;
-medium.density(hole==1)     = hole_rho;
+% medium.sound_speed = medium.sound_speed + c_rand;
+% medium.density     = medium.density     + rho_rand;
+% medium.sound_speed(hole==1) = hole_c;
+% medium.density(hole==1)     = hole_rho;
 
 % create the time array
 cfl = 0.2;                  % CFL number
@@ -67,7 +67,7 @@ kgrid.makeTime(medium.sound_speed,cfl,t_end);
 %                   make *angled plane wave* source
 % -------------------------------------------------------------------------
 %% anle loop
-for source_angle = -20%:5:20
+for source_angle = [-20:5:20,-14:2:14]
     disp('=================================================')
 	disp(['SOURCE ANGLE = ' num2str(source_angle) ' deg'])
 % source_angle    = 5;                        % [deg]
@@ -132,9 +132,9 @@ file_data_sourceOnly = [file_dir_data 'sensor_data_sourceOnly\scattTMM' ...
                         '_offsetSource' num2str(source_offset_y*1e3) 'e-3' ...
                         '_angle' num2str(source_angle) ...
                         '_sensor_data_sourceOnly.mat'];
-% sensor_data_sourceOnly = sensor_data;
-% save(file_data_sourceOnly,'sensor_data_sourceOnly')
-% end
+sensor_data_sourceOnly = sensor_data;
+save(file_data_sourceOnly,'sensor_data_sourceOnly')
+end
 
 
 %% ========================================================================
