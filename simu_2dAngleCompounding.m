@@ -52,10 +52,10 @@ medium.sound_speed = c0   * ones(Nx,Ny);
 medium.density     = rho0 * ones(Nx,Ny);
 % medium.sound_speed(scatterer1==1) = scatterer1_c;
 % medium.density(scatterer1==1)     = scatterer1_rho;
-% medium.sound_speed = medium.sound_speed + c_rand;
-% medium.density     = medium.density     + rho_rand;
-% medium.sound_speed(hole==1) = hole_c;
-% medium.density(hole==1)     = hole_rho;
+medium.sound_speed = medium.sound_speed + c_rand;
+medium.density     = medium.density     + rho_rand;
+medium.sound_speed(hole==1) = hole_c;
+medium.density(hole==1)     = hole_rho;
 
 % create the time array
 cfl = 0.2;                  % CFL number
@@ -132,9 +132,9 @@ file_data_sourceOnly = [file_dir_data 'sensor_data_sourceOnly\scattTMM' ...
                         '_offsetSource' num2str(source_offset_y*1e3) 'e-3' ...
                         '_angle' num2str(source_angle) ...
                         '_sensor_data_sourceOnly.mat'];
-sensor_data_sourceOnly = sensor_data;
-save(file_data_sourceOnly,'sensor_data_sourceOnly')
-end
+% sensor_data_sourceOnly = sensor_data;
+% save(file_data_sourceOnly,'sensor_data_sourceOnly')
+% end
 
 
 %% ========================================================================
@@ -269,7 +269,7 @@ colorbar
 axis image
 
 
-%% save image data and images
+%% save sensor & image data and images
 
 file_specifier = ['_' num2str(dx*1e6) 'um' ...
                   '_' num2str(shorten_time) 't_end' ...
@@ -280,9 +280,10 @@ file_specifier = ['_' num2str(dx*1e6) 'um' ...
 file_data_image = [file_dir_data 'scattTMM' file_specifier];
 file_figs_image = [file_dir_figs 'scattTMM' file_specifier];
 
-save([file_data_image '_image_data_raw.mat']      ,'reflection_image'    );
-save([file_data_image '_image_data_envDetect.mat'],'reflection_image_env');
-save([file_data_image '_image_data_params.mat']   ,'kgrid','sensor_kgrid','y_vec');
+save([file_data_image '_data.mat'],'kgrid','sensor_kgrid','sensor_data','sensor_data_padded','y_vec','reflection_image','reflection_image_env');
+% save([file_data_image '_image_data_raw.mat']      ,'reflection_image'    );
+% save([file_data_image '_image_data_envDetect.mat'],'reflection_image_env');
+% save([file_data_image '_image_data_params.mat']   ,'kgrid','sensor_kgrid','y_vec');
 
 savefig(fig_img,[file_figs_image '.fig'])
 saveas( fig_img,[file_figs_image '.jpg'])
