@@ -460,6 +460,19 @@ savefig(fig_cmp_inc,[file_figs_compound '_incoherent.fig'  ])
 saveas( fig_cmp_inc,[file_figs_compound '_incoherent.jpg'  ])
 
 
+%% correlation of image quality metrics
+
+figure
+hold on
+plot(image_quality.scatSNRs, image_quality.scatCNRs,'+')
+plot(image_quality.scatSNR_coh, image_quality.scatCNR_coh,'g+')
+plot(image_quality.scatSNR_inc, image_quality.scatCNR_inc,'r+')
+xlabel('scattering SNR')
+ylabel('scattering CNR')
+legend('individual images','coherent compound','incoherent compound')
+axis([0,3,0,3])
+
+
 %% FUNCTIONS
 
 function [scatSNR,scatCNR] = get_scattering_image_quality(image,kgrid,sensor_kgrid,y_vec,hole_x,hole_y,hole_radius,pml_size)
