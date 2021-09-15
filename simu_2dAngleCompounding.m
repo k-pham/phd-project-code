@@ -66,7 +66,7 @@ kgrid.makeTime(medium.sound_speed,cfl,t_end);
 % -------------------------------------------------------------------------
 %                   make *angled plane wave* source
 % -------------------------------------------------------------------------
-%% anle loop
+%% angle loop
 for source_angle = -30:1:30 %-14:2:14 %[-20:5:20] 
     disp('=================================================')
 	disp(['SOURCE ANGLE = ' num2str(source_angle) ' deg'])
@@ -326,7 +326,12 @@ scatt_rho = 80;
 compound_step = 1;
 compound_angles = -30:compound_step:30;
 
-for source_angle = compound_angles
+image_quality.scatSNRs = zeros(1,length(compound_angles));
+image_quality.scatCNRs = zeros(1,length(compound_angles));
+
+for idx = 1:length(compound_angles)
+
+source_angle = compound_angles(idx);
 
 file_specifier = ['_' num2str(dx*1e6) 'um' ...
                   '_' num2str(shorten_time) 't_end' ...
@@ -336,7 +341,20 @@ file_specifier = ['_' num2str(dx*1e6) 'um' ...
 
 file_data_image = [file_dir_data 'scattTMM' file_specifier];
 
-load([file_data_image '_data.mat'],'kgrid','sensor_kgrid','sensor_data','sensor_data_padded','y_vec','reflection_image','reflection_image_env');
+load([file_data_image '_data.mat'],'kgrid','sensor_kgrid','sensor_data','sensor_data_padded',...
+                                    'y_vec','reflection_image','reflection_image_env');
+
+
+%% individual image quality
+
+[scatSNR,scatCNR] = get_scattering_image_quality(reflection_image_env,kgrid,sensor_kgrid,y_vec,hole_x,hole_y,hole_radius,pml_size);
+
+disp('  scatSNR   scatCNR')
+disp([scatSNR,scatCNR])
+
+image_quality.scatSNRs(idx) = scatSNR;
+image_quality.scatCNRs(idx) = scatCNR;
+
 
 %% compound coherently and incoherently
 
@@ -394,6 +412,29 @@ disp('incoherent compound:')
 disp('  scatSNR   scatCNR')
 disp([scatSNR_inc,scatCNR_inc])
 
+image_quality.scatSNR_coh = scatSNR_coh;
+image_quality.scatCNR_coh = scatCNR_coh;
+image_quality.scatSNR_inc = scatSNR_inc;
+image_quality.scatCNR_inc = scatCNR_inc;
+
+
+%% save compound data and images and image_quality
+
+file_data_compound = [file_dir_data 'scattTMM_compound_' ...
+            num2str(min(compound_angles)) '_' num2str(compound_step) '_' ...
+            num2str(max(compound_angles)) '.mat'];
+
+save(file_data_compound,'compound_image_coherent','compound_image_coherent_env',...
+                        'compound_image_incoherent','image_quality','sensor_kgrid','y_vec');
+
+file_figs_compound = [file_dir_figs 'scattTMM_compound_image' ...
+            num2str(min(compound_angles)) '_' num2str(compound_step) '_' ...
+            num2str(max(compound_angles))];
+
+savefig(fig_cmp_coh,[file_figs_compound '_coherent_env.fig'])
+saveas( fig_cmp_coh,[file_figs_compound '_coherent_env.jpg'])
+savefig(fig_cmp_inc,[file_figs_compound '_incoherent.fig'  ])
+saveas( fig_cmp_inc,[file_figs_compound '_incoherent.jpg'  ])
 
 
 %% FUNCTIONS
