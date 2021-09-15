@@ -346,8 +346,15 @@ shorten_time = 0.6;
 source_offset_y = 2.36e-3;
 scatt_c = 0;
 scatt_rho = 80;
-compound_step = 1;
-compound_angles = -20:compound_step:20;
+
+steps = [1,2,4];
+ampls = [20,10,5];
+for step = steps
+for ampl = ampls
+compound_angle_step = step;
+compound_angle_min = -ampl;
+compound_angle_max = ampl;
+compound_angles = compound_angle_min:compound_angle_step:compound_angle_max;
 
 image_quality.scatSNRs = zeros(1,length(compound_angles));
 image_quality.scatCNRs = zeros(1,length(compound_angles));
@@ -406,7 +413,7 @@ disp(['  completed in ' scaleTime(toc)]);
 fig_cmp_coh = figure;
 %imagesc(compound_image_coherent_env')
 imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,compound_image_coherent_env')
-title(['coherent compound ' num2str(min(compound_angles)) ':' num2str(compound_step) ':' num2str(max(compound_angles))])
+title(['coherent compound ' num2str(min(compound_angles)) ':' num2str(compound_angle_step) ':' num2str(max(compound_angles))])
 ylabel('depth / mm')
 xlabel('x axis / mm')
 colorbar
@@ -415,7 +422,7 @@ axis image
 fig_cmp_inc = figure;
 %imagesc(compound_image_incoherent')
 imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,compound_image_incoherent')
-title(['incoherent compound ' num2str(min(compound_angles)) ':' num2str(compound_step) ':' num2str(max(compound_angles))])
+title(['incoherent compound ' num2str(min(compound_angles)) ':' num2str(compound_angle_step) ':' num2str(max(compound_angles))])
 ylabel('depth / mm')
 xlabel('x axis / mm')
 colorbar
@@ -444,14 +451,14 @@ image_quality.scatCNR_inc = scatCNR_inc;
 %% save compound data and images and image_quality
 
 file_data_compound = [file_dir_data 'scattTMM_compound_' ...
-            num2str(min(compound_angles)) '_' num2str(compound_step) '_' ...
+            num2str(min(compound_angles)) '_' num2str(compound_angle_step) '_' ...
             num2str(max(compound_angles)) '.mat'];
 
 save(file_data_compound,'compound_image_coherent','compound_image_coherent_env',...
                         'compound_image_incoherent','image_quality','sensor_kgrid','y_vec');
 
 file_figs_compound = [file_dir_figs 'scattTMM_compound_image' ...
-            num2str(min(compound_angles)) '_' num2str(compound_step) '_' ...
+            num2str(min(compound_angles)) '_' num2str(compound_angle_step) '_' ...
             num2str(max(compound_angles))];
 
 savefig(fig_cmp_coh,[file_figs_compound '_coherent_env.fig'])
@@ -462,15 +469,26 @@ saveas( fig_cmp_inc,[file_figs_compound '_incoherent.jpg'  ])
 
 %% correlation of image quality metrics
 
-figure
+legend_entry = ['coherent compound ' num2str(min(compound_angles)) '_' ...
+            num2str(compound_angle_step) '_' num2str(max(compound_angles))];
+
+fig_cmp_corre = figure(99);
 hold on
-plot(image_quality.scatSNRs, image_quality.scatCNRs,'+')
-plot(image_quality.scatSNR_coh, image_quality.scatCNR_coh,'g+')
-plot(image_quality.scatSNR_inc, image_quality.scatCNR_inc,'r+')
+if ampl == 20 && step == 1
+plot(image_quality.scatSNRs, image_quality.scatCNRs,'+','DisplayName','individual images')
+end
+plot(image_quality.scatSNR_coh, image_quality.scatCNR_coh,'d','DisplayName',legend_entry)
+plot(image_quality.scatSNR_inc, image_quality.scatCNR_inc,'o','DisplayName',['in' legend_entry])
 xlabel('scattering SNR')
 ylabel('scattering CNR')
-legend('individual images','coherent compound','incoherent compound')
+legend(gca,'show','Location','northwest')
 axis([0,3,0,3])
+
+end
+end
+
+savefig(fig_cmp_corre,[file_figs_compound '_image_qual_correlation.fig'])
+saveas( fig_cmp_corre,[file_figs_compound '_image_qual_correlation.jpg'])
 
 
 %% FUNCTIONS
