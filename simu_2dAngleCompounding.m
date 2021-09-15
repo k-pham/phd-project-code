@@ -347,7 +347,7 @@ source_offset_y = 2.36e-3;
 scatt_c = 0;
 scatt_rho = 80;
 compound_step = 1;
-compound_angles = -30:compound_step:30;
+compound_angles = -20:compound_step:20;
 
 image_quality.scatSNRs = zeros(1,length(compound_angles));
 image_quality.scatCNRs = zeros(1,length(compound_angles));
@@ -473,7 +473,7 @@ function [scatSNR,scatCNR] = get_scattering_image_quality(image,kgrid,sensor_kgr
     mask_inside     = distance < 0.8 * hole_r_img;
     mask_notoutside = distance < 1.2 * hole_r_img;
     mask_outside    = not(mask_notoutside);
-    mask_largehole  = distance < 2   * hole_r_img;
+    mask_largehole  = distance < 1.9 * hole_r_img;
     mask_outerring  = and(mask_outside,mask_largehole);
 
     % figure,imagesc(sensor_kgrid.x_vec*1e3,y_vec*1e3,mask_inside')   , axis image
