@@ -57,6 +57,10 @@ medium.density     = medium.density     + rho_rand;
 medium.sound_speed(hole==1) = hole_c;
 medium.density(hole==1)     = hole_rho;
 
+% save medium to reset after each angle
+medium_backup.sound_speed = medium.sound_speed;
+medium_backup.density     = medium.density;
+
 % create the time array
 cfl = 0.2;                  % CFL number
 shorten_time = 0.6;         % fraction to shorten length of time array
@@ -67,7 +71,7 @@ kgrid.makeTime(medium.sound_speed,cfl,t_end);
 %                   make *angled plane wave* source
 % -------------------------------------------------------------------------
 %% angle loop
-for source_angle = -30:1:30 %-14:2:14 %[-20:5:20] 
+for source_angle = -20:1:20 %-14:2:14 %[-20:5:20] 
     disp('=================================================')
 	disp(['SOURCE ANGLE = ' num2str(source_angle) ' deg'])
 % source_angle    = 5;                        % [deg]
@@ -107,6 +111,25 @@ sensor_positions = pml_size:(Nx-pml_size);    % sensor points spaced by dx
 num_sensors = length(sensor_positions);
 sensor.mask = zeros(Nx, Ny);
 sensor.mask(sensor_positions, pml_size+1) = 1;
+
+% -------------------------------------------------------------------------
+
+% reset medium
+medium.sound_speed = medium_backup.sound_speed;
+medium.density     = medium_backup.density;
+
+% zero pad medium between source and sensor
+[~,source_boundary] = max(fliplr(source.p_mask),[],2);
+source_boundary = Ny - source_boundary + 1;
+
+NY = repmat(1:Ny,Nx,1);
+SB = repmat(source_boundary,1,Ny);
+medium_removal_mask = NY <= SB;
+
+medium.sound_speed(medium_removal_mask) = c0  ;
+medium.density(    medium_removal_mask) = rho0;
+
+% figure, imagesc(medium.density)
 
 
 %% run the simulation
@@ -150,7 +173,7 @@ TOA_x = TOA_x_idx * kgrid.dt;              % [s]
 %% fit plane wave (line) to source
 
 % restrict fit range to exclude outliers at the edge
-fit_mask = 62:282;
+fit_mask = 102:242;
 
 % regression in 1d TOA(x) = p1 + p2*x
 Model = [ones(length(sensor_kgrid.x_vec(fit_mask)),1) sensor_kgrid.x_vec(fit_mask)];
@@ -308,7 +331,7 @@ disp([scatSNR,scatCNR])
 close all
 
 
-end
+end % angles
 
 
 %% ========================================================================
