@@ -67,7 +67,7 @@ kgrid.makeTime(medium.sound_speed,cfl,t_end);
 %                   make *angled plane wave* source
 % -------------------------------------------------------------------------
 %% anle loop
-for source_angle = -14:2:14 %[-20:5:20] 
+for source_angle = -30:1:30 %-14:2:14 %[-20:5:20] 
     disp('=================================================')
 	disp(['SOURCE ANGLE = ' num2str(source_angle) ' deg'])
 % source_angle    = 5;                        % [deg]
@@ -305,6 +305,8 @@ end % t0
 disp('  scatSNR   scatCNR')
 disp([scatSNR,scatCNR])
 
+close all
+
 
 end
 
@@ -321,8 +323,8 @@ shorten_time = 0.6;
 source_offset_y = 2.36e-3;
 scatt_c = 0;
 scatt_rho = 80;
-compound_step = 5;
-compound_angles = -20:compound_step:20;
+compound_step = 1;
+compound_angles = -30:compound_step:30;
 
 for source_angle = compound_angles
 
