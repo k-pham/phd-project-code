@@ -347,10 +347,10 @@ source_offset_y = 2.36e-3;
 scatt_c = 0;
 scatt_rho = 80;
 
-steps = [1,2,4];
 ampls = [20,10,5];
-for step = steps
+steps = [1,2,4];
 for ampl = ampls
+for step = steps
 compound_angle_step = step;
 compound_angle_min = -ampl;
 compound_angle_max = ampl;
@@ -466,13 +466,15 @@ saveas( fig_cmp_coh,[file_figs_compound '_coherent_env.jpg'])
 savefig(fig_cmp_inc,[file_figs_compound '_incoherent.fig'  ])
 saveas( fig_cmp_inc,[file_figs_compound '_incoherent.jpg'  ])
 
+clear compound_image_coherent compound_image_coherent_env compound_image_incoherent
+
 
 %% correlation of image quality metrics
 
-legend_entry = ['coherent compound ' num2str(min(compound_angles)) '_' ...
-            num2str(compound_angle_step) '_' num2str(max(compound_angles))];
+legend_entry = ['coherent compound ' num2str(min(compound_angles)) ':' ...
+            num2str(compound_angle_step) ':' num2str(max(compound_angles))];
 
-fig_cmp_corre = figure(99);
+fig_cmp_corre = figure(999);
 hold on
 if ampl == 20 && step == 1
 plot(image_quality.scatSNRs, image_quality.scatCNRs,'+','DisplayName','individual images')
@@ -483,7 +485,7 @@ xlabel('scattering SNR')
 ylabel('scattering CNR')
 legend(gca,'show','Location','northwest')
 axis([0,3,0,3])
-
+pause
 end
 end
 
@@ -522,13 +524,13 @@ function [scatSNR,scatCNR] = get_scattering_image_quality(image,kgrid,sensor_kgr
     scatSNR = scatter_stmm_mean / scatter_hole_mean;
     scatCNR = (scatter_stmm_mean - scatter_hole_mean) / (scatter_stmm_std + scatter_hole_std);
 
-    figure, hold on
-    plot_histogram_of_scattering_distr(ROI_hole, 'hole', 'Normalise', true)
-    plot_histogram_of_scattering_distr(ROI_stmm, 'stmm', 'Normalise', true)
-    title(['scattering distributions, SNR = ' num2str(scatSNR) ', CNR = ' num2str(scatCNR)])
-    xlabel('pixel intensity')
-    ylabel('count')
-    legend(gca,'show')
+%     figure, hold on
+%     plot_histogram_of_scattering_distr(ROI_hole, 'hole', 'Normalise', true)
+%     plot_histogram_of_scattering_distr(ROI_stmm, 'stmm', 'Normalise', true)
+%     title(['scattering distributions, SNR = ' num2str(scatSNR) ', CNR = ' num2str(scatCNR)])
+%     xlabel('pixel intensity')
+%     ylabel('count')
+%     legend(gca,'show')
 
 end
 
