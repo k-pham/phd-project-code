@@ -46,6 +46,15 @@ hole_y      = Ny*3/8;
 hole_c      = c0;
 hole_rho    = rho0;
 hole = makeDisc(Nx,Ny,hole_x,hole_y,hole_radius);
+% define multiple non-scattering holes
+holes_xs    = [Nx/4 Nx/2 Nx*3/4];
+holes_ys    = [Ny*3/8 Ny*5/8 Ny*7/8];
+holes       = zeros(Nx,Ny);
+for holes_x = holes_xs
+    for holes_y = holes_ys
+        holes = holes + makeDisc(Nx,Ny,holes_x,holes_y,hole_radius);
+    end
+end
 
 % make medium
 medium.sound_speed = c0   * ones(Nx,Ny);
@@ -54,8 +63,8 @@ medium.density     = rho0 * ones(Nx,Ny);
 % medium.density(scatterer1==1)     = scatterer1_rho;
 medium.sound_speed = medium.sound_speed + c_rand;
 medium.density     = medium.density     + rho_rand;
-medium.sound_speed(hole==1) = hole_c;
-medium.density(hole==1)     = hole_rho;
+medium.sound_speed(holes==1) = hole_c;
+medium.density(holes==1)     = hole_rho;
 
 % save medium to reset after each angle
 medium_backup.sound_speed = medium.sound_speed;
@@ -63,7 +72,7 @@ medium_backup.density     = medium.density;
 
 % create the time array
 cfl = 0.2;                  % CFL number
-shorten_time = 0.6;         % fraction to shorten length of time array
+shorten_time = 1.2;         % fraction to shorten length of time array
 t_end = shorten_time*2*Ny*dy/c0;     % end time of the simulation [s]
 kgrid.makeTime(medium.sound_speed,cfl,t_end);
 
@@ -304,9 +313,6 @@ file_data_image = [file_dir_data 'scattTMM' file_specifier];
 file_figs_image = [file_dir_figs 'scattTMM' file_specifier];
 
 save([file_data_image '_data.mat'],'kgrid','sensor_kgrid','sensor_data','sensor_data_padded','y_vec','reflection_image','reflection_image_env');
-% save([file_data_image '_image_data_raw.mat']      ,'reflection_image'    );
-% save([file_data_image '_image_data_envDetect.mat'],'reflection_image_env');
-% save([file_data_image '_image_data_params.mat']   ,'kgrid','sensor_kgrid','y_vec');
 
 savefig(fig_img,[file_figs_image '.fig'])
 saveas( fig_img,[file_figs_image '.jpg'])
@@ -342,7 +348,7 @@ end % angles
 
 file_dir_data = 'D:\PROJECT\data\simulations\angleComp\2dAngleCompounding\';
 dx = 40e-6;
-shorten_time = 0.6;
+shorten_time = 1.2;
 source_offset_y = 2.36e-3;
 scatt_c = 0;
 scatt_rho = 80;
