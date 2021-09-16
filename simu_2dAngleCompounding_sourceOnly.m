@@ -59,7 +59,7 @@ medium.density     = rho0 * ones(Nx,Ny);
 
 % create the time array
 cfl = 0.2;                  % CFL number
-shorten_time = 0.6;         % fraction to shorten length of time array
+shorten_time = 1.2;         % fraction to shorten length of time array
 t_end = shorten_time*2*Ny*dy/c0;     % end time of the simulation [s]
 kgrid.makeTime(medium.sound_speed,cfl,t_end);
 
@@ -71,7 +71,7 @@ for source_angle = -20:1:20 %-14:2:14 %[-20:5:20]
     disp('=================================================')
 	disp(['SOURCE ANGLE = ' num2str(source_angle) ' deg'])
 % source_angle    = 5;                        % [deg]
-source_centre_x = 0.4e-3;                        % [m]
+source_centre_x = 0;                        % [m]
 source_offset_y = 2.36e-3;                  % [m]
 source_centre_y = source_offset_y+kgrid.y_vec(1);   % [m] % kgrid.y_vec(1)+pml_size*dy;
 source_width_x  = (Nx-2*pml_size)*dx;       % [m]
@@ -129,9 +129,7 @@ sensor_kgrid = kWaveGrid(size(sensor_data,1),dx);
 file_data_sourceOnly = [file_dir_data 'sensor_data_sourceOnly\scattTMM' ...
                         '_' num2str(dx*1e6) 'um' ...
                         '_' num2str(shorten_time) 't_end' ...
-                        '_offsetSource' ...
-                        '_x' num2str(source_centre_x*1e3) 'e-3' ... 
-                        '_y' num2str(source_offset_y*1e3) 'e-3' ...
+                        '_offsetSource' num2str(source_offset_y*1e3) 'e-3' ...
                         '_angle' num2str(source_angle) ...
                         '_sensor_data_sourceOnly.mat'];
 sensor_data_sourceOnly = sensor_data;
