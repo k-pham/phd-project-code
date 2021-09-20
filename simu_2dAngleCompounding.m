@@ -491,7 +491,7 @@ xlabel('scattering SNR')
 ylabel('scattering CNR')
 legend(gca,'show','Location','northwest')
 axis([0,3,0,3])
-pause
+% pause
 end
 end
 
