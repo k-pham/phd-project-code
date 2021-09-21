@@ -269,7 +269,7 @@ end
 
 %% reconstruction
 
-reflection_image = kspaceLineRecon_US_steered(sensor_data_padded',sensor_kgrid.dx,kgrid.dt,c0,a);
+reflection_image = kspaceLineRecon_US_steered(sensor_data_padded',sensor_kgrid.dx,kgrid.dt,c0,-a);
 % reflection_image = kspaceLineRecon_US(sensor_data_padded',sensor_kgrid.dx,kgrid.dt,c0);
                                                         % input p_tx, output p_zx
 reflection_image = permute(reflection_image,[2 1]);     % reorder p_zx to p_xz
