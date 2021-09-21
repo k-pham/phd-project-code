@@ -182,38 +182,38 @@ file_data_sourceOnly = [file_dir_data 'sensor_data_sourceOnly\scattTMM' ...
 
 %% extract TOA from timeseries data
 
-[~,TOA_x_idx] = max(sensor_data,[],2);     % [time index]
-TOA_x = TOA_x_idx * kgrid.dt;              % [s]
+% [~,TOA_x_idx] = max(sensor_data,[],2);     % [time index]
+% TOA_x = TOA_x_idx * kgrid.dt;              % [s]
 
 
 %% fit plane wave (line) to source
 
-% restrict fit range to exclude outliers at the edge
-fit_mask = 102:242;
-
-% regression in 1d TOA(x) = p1 + p2*x
-Model = [ones(length(sensor_kgrid.x_vec(fit_mask)),1) sensor_kgrid.x_vec(fit_mask)];
-params = Model \ TOA_x(fit_mask);
-
-% evaluate fit over scanning area
-TOA_fit = params(1) + params(2) * kgrid.x_vec;
-
-% plot TOA & fit
-figure
-hold on
-plot(sensor_kgrid.x_vec*1e3,TOA_x*1e6,'.')
-plot(kgrid.x_vec*1e3,TOA_fit*1e6,'--')
-xlabel('x axis / mm')
-ylabel('TOA [\mus]')
+% % restrict fit range to exclude outliers at the edge
+% fit_mask = 102:242;
+% 
+% % regression in 1d TOA(x) = p1 + p2*x
+% Model = [ones(length(sensor_kgrid.x_vec(fit_mask)),1) sensor_kgrid.x_vec(fit_mask)];
+% params = Model \ TOA_x(fit_mask);
+% 
+% % evaluate fit over scanning area
+% TOA_fit = params(1) + params(2) * kgrid.x_vec;
+% 
+% % plot TOA & fit
+% figure
+% hold on
+% plot(sensor_kgrid.x_vec*1e3,TOA_x*1e6,'.')
+% plot(kgrid.x_vec*1e3,TOA_fit*1e6,'--')
+% xlabel('x axis / mm')
+% ylabel('TOA [\mus]')
 
 
 %% calculate steering angle a
 % TOA(x) = p1 + p2*x
 % c*p2 = sin(a)
 
-a = asin(c0*params(2));
-
-disp(['steering angle of plane wave is: ' num2str(rad2deg(a)) ' deg'])
+% a = asin(c0*params(2));
+% 
+% disp(['steering angle of plane wave is: ' num2str(rad2deg(a)) ' deg'])
 
 
 %% subtract acoustic source from data using saved data
@@ -276,7 +276,7 @@ end
 
 %% reconstruction
 
-reflection_image = kspaceLineRecon_US_steered(sensor_data_padded',sensor_kgrid.dx,kgrid.dt,c0,a);
+reflection_image = kspaceLineRecon_US_steered(sensor_data_padded',sensor_kgrid.dx,kgrid.dt,c0,deg2rad(-source_angle));
 % reflection_image = kspaceLineRecon_US(sensor_data_padded',sensor_kgrid.dx,kgrid.dt,c0);
                                                         % input p_tx, output p_zx
 reflection_image = permute(reflection_image,[2 1]);     % reorder p_zx to p_xz
