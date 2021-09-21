@@ -103,10 +103,12 @@ source.p = karray.getDistributedSourceSignal(kgrid, source_signal);
 % -------------------------------------------------------------------------
 
 % make sensor
-sensor_positions = pml_size:(Nx-pml_size);    % sensor points spaced by dx
-num_sensors = length(sensor_positions);
+sensor_position_x = pml_size:(Nx-pml_size);         % sensor points spaced by dx
+sensor_position_y = round(source_offset_y / dy);    % sensor at same depth as source in centre
+num_sensors = length(sensor_position_x);
 sensor.mask = zeros(Nx, Ny);
-sensor.mask(sensor_positions, pml_size+1) = 1;
+% sensor.mask(sensor_position_x, pml_size+1) = 1;
+sensor.mask(sensor_position_x, sensor_position_y+1) = 1;
 
 
 %% run the simulation
@@ -116,7 +118,7 @@ sensor_data = kspaceFirstOrder2D(kgrid, medium, source, sensor, inputs{:});
 
 % plot the simulated data
 figure
-imagesc(kgrid.t_array*1e6,sensor_positions,sensor_data)
+imagesc(kgrid.t_array*1e6,sensor_position_x,sensor_data)
 xlabel('time [\mus]')
 ylabel('sensor number')
 
