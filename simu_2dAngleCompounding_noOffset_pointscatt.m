@@ -25,46 +25,51 @@ pml_size = 20;
 c0 = 1500;      % sound speed [m/s]
 rho0 = 1000;    % density [kg/m^3]
 
-% % define scatterers
-% scatterer1_radius = 5;         % [grid points]
-% scatterer1_x = Nx/2;            % [grid points]
-% scatterer1_y = Ny*3/8;          % [grid points]
-% scatterer1_c = c0;              % sound speed of scatterer [m/s]
-% scatterer1_rho = 2*rho0;        % density of scatterer [kg/m^3]
-% scatterer1 = makeDisc(Nx, Ny, scatterer1_x, scatterer1_y, scatterer1_radius);
-
-% define scattering medium
-scatt_c   = 0;
-scatt_rho = 80;
-c_rand    = ( rand(Nx,Ny) - 0.5 ) * scatt_c;
-rho_rand  = ( rand(Nx,Ny) - 0.5 ) * scatt_rho;
-
-% define non-scattering hole
-hole_radius = 15;
-hole_x      = Nx/2;
-hole_y      = Ny*3/8;
-hole_c      = c0;
-hole_rho    = rho0;
-hole = makeDisc(Nx,Ny,hole_x,hole_y,hole_radius);
-% define multiple non-scattering holes
-holes_xs    = [Nx/4 Nx/2 Nx*3/4];
-holes_ys    = [Ny*3/8 Ny*5/8 Ny*7/8];
-holes       = zeros(Nx,Ny);
-for holes_x = holes_xs
-    for holes_y = holes_ys
-        holes = holes + makeDisc(Nx,Ny,holes_x,holes_y,hole_radius);
+% define scatterers
+scatterers_radius = 0;              % [grid points]
+scatterers_xs  = (1:1:11)/12*Nx;    % [grid points]
+scatterers_ys  = (1:1:7 )/8 *Ny;    % [grid points]
+scatterers_c   = c0;                % sound speed of scatterer [m/s]
+scatterers_rho = 2*rho0;            % density of scatterer [kg/m^3]
+scatterers     = zeros(Nx,Ny);
+for scatterers_x = scatterers_xs
+    for scatterers_y = scatterers_ys
+        scatterers = scatterers + makeDisc(Nx,Ny,scatterers_x,scatterers_y,scatterers_radius);
     end
 end
+
+% % define scattering medium
+% scatt_c   = 0;
+% scatt_rho = 80;
+% c_rand    = ( rand(Nx,Ny) - 0.5 ) * scatt_c;
+% rho_rand  = ( rand(Nx,Ny) - 0.5 ) * scatt_rho;
+% 
+% % define non-scattering hole
+% hole_radius = 15;
+% hole_x      = Nx/2;
+% hole_y      = Ny*3/8;
+% hole_c      = c0;
+% hole_rho    = rho0;
+% hole = makeDisc(Nx,Ny,hole_x,hole_y,hole_radius);
+% % define multiple non-scattering holes
+% holes_xs    = [Nx/4 Nx/2 Nx*3/4];
+% holes_ys    = [Ny*3/8 Ny*5/8 Ny*7/8];
+% holes       = zeros(Nx,Ny);
+% for holes_x = holes_xs
+%     for holes_y = holes_ys
+%         holes = holes + makeDisc(Nx,Ny,holes_x,holes_y,hole_radius);
+%     end
+% end
 
 % make medium
 medium.sound_speed = c0   * ones(Nx,Ny);
 medium.density     = rho0 * ones(Nx,Ny);
-% medium.sound_speed(scatterer1==1) = scatterer1_c;
-% medium.density(scatterer1==1)     = scatterer1_rho;
-medium.sound_speed = medium.sound_speed + c_rand;
-medium.density     = medium.density     + rho_rand;
-medium.sound_speed(holes==1) = hole_c;
-medium.density(holes==1)     = hole_rho;
+medium.sound_speed(scatterers==1) = scatterers_c;
+medium.density(scatterers==1)     = scatterers_rho;
+% medium.sound_speed = medium.sound_speed + c_rand;
+% medium.density     = medium.density     + rho_rand;
+% medium.sound_speed(holes==1) = hole_c;
+% medium.density(holes==1)     = hole_rho;
 
 % save medium to reset after each angle
 medium_backup.sound_speed = medium.sound_speed;
