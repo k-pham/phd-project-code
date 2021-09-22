@@ -6,7 +6,7 @@ c = 1484; % [m/s]
 %% load data
 
 file_dir  = 'D:\PROJECT\data\angleComp\';
-% file_data = '210630\polymerLeaf_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_26s35m20h_30-06-21_avg1_2D_raw.SGL';
+file_data = '210630\polymerLeaf_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_26s35m20h_30-06-21_avg1_2D_raw.SGL';
 % file_data = '210827\wire_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_26s04m19h_27-08-21_avg1_2D_raw.SGL';
 % file_data = '210908\agarTMMorgasol2_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_08s42m18h_08-09-21_avg1_2D_raw.SGL';
 
@@ -38,28 +38,28 @@ file_dir  = 'D:\PROJECT\data\angleComp\';
 
 % load data for agarTMMorgasol 3D scans on bench-top scanner
 % --------------------------------------
-file_data_list = {
-'210910\agarTMMorgasol3_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_02s30m13h_10-09-21_avg1_2D_raw.SGL';
-'210910\agarTMMorgasol3_angledCNT_8@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_39s56m13h_10-09-21_avg1_2D_raw.SGL';
-'210910\agarTMMorgasol3_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_48s49m17h_10-09-21_avg1_2D_raw.SGL';
-'210910\agarTMMorgasol3_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_09s42m18h_10-09-21_avg1_2D_raw.SGL';
-'210910\agarTMMorgasol3_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_13s37m19h_10-09-21_avg1_2D_raw.SGL';
-'210910\agarTMMorgasol3_angledCNT_4@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_35s02m21h_10-09-21_avg1_2D_raw.SGL'
-};
+% file_data_list = {
+% '210910\agarTMMorgasol3_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_02s30m13h_10-09-21_avg1_2D_raw.SGL';
+% '210910\agarTMMorgasol3_angledCNT_8@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_39s56m13h_10-09-21_avg1_2D_raw.SGL';
+% '210910\agarTMMorgasol3_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_48s49m17h_10-09-21_avg1_2D_raw.SGL';
+% '210910\agarTMMorgasol3_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_09s42m18h_10-09-21_avg1_2D_raw.SGL';
+% '210910\agarTMMorgasol3_angledCNT_0@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_13s37m19h_10-09-21_avg1_2D_raw.SGL';
+% '210910\agarTMMorgasol3_angledCNT_4@0nm_t0[0]_dx[100µm]_dy[100µm]_dt[4ns]_35s02m21h_10-09-21_avg1_2D_raw.SGL'
+% };
 % --------------------------------------
 
 
-file_data_list = reshape(file_data_list,[1 length(file_data_list)]);
-
-for file_data_cell = file_data_list(6)
-
-    file_data = file_data_cell{1};
-    angle_id = strtok(file_data,'@');
-    angle_id = split(angle_id,'_');
-    angle_id = angle_id{3};
-	% id = str2double(id(23:end)); % 35
-    
-    disp(['angle id: ' num2str(angle_id)])
+% file_data_list = reshape(file_data_list,[1 length(file_data_list)]);
+% 
+% for file_data_cell = file_data_list(6)
+% 
+%     file_data = file_data_cell{1};
+%     angle_id = strtok(file_data,'@');
+%     angle_id = split(angle_id,'_');
+%     angle_id = angle_id{3};
+% 	% id = str2double(id(23:end)); % 35
+%     
+%     disp(['angle id: ' num2str(angle_id)])
 
 
 %%
@@ -287,7 +287,7 @@ disp(['t0(excitation) = ' num2str(t0_excitation) '*dt'])
 
 %% remove acoustic source from signal
 
-source_pads = 2000;
+source_pads = 1000;
 sensor_data = cat(3, zeros(kgrid.Nx,kgrid.Ny,source_pads), sensor_data(:,:,source_pads+1:end));
 
 % check that padding did not change length of sensor_data
@@ -346,35 +346,35 @@ file_image = ['recon_data\' phantom_id '_t0_' num2str(t0_excitation) 'dt.mat'];
 
 save(file_image,'volume_data','volume_spacing','-v7.3')
 
-% sliceViewer
+sliceViewer
 
 
 %% generate MIP yz and xz
 
-z_range = 1:size(reflection_image_env,3);% 1050;
-
-MIP_yz = squeeze(max(reflection_image_env(:,:,z_range),[],1));
-MIP_xz = squeeze(max(reflection_image_env(:,:,z_range),[],2));
-z_axis = z_range * sensor_params.dt * c;
-
-figure
-sgtitle(['t0(excitation) = ' num2str(t0_excitation) '*dt'])
-
-subplot(1,2,1)
-imagesc(kgrid.y_vec'*1e3, z_axis*1e3, MIP_yz')
-% imagesc(MIP_yz')
-title('MIP yz')
-xlabel('y axis / mm')
-ylabel('depth / mm')
-
-subplot(1,2,2)
-imagesc(kgrid.x_vec'*1e3, z_axis*1e3, MIP_xz')
-% imagesc(MIP_xz')
-title('MIP xz')
-xlabel('x axis / mm')
-ylabel('depth / mm')
-
-drawnow
+% z_range = 1:size(reflection_image_env,3);% 1050;
+% 
+% MIP_yz = squeeze(max(reflection_image_env(:,:,z_range),[],1));
+% MIP_xz = squeeze(max(reflection_image_env(:,:,z_range),[],2));
+% z_axis = z_range * sensor_params.dt * c;
+% 
+% figure
+% sgtitle(['t0(excitation) = ' num2str(t0_excitation) '*dt'])
+% 
+% subplot(1,2,1)
+% imagesc(kgrid.y_vec'*1e3, z_axis*1e3, MIP_yz')
+% % imagesc(MIP_yz')
+% title('MIP yz')
+% xlabel('y axis / mm')
+% ylabel('depth / mm')
+% 
+% subplot(1,2,2)
+% imagesc(kgrid.x_vec'*1e3, z_axis*1e3, MIP_xz')
+% % imagesc(MIP_xz')
+% title('MIP xz')
+% xlabel('x axis / mm')
+% ylabel('depth / mm')
+% 
+% drawnow
 
 
 %% save peak in slice averaged over many slices in an array for each t0_exc
@@ -395,7 +395,7 @@ drawnow
 %%
 % pause
 end % t0
-end % angles
+% end % angles
 
 %% plot peaks statistics for t0 excitation
 
