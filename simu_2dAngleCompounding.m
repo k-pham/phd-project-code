@@ -383,7 +383,7 @@ load([file_data_image '_data.mat'],'kgrid','sensor_kgrid','sensor_data','sensor_
 
 %% individual image quality
 
-[scatSNR,scatCNR] = get_scattering_image_quality(reflection_image_env,kgrid,sensor_kgrid,y_vec,hole_x,hole_y,hole_radius,pml_size);
+[scatSNR,scatCNR] = get_scattering_image_quality(reflection_image_env,kgrid,sensor_kgrid,y_vec,hole_x,hole_y,hole_radius,pml_size,false);
 
 disp('  scatSNR   scatCNR')
 disp([scatSNR,scatCNR])
@@ -437,8 +437,8 @@ axis image
 
 %% compound image quality
 
-[scatSNR_coh,scatCNR_coh] = get_scattering_image_quality(compound_image_coherent_env,kgrid,sensor_kgrid,y_vec,hole_x,hole_y,hole_radius,pml_size);
-[scatSNR_inc,scatCNR_inc] = get_scattering_image_quality(compound_image_incoherent,kgrid,sensor_kgrid,y_vec,hole_x,hole_y,hole_radius,pml_size);
+[scatSNR_coh,scatCNR_coh] = get_scattering_image_quality(compound_image_coherent_env,kgrid,sensor_kgrid,y_vec,hole_x,hole_y,hole_radius,pml_size,true);
+[scatSNR_inc,scatCNR_inc] = get_scattering_image_quality(compound_image_incoherent,kgrid,sensor_kgrid,y_vec,hole_x,hole_y,hole_radius,pml_size,true);
 
 disp('coherent compound:')
 disp('  scatSNR   scatCNR')
@@ -456,21 +456,21 @@ image_quality.scatCNR_inc = scatCNR_inc;
 
 %% save compound data and images and image_quality
 
-file_data_compound = [file_dir_data 'scattTMM_compound_' ...
-            num2str(min(compound_angles)) '_' num2str(compound_angle_step) '_' ...
-            num2str(max(compound_angles)) '.mat'];
-
-save(file_data_compound,'compound_image_coherent','compound_image_coherent_env',...
-                        'compound_image_incoherent','image_quality','sensor_kgrid','y_vec');
-
-file_figs_compound = [file_dir_figs 'scattTMM_compound_image' ...
-            num2str(min(compound_angles)) '_' num2str(compound_angle_step) '_' ...
-            num2str(max(compound_angles))];
-
-savefig(fig_cmp_coh,[file_figs_compound '_coherent_env.fig'])
-saveas( fig_cmp_coh,[file_figs_compound '_coherent_env.jpg'])
-savefig(fig_cmp_inc,[file_figs_compound '_incoherent.fig'  ])
-saveas( fig_cmp_inc,[file_figs_compound '_incoherent.jpg'  ])
+% file_data_compound = [file_dir_data 'scattTMM_compound_' ...
+%             num2str(min(compound_angles)) '_' num2str(compound_angle_step) '_' ...
+%             num2str(max(compound_angles)) '.mat'];
+% 
+% save(file_data_compound,'compound_image_coherent','compound_image_coherent_env',...
+%                         'compound_image_incoherent','image_quality','sensor_kgrid','y_vec');
+% 
+% file_figs_compound = [file_dir_figs 'scattTMM_compound_image' ...
+%             num2str(min(compound_angles)) '_' num2str(compound_angle_step) '_' ...
+%             num2str(max(compound_angles))];
+% 
+% savefig(fig_cmp_coh,[file_figs_compound '_coherent_env.fig'])
+% saveas( fig_cmp_coh,[file_figs_compound '_coherent_env.jpg'])
+% savefig(fig_cmp_inc,[file_figs_compound '_incoherent.fig'  ])
+% saveas( fig_cmp_inc,[file_figs_compound '_incoherent.jpg'  ])
 
 clear compound_image_coherent compound_image_coherent_env compound_image_incoherent
 
@@ -486,23 +486,24 @@ if ampl == 20 && step == 1
 plot(image_quality.scatSNRs, image_quality.scatCNRs,'+','DisplayName','individual images')
 end
 plot(image_quality.scatSNR_coh, image_quality.scatCNR_coh,'d','DisplayName',legend_entry)
+pause
 plot(image_quality.scatSNR_inc, image_quality.scatCNR_inc,'o','DisplayName',['in' legend_entry])
 xlabel('scattering SNR')
 ylabel('scattering CNR')
 legend(gca,'show','Location','northwest')
-axis([0,3,0,3])
-% pause
+axis([0,9,0,1.5])
+pause
 end
 end
 
-savefig(fig_cmp_corre,[file_figs_compound '_image_qual_correlation.fig'])
-saveas( fig_cmp_corre,[file_figs_compound '_image_qual_correlation.jpg'])
+% savefig(fig_cmp_corre,[file_figs_compound '_image_qual_correlation.fig'])
+% saveas( fig_cmp_corre,[file_figs_compound '_image_qual_correlation.jpg'])
 
 
 %% FUNCTIONS
 
-function [scatSNR,scatCNR] = get_scattering_image_quality(image,kgrid,sensor_kgrid,y_vec,hole_x,hole_y,hole_radius,pml_size)
-    
+function [scatSNR,scatCNR] = get_scattering_image_quality(image,kgrid,sensor_kgrid,y_vec,hole_x,hole_y,hole_radius,pml_size,plot_flag)
+
     hole_x_img = kgrid.x_vec(hole_x);                   % x position [m]
     hole_y_img = (hole_y - pml_size -1) * kgrid.dy;     % y position [m]
     hole_r_img = hole_radius * kgrid.dx;                % radius [m]
@@ -530,13 +531,15 @@ function [scatSNR,scatCNR] = get_scattering_image_quality(image,kgrid,sensor_kgr
     scatSNR = scatter_stmm_mean / scatter_hole_mean;
     scatCNR = (scatter_stmm_mean - scatter_hole_mean) / (scatter_stmm_std + scatter_hole_std);
 
-%     figure, hold on
-%     plot_histogram_of_scattering_distr(ROI_hole, 'hole', 'Normalise', true)
-%     plot_histogram_of_scattering_distr(ROI_stmm, 'stmm', 'Normalise', true)
-%     title(['scattering distributions, SNR = ' num2str(scatSNR) ', CNR = ' num2str(scatCNR)])
-%     xlabel('pixel intensity')
-%     ylabel('count')
-%     legend(gca,'show')
+    if plot_flag
+        figure, hold on
+        plot_histogram_of_scattering_distr(ROI_hole, 'hole', 'Normalise', true)
+        plot_histogram_of_scattering_distr(ROI_stmm, 'stmm', 'Normalise', true)
+        title(['scattering distributions, SNR = ' num2str(scatSNR) ', CNR = ' num2str(scatCNR)])
+        xlabel('pixel intensity')
+        ylabel('count')
+        legend(gca,'show')
+    end
 
 end
 
