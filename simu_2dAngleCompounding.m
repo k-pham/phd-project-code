@@ -353,10 +353,27 @@ source_offset_y = 2.36e-3;
 scatt_c = 0;
 scatt_rho = 80;
 
+colours = {
+    [0, 0.4470, 0.7410]
+    [0.8500, 0.3250, 0.0980]
+    [0.9290, 0.6940, 0.1250]
+    [0.4940, 0.1840, 0.5560]
+    [0.4660, 0.6740, 0.1880]
+    [0.3010, 0.7450, 0.9330]
+    [0.6350, 0.0780, 0.1840]
+    [1, 0, 0]
+    [0, 0.5, 0]
+};
+colour_idx = 0;
+
 ampls = [20,10,5];
 steps = [1,2,4];
 for ampl = ampls
 for step = steps
+    
+    colour_idx = colour_idx + 1;
+    colour = colours{colour_idx};
+    
 compound_angle_step = step;
 compound_angle_min = -ampl;
 compound_angle_max = ampl;
@@ -477,22 +494,21 @@ clear compound_image_coherent compound_image_coherent_env compound_image_incoher
 
 %% correlation of image quality metrics
 
-legend_entry = ['coherent compound ' num2str(min(compound_angles)) ':' ...
-            num2str(compound_angle_step) ':' num2str(max(compound_angles))];
+legend_entry = [num2str(min(compound_angles)) ':' num2str(compound_angle_step) ...
+            ':' num2str(max(compound_angles)) ' compound'];
 
 fig_cmp_corre = figure(999);
 hold on
 if ampl == 20 && step == 1
-plot(image_quality.scatSNRs, image_quality.scatCNRs,'+','DisplayName','individual images')
+plot(image_quality.scatSNRs, image_quality.scatCNRs,'LineStyle','none','MarkerEdgeColor',[0.25,0.25,0.25],'Marker','+','DisplayName','individual images')
 end
-plot(image_quality.scatSNR_coh, image_quality.scatCNR_coh,'d','DisplayName',legend_entry)
-pause
-plot(image_quality.scatSNR_inc, image_quality.scatCNR_inc,'o','DisplayName',['in' legend_entry])
+plot(image_quality.scatSNR_coh, image_quality.scatCNR_coh,'LineStyle','none','MarkerEdgeColor',colour,'Marker','d','DisplayName',[legend_entry ' coherent'  ])
+plot(image_quality.scatSNR_inc, image_quality.scatCNR_inc,'LineStyle','none','MarkerEdgeColor',colour,'Marker','o','DisplayName',[legend_entry ' incoherent'])
 xlabel('scattering SNR')
 ylabel('scattering CNR')
 legend(gca,'show','Location','northwest')
-axis([0,9,0,1.5])
-pause
+axis([0,9,0.5,1.5])
+
 end
 end
 
